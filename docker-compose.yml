@@ -9,8 +9,8 @@ services:
     command: bash -c "python manage.py collectstatic --noinput && uwsgi --ini uwsgi.ini"
     #command: uwsgi --http :8000 --module myobject.wsgi --py-autoreload=1
     volumes:
-      把静态文件夹目录挂载出来,方便 nginx 转发
-     - /opt/pmrdataanalysis/djangostatic:/djangostatic
+      #把静态文件夹目录挂载出来,方便 nginx 转发
+      - /opt/pmrdataanalysis/djangostatic:/djangostatic
 
     #deploy:
     #  replicas : 3
