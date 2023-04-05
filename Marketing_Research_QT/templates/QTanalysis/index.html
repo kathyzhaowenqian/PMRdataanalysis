@@ -1,0 +1,1482 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<!doctype html>
+<html>
+<head>
+<!--更多资源：https://gitee.com/iGaoWei/big-data-view -->
+<meta charset="utf-8">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta http-equiv="refresh" >
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>其田调研情况汇总</title>
+<!--大屏-->
+
+<link type="text/css" href="{% static 'pmr/css/public.css' %}" rel="stylesheet">
+<link type="text/css" href="{% static 'pmr/css/icon.css' %}" rel="stylesheet">
+<link type="text/css" href="{% static 'pmr/css/index.css' %}" rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'pmr/css/css3buttons.css' %}" media="screen">
+<link rel="stylesheet" href="{% static 'pmr/css/loading.css' %}">
+
+<script type="text/javascript">
+        document.documentElement.style.fontSize = document.documentElement.clientWidth /768*100 + 'px';
+</script>
+
+<script src="{% static 'pmr/js/echarts.min.js' %}"></script>
+</head>
+<style  type="text/css">
+	#overlay{
+		position:fixd;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: #000;
+		opacity: 5;
+		z-index: 9999;
+		background-color: #000;
+	}
+
+	#popup{
+		position: absolute;
+		top: 20%;
+		left: 50%;
+		transform:-translate(-50%,-50%);
+		width: 300px;
+		height: 200px;
+		z-index: 1;
+		/* background-color: #fff; */
+	}
+
+</style>
+
+<body>
+<div class="bg">
+
+	<!-- css 加载效果 -->
+	<!-- <div id="popup" class="loader2 loader" style="display: none;">
+		<div></div>
+	</div> -->
+
+	<div class="loader35 loader" id="popup" style="display: none;">
+		<div class="loader-35">
+			<div></div>
+		</div>
+	</div>
+
+
+	<div class="title">其田调研情况汇总
+		
+		
+	</div>
+	<div style="margin-top: 0%;text-align: center;">
+		<button class="button project" id="allproject">所有项目</button>
+		<button class="button project" id="CRPSAABtn">CRP/SAA</button>
+		<button class="button project" id="LIUSHIBtn">流式</button>
+		<button class="button project" id="XUEQIUBtn">血球</button>
+		<button class="button project" id="SHMYBtn">生化免疫</button>
+
+	</div> 
+
+
+
+    <div class="leftMain">
+
+    	<div class="leftMain_top">
+        	<div class="leftMain_topIn">
+            	
+				<ul>
+                	<li>
+                        <div class="liIn">
+                            <h3>医院总数量</h3>
+                            <p class="shu"><span class="shu1">0</span><i>个</i></p>
+                            <div class="zi"><span class="span1">此调研表中覆盖的医院总数量</span><span> </span></div>
+                            <span class="border_bg_leftTop"></span>
+                            <span class="border_bg_rightTop"></span>
+                            <span class="border_bg_leftBottom"></span>
+                            <span class="border_bg_rightBottom"></span>
+                        </div>
+                    </li>
+
+                	<li>
+                        <div class="liIn">
+                            <h3>已装我司仪器的医院占比</h3>
+                            <p class="shu"><span class="shu2">0</span><i> </i></p>
+                            <div class="zi"><span class="span1">我司业务的覆盖面</span><span> </span></div>
+                            <span class="border_bg_leftTop"></span>
+                            <span class="border_bg_rightTop"></span>
+                            <span class="border_bg_leftBottom"></span>
+                            <span class="border_bg_rightBottom"></span>
+                        </div>
+                    </li>
+
+                	<li>
+                        <div class="liIn">
+                            <h3>今年已开票的医院占比</h3>
+                            <p class="shu"><span class="shu3">0 </span><i> </i></p>
+                            <div class="zi"><span class="span1">我司业务营收情况</span><span> </span></div>
+                            <span class="border_bg_leftTop"></span>
+                            <span class="border_bg_rightTop"></span>
+                            <span class="border_bg_leftBottom"></span>
+                            <span class="border_bg_rightBottom"></span>
+                        </div>
+                    </li>
+
+                	<li>
+                        <div class="liIn">
+                            <h3>我司业务测试数占比</h3>
+                            <p class="shu"><span class="shu4">0</span><i> </i></p>
+                            <div class="zi"><span class="span1">我司业务测试数/总体测试数</span><span></span></div>
+                            <span class="border_bg_leftTop"></span>
+                            <span class="border_bg_rightTop"></span>
+                            <span class="border_bg_leftBottom"></span>
+                            <span class="border_bg_rightBottom"></span>
+                        </div>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+
+
+		<!-- 左 中间 -->
+        <div class="leftMain_middle">
+			<!-- 左 中间 左 柱状图-->
+        	<div class="leftMain_middle_left">
+            	<div class="leftMain_middle_leftIn">
+                	<h3>各区域医院数量</h3>
+                    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                    <div class="biaoge" style="width:100%; height:27vh" id="chartmain"></div>
+                    <!-- <script type="text/javascript">
+					//window.onload = function () {
+								//指定图表的配置项和数据
+								var dataAxis = ['1日', '2日', '3日', '4日', '5日', '6日', '7日', '8日', '9日', '10日', '11日', '12日', '13日', '14日', '15日'];
+								var data = [220, 182, 191, 234, 290, 330, 310, 123, 442, 321, 90, 149, 210, 122, 200];
+								var yMax = 500;
+								var dataShadow = [];
+
+								for (var i = 0; i < data.length; i++) {
+									dataShadow.push(yMax);
+								}
+
+								option = {
+									title: {
+										text: '',
+										subtext: ''
+									},
+									grid:{
+										x:40,
+										y:40,
+										x2:20,
+										y2:20,
+
+									},
+									xAxis: {
+										data: dataAxis,
+										axisLabel: {
+											/*inside: true,*/
+											interval:0,
+											textStyle: {
+												color: '#fff',
+												fontSize: 12
+
+											}
+										},
+										axisTick: {
+											show: false,
+										},
+										axisLine: {
+											show: true,
+											symbol:['none', 'arrow'],
+											symbolOffset: 12,
+											lineStyle:{
+												color: '#fff',
+											}
+										},
+										z: 10
+									},
+									yAxis: {
+										type: 'value',
+										name: '单位：元',
+										axisLine: {
+											show: true,
+											symbol: ['none', 'arrow'],
+											symbolOffset: 12,
+											lineStyle:{
+												color: '#fff',
+											}
+										},
+										axisTick: {
+											show: false
+										},
+										axisLabel: {
+											textStyle: {
+												color: '#fff',
+												fontSize: 12
+											}
+										}
+									},
+
+									dataZoom: [
+										{
+											type: 'inside'
+										}
+									],
+									series: [
+										{ // For shadow
+											type: 'bar',
+											itemStyle: {
+												color: 'rgba(0,0,0,0.05)'
+											},
+											barGap: '-100%',
+											barCategoryGap: '40%',
+											data: dataShadow,
+											animation: false
+										},
+										{
+											type: 'bar',
+											itemStyle: {
+												color: new echarts.graphic.LinearGradient(
+													0, 0, 0, 1,
+													[
+														{offset: 0, color: '#0efdff'},
+														{offset: 0.5, color: '#188df0'},
+														{offset: 1, color: '#188df0'}
+													]
+												)
+											},
+											emphasis: {
+												itemStyle: {
+													color: new echarts.graphic.LinearGradient(
+														0, 0, 0, 1,
+														[
+															{offset: 0, color: '#2378f7'},
+															{offset: 0.7, color: '#2378f7'},
+															{offset: 1, color: '#0efdff'}
+														]
+													)
+												}
+											},
+											data: data
+										}
+									]
+								};
+
+								// Enable data zoom when user click bar.
+								/*var zoomSize = 6;
+								myChart.on('click', function (params) {
+									console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
+									myChart.dispatchAction({
+										type: 'dataZoom',
+										startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+										endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
+									});
+								});*/
+
+								//获取dom容器
+								var myChart = echarts.init(document.getElementById('chartmain'));
+								// 使用刚指定的配置项和数据显示图表。
+								myChart.setOption(option);
+						//};
+					</script> -->
+                    <span class="border_bg_leftTop"></span>
+                    <span class="border_bg_rightTop"></span>
+                    <span class="border_bg_leftBottom"></span>
+                    <span class="border_bg_rightBottom"></span>
+                </div>
+            </div>
+			<!-- 左 中间 右 进度条-->
+        	<div class="leftMain_middle_right">
+            	<div class="leftMain_middle_rightIn">
+                	<h3>有效数据填报排行</h3>
+                    <div class="biaoge biaoge_pai" style="width:100%; height:27vh">
+                    	<div class="biaoge_paiIn">
+                        	<ul>
+                            	<!-- <li>
+                                	<div class="liIn liIn1">
+                                    	<div class="liIn_left"><span class="bot"></span><span class="zi">第一名</span></div>
+                                        <div class="liIn_line"><div class="line_lineIn" id="line_lineIn_effectiveness_1"></div></div>
+                                        <p class="num">0</p>
+                                    </div>
+                                </li> -->
+                             	
+                           </ul>
+                        </div>
+                    </div>
+                    <span class="border_bg_leftTop"></span>
+                    <span class="border_bg_rightTop"></span>
+                    <span class="border_bg_leftBottom"></span>
+                    <span class="border_bg_rightBottom"></span>
+                </div>
+            </div>
+        </div>
+
+
+		<!-- 左 下-->
+        <div class="leftMain_middle">
+			<!-- 左 下 左-->
+        	<!-- <div class="leftMain_middle_left">
+            	<div class="leftMain_middle_leftIn">
+                	<h3>这里是标题</h3>
+                    <div class="biaoge" style="width:100%; height:25vh" id="chartmain_zhe"></div> -->
+                    <!-- <script type="text/javascript">
+					//window.onload = function (){
+								//指定图表的配置项和数据
+
+					option = {
+						title: {
+							text: ''
+						},
+						tooltip: {
+							trigger: 'axis'
+						},
+						legend: {
+							textStyle: {
+								color: '#fff',
+								fontSize: 12,
+							},
+							right:'10%',
+							data: ['折线一', '折线二']
+						},
+						grid:{
+								x:40,
+								y:40,
+								x2:20,
+								y2:20,
+							},
+						toolbox: {
+							feature: {
+								//saveAsImage: {}
+							}
+						},
+						xAxis: {
+							type: 'category',
+							boundaryGap: false,
+							axisLabel: {
+											/*inside: true,*/
+											interval:0,
+											textStyle: {
+												color: '#fff',
+												fontSize: 12
+
+											}
+										},
+										axisTick: {
+											show: false,
+										},
+										axisLine: {
+											show: true,
+											symbol:['none', 'arrow'],
+											symbolOffset: 12,
+											lineStyle:{
+												color: '#fff',
+											}
+										},
+							data: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00']
+						},
+						yAxis: {
+							type: 'value',
+
+							axisLine: {
+								show: true,
+								symbol: ['none', 'arrow'],
+								symbolOffset: 12,
+								lineStyle:{
+									color: '#fff',
+								}
+							},
+							axisTick: {
+								show: false
+							},
+							axisLabel: {
+								textStyle: {
+									color: '#fff',
+									fontSize: 12
+								}
+							}
+						},
+						series: [
+							{
+								name: '折线一',
+								type: 'line',
+								stack: '总量',
+								data: [280, 102, 191, 134, 390, 230, 210],
+								itemStyle: {
+									 normal: {
+									   color: "#0efdff",//折线点的颜色
+									   lineStyle: {
+									   color: "#0efdff",//折线的颜色
+									   width:2,
+									  }
+									},
+								}
+							},
+							{
+								name: '折线二',
+								type: 'line',
+								stack: '总量',
+								data: [100, 132, 131, 234, 290, 330, 110]
+							},
+						]
+					};
+								//获取dom容器
+								var myChart = echarts.init(document.getElementById('chartmain_zhe'));
+								// 使用刚指定的配置项和数据显示图表。
+								myChart.setOption(option);
+						//};
+					</script> -->
+                    <!-- <span class="border_bg_leftTop"></span>
+                    <span class="border_bg_rightTop"></span>
+                    <span class="border_bg_leftBottom"></span>
+                    <span class="border_bg_rightBottom"></span>
+                </div>
+            </div> -->
+
+			<!-- 左 下 左 医院排行  重构框架-->
+			<div class="leftMain_middle_left">
+				<div class="leftMain_middle_leftIn">
+					<h3>23年医院开票额排行(我司业务,万元)</h3>
+					<div class="biaoge biaoge_list" style="width:100%; height:33vh" id="chartmain_zhe">
+						<div class="hospital_biaoge_listIn">
+						<ul class="ul_title">
+                        	<li class="hospital_title">医院名称</li>
+							<li>负责人</li>
+                            <li>Q1</li>
+							<li>Q2</li>
+							<li>Q3</li>
+							<li>Q4</li>
+							<li>总计</li>
+							<li>占比</li>
+                            <li>排行</li>  
+						</ul>
+							<div class="ul_list">
+								<div class="hospital_ul_listIn"> 
+									<!-- <ul class="ul_con"> -->
+										<!-- <li class="hospital_title">国赛</li>
+										<li>55</li>
+										<li>20%</li>
+										<li>1</li>
+																	   
+									</ul> -->
+								</div>
+							</div>	
+						</div>
+					</div>
+
+					<span class="border_bg_leftTop"></span>
+					<span class="border_bg_rightTop"></span>
+					<span class="border_bg_leftBottom"></span>
+					<span class="border_bg_rightBottom"></span>
+				</div>
+			</div>
+
+
+
+			<!-- 左 下 右  大数字-->
+        	<div class="leftMain_middle_right">
+
+            	<div class="leftMain_middle_rightIn">
+                	<h3>仪器及开票额情况汇总</h3>
+                    <div class="biaoge biaoge_bi" style="width:100%; height:33vh">
+                    	<ul>
+                        	<li>
+                            	<div class="liIn">
+                                	<p class="shu shu1">0</p>
+                                    <p class="zi">我司业务仪器数占比</p>
+                                </div>
+                            </li>
+                        	<li>
+                            	<div class="liIn">
+                                	<p class="shu shu2">0</p>
+                                    <p class="zi">常规维护仪器数:装机5年内,我司业务</p>
+                                </div>
+                            </li>
+                        	<li>
+                            	<div class="liIn">
+                                	<p class="shu shu3">0</p>
+                                    <p class="zi">跟进维护仪器数:装机超5年,我司业务</p>
+                                </div>
+                            </li>
+                        	<li>
+                            	<div class="liIn">
+                                	<p class="shu shu4">0</p>
+                                    <p class="zi">需关注仪器数:装机5年内,非我司业务</p>
+                                </div>
+                            </li>
+                        	<li>
+                            	<div class="liIn">
+                                	<p class="shu shu5">0</p>
+                                    <p class="zi">重点开拓仪器数:装机超5年,非我司业务</p>
+                                </div>
+                            </li>
+                        	<li>
+                            	<div class="liIn">
+                                	<p class="shu shu6">0</p>
+                                    <p class="zi">Q1所有医院总开票额</p>
+                                </div>
+                            </li>
+							<li>
+                            	<div class="liIn">
+                                	<p class="shu shu7">0</p>
+                                    <p class="zi">Q2所有医院总开票额</p>
+                                </div>
+                            </li>
+							<li>
+                            	<div class="liIn">
+                                	<p class="shu shu8">0</p>
+                                    <p class="zi">Q3所有医院总开票额</p>
+                                </div>
+                            </li>
+							<li>
+                            	<div class="liIn">
+                                	<p class="shu shu9">0</p>
+                                    <p class="zi">Q4所有医院总开票额</p>
+                                </div>
+                            </li>
+							<li>
+                            	<div class="liIn">
+                                	<p class="shu shu10">0</p>
+                                    <p class="zi">Q2总目标完成占比</p>
+                                </div>
+                            </li>
+							<li>
+                            	<div class="liIn">
+                                	<p class="shu shu11">0</p>
+                                    <p class="zi">Q3总目标完成占比</p>
+                                </div>
+                            </li>
+							<li>
+                            	<div class="liIn">
+                                	<p class="shu shu12">0</p>
+                                    <p class="zi">Q4总目标完成占比</p>
+                                </div>
+                            </li>
+
+
+                        </ul>
+
+                    </div>
+                    <span class="border_bg_leftTop"></span>
+                    <span class="border_bg_rightTop"></span>
+                    <span class="border_bg_leftBottom"></span>
+                    <span class="border_bg_rightBottom"></span>
+                </div>
+            </div>
+
+
+        </div>
+		<!-- 最底部的4个完成率情况 -->
+		<div class="leftMain_bottom">
+
+			<div class="leftMain_bottom_1">
+				<div class="leftMain_bottom_1_in">
+					<h3>Q1目标完成率排行(万元)</h3>
+					<div class="biaoge biaoge_pai" style="width:100%; height:20vh">
+						<div class="biaoge_paiIn_1">
+							<ul>
+								<!-- <li>
+									<div class="liIn liIn1">
+										<div class="liIn_left"><span class="bot"></span><span class="zi">第一名</span></div>
+										<div class="liIn_line"><div class="line_lineIn" id="line_lineIn_effectiveness_1"></div></div>
+										<p class="num">0</p>
+									</div>
+								</li> -->
+								
+							</ul>
+						</div>
+					</div>
+					<span class="border_bg_leftTop"></span>
+					<span class="border_bg_rightTop"></span>
+					<span class="border_bg_leftBottom"></span>
+					<span class="border_bg_rightBottom"></span>
+				</div>
+			</div>
+
+			<div class="leftMain_bottom_1">
+				<div class="leftMain_bottom_1_in">
+					<h3>Q2目标完成率排行(万元)</h3>
+					<div class="biaoge biaoge_pai" style="width:100%; height:20vh">
+						<div class="biaoge_paiIn_2">
+							<ul>
+								
+							</ul>
+						</div>
+					</div>
+					<span class="border_bg_leftTop"></span>
+					<span class="border_bg_rightTop"></span>
+					<span class="border_bg_leftBottom"></span>
+					<span class="border_bg_rightBottom"></span>
+				</div>
+			</div>
+
+			<div class="leftMain_bottom_1">
+				<div class="leftMain_bottom_1_in">
+					<h3>Q3目标完成率排行(万元)</h3>
+					<div class="biaoge biaoge_pai" style="width:100%; height:20vh">
+						<div class="biaoge_paiIn_3">
+							<ul>
+								
+							</ul>
+						</div>
+					</div>
+					<span class="border_bg_leftTop"></span>
+					<span class="border_bg_rightTop"></span>
+					<span class="border_bg_leftBottom"></span>
+					<span class="border_bg_rightBottom"></span>
+				</div>
+			</div>
+
+			<div class="leftMain_bottom_2">
+				<div class="leftMain_bottom_2_in">
+					<h3>Q4目标完成率排行(万元)</h3>
+					<div class="biaoge biaoge_pai" style="width:100%; height:20vh">
+						<div class="biaoge_paiIn_4">
+							<ul>
+								
+							</ul>
+						</div>
+					</div>
+					<span class="border_bg_leftTop"></span>
+					<span class="border_bg_rightTop"></span>
+					<span class="border_bg_leftBottom"></span>
+					<span class="border_bg_rightBottom"></span>
+				</div>
+			</div>
+
+
+
+
+
+		</div>
+
+
+    </div>
+
+	<!-- 右侧竖排 -->
+    <div class="rightMain">
+		<!-- 右 上 饼图-->
+        <div class="rightMain_top">
+            <div class="rightMain_topIn">
+                <h3>各业务人员医院数量分配</h3>
+                <div class="biaoge" style="width:100%; height:30vh" id="chartmain_bing"></div>
+                
+                <span class="border_bg_leftTop"></span>
+                <span class="border_bg_rightTop"></span>
+                <span class="border_bg_leftBottom"></span>
+                <span class="border_bg_rightBottom"></span>
+            </div>
+         </div>
+		<!-- 右 下 滚动条-->
+        <div class="rightMain_bottom">
+            <div class="rightMain_bottomIn">
+                <h3>各品牌仪器数量排行</h3>
+                <div class="biaoge biaoge_list" style="width:100%; height:45vh">
+                	<div class="biaoge_listIn">
+						<ul class="ul_title">
+                        	<li class="brand_title">仪器品牌</li>
+							<li>数量(个)</li>
+                            <li>占比</li>
+                            <li>排行</li>                            
+                        </ul>
+                        <div class="ul_list">
+                        	<div class="ul_listIn">
+                                <!-- <ul class="ul_con"> -->
+                                    <!-- <li class="brand_title">国赛</li>
+                                    <li>55</li>
+                                    <li>20%</li>
+									<li>1</li>
+                                   
+                                </ul>
+                                <ul class="ul_con">
+                                    <li class="brand_title">迈瑞</li>
+                                    <li>12</li>
+                                    <li>10%</li>
+									<li>2</li>
+                                   
+                                </ul> -->
+                                
+                            </div>
+                       </div>
+
+                    	<!-- <ul class="ul_title">
+                        	<li class="hopital_title">医院</li>
+                            <li>负责人</li>
+                            <li>开票额</li>
+                            
+                        </ul>
+                        <div class="ul_list">
+                        	<div class="ul_listIn">
+                                <ul class="ul_con">
+                                    <li class="hopital_title">上海交通大学医学院附属新华医院长兴分院</li>
+                                    <li>叶蓓蓓</li>
+                                    <li>500000</li>
+                                   
+                                </ul>
+                                <ul class="ul_con">
+                                    <li class="hopital_title">~~~~</li>
+                                    <li>12</li>
+                                    <li>类别一</li>
+                                   
+                                </ul>
+                                
+                            </div>
+                       </div> -->
+
+                   </div>
+                </div>
+                <span class="border_bg_leftTop"></span>
+                <span class="border_bg_rightTop"></span>
+                <span class="border_bg_leftBottom"></span>
+                <span class="border_bg_rightBottom"></span>
+            </div>
+         </div>
+
+		 <div class="rightMain_bottom_1">
+			<div class="rightMain_bottom_1_in">
+				<h3>全年目标完成率排行(万元)</h3>
+				<div class="biaoge biaoge_pai" style="width:100%; height:15vh">
+					<div class="biaoge_paiIn_5">
+						<ul>
+							
+						</ul>
+					</div>
+				</div>
+				<span class="border_bg_leftTop"></span>
+				<span class="border_bg_rightTop"></span>
+				<span class="border_bg_leftBottom"></span>
+				<span class="border_bg_rightBottom"></span>
+			</div>
+		</div>
+
+
+
+
+    </div>
+
+
+
+
+    <div style="clear:both;"></div>
+</div>
+<!--大屏-->
+
+
+<!--数字增长累加动画-->
+<script src="{% static 'pmr/js/jquery-1.11.0.min.js' %}" type="text/javascript"></script>
+<!-- <script src="js/jquery-1.11.0.min.js" type="text/javascript"></script> -->
+<script src="{% static 'pmr/js/jquery.numscroll.js' %}" type="text/javascript" charset="utf-8"></script>
+<!-- <script src="js/jquery.numscroll.js" type="text/javascript" charset="utf-8"></script> -->
+
+<!--大屏-->
+</body>
+
+</html>
+
+
+<script>
+	$(window).ready(function(){
+
+		function getdata(project) {
+			let result = {}
+			$.ajax({
+			url: `/Marketing_Research_QT/qtanalysisdetail?project=${project}`,
+			type: "get",
+			dataType: 'json',
+			async: false, //同步请求，不能异步，异步的话数据就同时出不来了
+			//  没有请求成功ajax ，也是返回result,result={"code":500,data:"error"}
+			success: function (resp) {
+				// 返回成功的 ajax 请求
+				result = JSON.parse(resp)
+				// console.log(result['code'])
+			}
+			// error: function (resp) {
+			// 	// 返回成功的 ajax 请求
+			// 	result = JSON.parse(resp)
+			// 	// console.log(result['code'])
+			// }
+
+
+			});
+
+			// popup.style.display = "none"
+
+			return result			
+		}
+
+
+	    function collectdata(result) {
+		// 这里写从ajax返回的result数据中提取数据并重组成resultset，方便后面的updateCharts使用
+
+    		
+			resultset={}
+		// 左上 基本信息大数字
+			var HospitalCount=result['data']['HospitalCount']
+			var HospitalWithOwnmachineCompare=(result['data']['HospitalnameWithOwnmachineCount']/result['data']['HospitalCount']*100).toFixed(1)+"%" + "     ("+result['data']['HospitalnameWithOwnmachineCount']+"/"+result['data']['HospitalCount']+")"
+			var HospitalnameWithValueCompare=(result['data']['HospitalnameWithValueCount']/result['data']['HospitalCount']*100).toFixed(1)+"%" + "     ("+result['data']['HospitalnameWithValueCount']+"/"+result['data']['HospitalCount']+")"
+			var TestsCompare=(result['data']['OWNtestspermonthCount']/result['data']['TestspermonthCount']*100).toFixed(1)+"%" + "     ("+result['data']['OWNtestspermonthCount']+"/"+result['data']['TestspermonthCount']+")"
+			
+			resultset['HospitalCount']=HospitalCount
+			resultset['HospitalWithOwnmachineCompare']=HospitalWithOwnmachineCompare
+			resultset['HospitalnameWithValueCompare']=HospitalnameWithValueCompare
+			resultset['TestsCompare']=TestsCompare
+
+		// 左中 基本信息大数字2
+			var OWNmachineoccupy=result['data']['OWNNumberCount']+"/"+result['data']['TotalMachineNumberCount']
+			var NormalMaintainMachineNumber=result['data']['NormalMaintainMachineNumber']
+			var MainMaintainMachineNumber=result['data']['MainMaintainMachineNumber']
+			var ConcernMachineNumber=result['data']['ConcernMachineNumber']
+			var MainDevelopMachineNumber=result['data']['MainDevelopMachineNumber']
+			var Q1SalesValueTotal = (result['data']['Q1SalesValueTotal']/10000).toFixed(1)
+			var Q2SalesValueTotal = (result['data']['Q2SalesValueTotal']/10000).toFixed(1)
+			var Q3SalesValueTotal = (result['data']['Q3SalesValueTotal']/10000).toFixed(1)
+			var Q4SalesValueTotal = (result['data']['Q4SalesValueTotal']/10000).toFixed(1)
+
+			var Q2targetactual = (result['data']['Q2actualtotal']/10000).toFixed(0)+"/"+(result['data']['Q2targettotal']/10000).toFixed(0)
+			var Q3targetactual = (result['data']['Q3actualtotal']/10000).toFixed(0)+"/"+(result['data']['Q3targettotal']/10000).toFixed(0)
+			var Q4targetactual = (result['data']['Q4actualtotal']/10000).toFixed(0)+"/"+(result['data']['Q4targettotal']/10000).toFixed(0)
+
+			resultset['OWNmachineoccupy']=OWNmachineoccupy
+			resultset['NormalMaintainMachineNumber']=NormalMaintainMachineNumber
+			resultset['MainMaintainMachineNumber']=MainMaintainMachineNumber
+			resultset['ConcernMachineNumber']=ConcernMachineNumber
+			resultset['MainDevelopMachineNumber']=MainDevelopMachineNumber
+			resultset['Q1SalesValueTotal']=Q1SalesValueTotal
+			resultset['Q2SalesValueTotal']=Q2SalesValueTotal
+			resultset['Q3SalesValueTotal']=Q3SalesValueTotal
+			resultset['Q4SalesValueTotal']=Q4SalesValueTotal
+			resultset['Q2targetactual']=Q2targetactual
+			resultset['Q3targetactual']=Q3targetactual
+			resultset['Q4targetactual']=Q4targetactual
+
+
+
+
+
+		// 左中右 填报有效性进度条
+			var SalesmanFillEffectiveness =result['data']['SalesmanFillEffectiveness']
+			let SalesmanFillEffectiveness_list = []
+			SalesmanFillEffectiveness.forEach(element => {
+				each_SalesmanFillEffectiveness={}
+				// 姓名
+				each_SalesmanFillEffectiveness['salesman']=element['salesman1']
+				// 填报占比右侧的数字呈现
+				each_SalesmanFillEffectiveness['effectiveness_rightend']=(element['effectiveness']*100).toFixed(0)+"% (" + element['effectivefill']+'/'+element['needtofill']+")"
+				// 占比  进度条长度
+				each_SalesmanFillEffectiveness['effectiveness_chartlength']=(element['effectiveness']*100).toFixed(0)+"%"
+				SalesmanFillEffectiveness_list.push(each_SalesmanFillEffectiveness)
+			});
+
+			resultset['SalesmanFillEffectiveness']=SalesmanFillEffectiveness_list
+
+		;
+
+		// 各地区医院数量分配   柱状图
+			var HospitalnameDistrictCount= result['data']['HospitalnameDistrictCount']
+			resultset['HospitalDistrictCount']={}
+			let district_x_axis=[]
+			HospitalnameDistrictCount.forEach(element => {
+				district_x_axis.push(element['district'])
+			});
+			resultset['HospitalDistrictCount']['district_x_axis']=district_x_axis
+
+			let district_y_axis=[]
+			HospitalnameDistrictCount.forEach(element => {
+				district_y_axis.push(element['hospitalname'])
+			});
+
+			resultset['HospitalDistrictCount']['district_y_axis']=district_y_axis
+			;
+
+
+		// 右上 饼图 各业务人员医院数量分配
+			var HospitalSalesmanCount= result['data']['SalesmanHospitalCount']
+			resultset['HospitalSalesmanCount']={}
+			let salesmannamelist=[]
+			HospitalSalesmanCount.forEach(element => {
+				salesmannamelist.push(element['salesman1'])
+			});
+			resultset['HospitalSalesmanCount']['salesmannamelist']=salesmannamelist
+
+			let salesmanhospitalcount=[]
+			HospitalSalesmanCount.forEach(element => {
+				eachelement={}
+				eachelement['name']=element['salesman1']
+				eachelement['value']=element['hospitalname']
+				salesmanhospitalcount.push(eachelement)
+			});
+			resultset['HospitalSalesmanCount']['salesmanhospitalcount']=salesmanhospitalcount
+
+		// 右边 中间 品牌仪器数量排行榜
+			var BrandCount= result['data']['BrandMachineNumber']
+			let BrandCount_list = []
+			BrandCount.forEach(element => {
+				each_BrandCount={}
+				each_BrandCount['brand']=element['brand']
+				each_BrandCount['realmachinenumber']=element['realmachinenumber']
+				each_BrandCount['%']=(element['%']*100).toFixed(0)+"%"
+				each_BrandCount['rank']=element['rank']
+
+				BrandCount_list.push(each_BrandCount)
+			});
+			resultset['BrandCount']=BrandCount_list
+
+		// 左边 左边 医院开票额排行榜
+			var Hospitalsales= result['data']['HospitalSalesRank']
+			let Hospitalsales_list = []
+			Hospitalsales.forEach(element => {
+				each_Hospitalsales={}
+				each_Hospitalsales['hospitalname']=element['hospitalname']
+				each_Hospitalsales['salesman']=element['salesman1']
+				each_Hospitalsales['q1actualsales']=(element['q1actualsales']/10000).toFixed(1)
+				each_Hospitalsales['q2actualsales']=(element['q2actualsales']/10000).toFixed(1)
+				each_Hospitalsales['q3actualsales']=(element['q3actualsales']/10000).toFixed(1)
+				each_Hospitalsales['q4actualsales']=(element['q4actualsales']/10000).toFixed(1)
+				each_Hospitalsales['total']=(element['thisyear_totalactualsales']/10000).toFixed(1)
+				each_Hospitalsales['%']=(element['%']*100).toFixed(0)+"%"
+				each_Hospitalsales['rank']=element['rank']
+				Hospitalsales_list.push(each_Hospitalsales)
+			});
+			resultset['Hospitalsales']=Hospitalsales_list
+
+
+
+		// 左底1 Q1完成率
+		var Q1SalesmanCompletewithTarget =result['data']['q1SalesmanCompleteWithTarget']
+			let Q1SalesmanCompletewithTarget_list = []
+			Q1SalesmanCompletewithTarget.forEach(element => {
+				each_Q1SalesmanCompletewithTarget={}
+				// 姓名
+				each_Q1SalesmanCompletewithTarget['salesman']=element['salesman1']
+				// 填报占比右侧的数字呈现
+				each_Q1SalesmanCompletewithTarget['complete_rightend']=(element['q1finishrate']*100).toFixed(0)+"% (" +  (element['q1actualsales']/10000).toFixed(1)+"/"+(+element['q1target']/10000).toFixed(1)+")"
+				// 占比  进度条长度
+				each_Q1SalesmanCompletewithTarget['complete_chartlength']=(element['q1finishrate']*100).toFixed(0)+"%"
+				Q1SalesmanCompletewithTarget_list.push(each_Q1SalesmanCompletewithTarget)
+			});
+
+			resultset['q1SalesmanCompleteWithTarget']=Q1SalesmanCompletewithTarget_list
+
+
+		// 左底2 Q2完成率
+		var Q2SalesmanCompletewithTarget =result['data']['q2SalesmanCompleteWithTarget']
+			let Q2SalesmanCompletewithTarget_list = []
+			Q2SalesmanCompletewithTarget.forEach(element => {
+				each_Q2SalesmanCompletewithTarget={}
+				// 姓名
+				each_Q2SalesmanCompletewithTarget['salesman']=element['salesman1']
+				// 填报占比右侧的数字呈现
+				each_Q2SalesmanCompletewithTarget['complete_rightend']=(element['q2finishrate']*100).toFixed(0)+"% (" + (element['q2actualsales']/10000).toFixed(1)+"/"+(+element['q2target']/10000).toFixed(1)+")"
+				// 占比  进度条长度
+				each_Q2SalesmanCompletewithTarget['complete_chartlength']=(element['q2finishrate']*100).toFixed(0)+"%"
+				Q2SalesmanCompletewithTarget_list.push(each_Q2SalesmanCompletewithTarget)
+			});
+
+			resultset['q2SalesmanCompleteWithTarget']=Q2SalesmanCompletewithTarget_list
+
+
+		// 左底3 Q3完成率
+		var Q3SalesmanCompletewithTarget =result['data']['q3SalesmanCompleteWithTarget']
+			let Q3SalesmanCompletewithTarget_list = []
+			Q3SalesmanCompletewithTarget.forEach(element => {
+				each_Q3SalesmanCompletewithTarget={}
+				// 姓名
+				each_Q3SalesmanCompletewithTarget['salesman']=element['salesman1']
+				// 填报占比右侧的数字呈现
+				each_Q3SalesmanCompletewithTarget['complete_rightend']=(element['q3finishrate']*100).toFixed(0)+"% (" + (element['q3actualsales']/10000).toFixed(1)+"/"+(+element['q3target']/10000).toFixed(1)+")"
+				// 占比  进度条长度
+				each_Q3SalesmanCompletewithTarget['complete_chartlength']=(element['q3finishrate']*100).toFixed(0)+"%"
+				Q3SalesmanCompletewithTarget_list.push(each_Q3SalesmanCompletewithTarget)
+			});
+
+			resultset['q3SalesmanCompleteWithTarget']=Q3SalesmanCompletewithTarget_list
+
+
+		// 左底4 Q4完成率
+		var Q4SalesmanCompletewithTarget =result['data']['q4SalesmanCompleteWithTarget']
+			let Q4SalesmanCompletewithTarget_list = []
+			Q4SalesmanCompletewithTarget.forEach(element => {
+				each_Q4SalesmanCompletewithTarget={}
+				// 姓名
+				each_Q4SalesmanCompletewithTarget['salesman']=element['salesman1']
+				// 填报占比右侧的数字呈现
+				each_Q4SalesmanCompletewithTarget['complete_rightend']=(element['q4finishrate']*100).toFixed(0)+"% (" + (element['q4actualsales']/10000).toFixed(1)+"/"+(+element['q4target']/10000).toFixed(1)+")"
+				// 占比  进度条长度
+				each_Q4SalesmanCompletewithTarget['complete_chartlength']=(element['q4finishrate']*100).toFixed(0)+"%"
+				Q4SalesmanCompletewithTarget_list.push(each_Q4SalesmanCompletewithTarget)
+			});
+
+			resultset['q4SalesmanCompleteWithTarget']=Q4SalesmanCompletewithTarget_list
+
+		// 右下角 全年总体完成率
+		var totalSalesmanCompletewithTarget =result['data']['SalesmanCompleteWithTarget']
+			let totalSalesmanCompletewithTarget_list = []
+			totalSalesmanCompletewithTarget.forEach(element => {
+				each_SalesmanCompletewithTarget={}
+				// 姓名
+				each_SalesmanCompletewithTarget['salesman']=element['salesman1']
+				// 填报占比右侧的数字呈现
+				each_SalesmanCompletewithTarget['complete_rightend']=(element['totalfinishrate']*100).toFixed(0)+"% (" + (element['totalactualsales']/10000).toFixed(1)+"/"+(+element['totaltarget']/10000).toFixed(1)+")"
+				// 占比  进度条长度
+				each_SalesmanCompletewithTarget['complete_chartlength']=(element['totalfinishrate']*100).toFixed(0)+"%"
+				totalSalesmanCompletewithTarget_list.push(each_SalesmanCompletewithTarget)
+			});
+
+			resultset['totalSalesmanCompletewithTarget']=totalSalesmanCompletewithTarget_list
+
+
+
+
+
+
+
+			return resultset
+
+
+
+			// console.log(divtop)
+		
+			// // 滚动数字效果
+			// $(".shu1").numScroll();
+			// $(".shu2").numScroll();
+			// $(".shu3").numScroll();
+			// $(".shu4").numScroll();
+			// $(".shu5").numScroll();
+			// $(".shu6").numScroll();
+	
+		}
+
+
+
+		// 这里写具体把数据丢进图表模型里
+		function updateCharts(resultset) {
+
+			// 左上 基本信息大数字
+			var divtop_HospitalCount = $(".leftMain_topIn .liIn .shu .shu1").text(resultset['HospitalCount'])
+			var divtop_HospitalWithOwnmachineCompare = $(".leftMain_topIn .liIn .shu .shu2").text(resultset['HospitalWithOwnmachineCompare'])
+			var divtop_HospitalnameWithValueCompare = $(".leftMain_topIn .liIn .shu .shu3").text(resultset['HospitalnameWithValueCompare'])
+			var divtop_TestsCompare = $(".leftMain_topIn .liIn .shu .shu4").text(resultset['TestsCompare'])
+
+			// 左中 基本信息大数字2
+			var div_OWNmachineoccupy = $(".leftMain_middle_rightIn .biaoge_bi .shu1").text(resultset['OWNmachineoccupy'])
+			var div_NormalMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu2").text(resultset['NormalMaintainMachineNumber'])
+			var div_MainMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu3").text(resultset['MainMaintainMachineNumber'])
+			var div_ConcernMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu4").text(resultset['ConcernMachineNumber'])
+			var div_MainDevelopMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu5").text(resultset['MainDevelopMachineNumber'])
+			var div_Q1SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu6").text(resultset['Q1SalesValueTotal'])
+			var div_Q2SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu7").text(resultset['Q2SalesValueTotal'])
+			var div_Q3SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu8").text(resultset['Q3SalesValueTotal'])
+			var div_Q4SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu9").text(resultset['Q4SalesValueTotal'])
+			var div_Q2targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu10").text(resultset['Q2targetactual'])
+			var div_Q3targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu11").text(resultset['Q3targetactual'])
+			var div_Q4targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu12").text(resultset['Q4targetactual'])
+			
+			
+
+
+
+
+			// 左中右边的  填报有效性 进度条
+			// 首先把dom拿出来，然后清空，然后逐行插入
+			var EffectivenessProgress_dom = $('.leftMain_middle_rightIn .biaoge_paiIn ul')
+			// 先清空dom
+			EffectivenessProgress_dom.empty()
+			for (let index = 0; index < resultset['SalesmanFillEffectiveness'].length; index++) {
+				EffectivenessProgress_dom.append(
+					// 模板字符串，用反引号
+								`<li>\
+                                	<div class="liIn liIn${index+1}">\
+                                    	<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['SalesmanFillEffectiveness'][index]['salesman']}</span></div>\
+                                        <div class="liIn_line"><div class="line_lineIn" style="width:${resultset['SalesmanFillEffectiveness'][index]['effectiveness_chartlength']};"></div></div>\
+                                        <p class="num">${resultset['SalesmanFillEffectiveness'][index]['effectiveness_rightend']}</p>\
+                                    </div>\
+                                </li>`
+					)
+			}
+			
+			;
+
+			// 柱状图 各地区分配的医院数量
+			(function () {
+				//获取dom容器
+				var myChart = echarts.init(document.getElementById('chartmain'));
+
+				//指定图表的配置项和数据
+				var dataAxis = resultset['HospitalDistrictCount']['district_x_axis'];
+				var data = resultset['HospitalDistrictCount']['district_y_axis'];
+				var yMax = 30;
+				var dataShadow = [];
+
+				for (var i = 0; i < data.length; i++) {
+					dataShadow.push(yMax);
+				}
+
+				var option = {
+					title: {
+						text: '',
+						subtext: ''
+					},
+					grid:{
+						x:40,
+						y:40,
+						x2:20,
+						y2:20,
+
+					},
+					xAxis: {
+						data: dataAxis,
+						axisLabel: {
+							/*inside: true,*/
+							interval:0,
+							textStyle: {
+								color: '#fff',
+								fontSize: 12
+
+							}
+						},
+						axisTick: {
+							show: false,
+						},
+						axisLine: {
+							show: true,
+							symbol:['none', 'arrow'],
+							symbolOffset: 12,
+							lineStyle:{
+								color: '#fff',
+							}
+						},
+						z: 10
+					},
+					yAxis: {
+						type: 'value',
+						name: '单位：个',
+						axisLine: {
+							show: true,
+							symbol: ['none', 'arrow'],
+							symbolOffset: 12,
+							lineStyle:{
+								color: '#fff',
+							}
+						},
+						axisTick: {
+							show: false
+						},
+						axisLabel: {
+							textStyle: {
+								color: '#fff',
+								fontSize: 12
+							}
+						}
+					},
+
+					dataZoom: [
+						{
+							type: 'inside'
+						}
+					],
+					series: [
+						{ // For shadow
+							type: 'bar',
+							itemStyle: {
+								color: 'rgba(0,0,0,0.05)'
+							},
+							barGap: '-100%',
+							barCategoryGap: '40%',
+							data: dataShadow,
+							animation: false
+						},
+						{
+							type: 'bar',
+							itemStyle: {
+								color: new echarts.graphic.LinearGradient(
+									0, 0, 0, 1,
+									[
+										{offset: 0, color: '#0efdff'},
+										{offset: 0.5, color: '#188df0'},
+										{offset: 1, color: '#188df0'}
+									]
+								)
+							},
+							emphasis: {
+								itemStyle: {
+									color: new echarts.graphic.LinearGradient(
+										0, 0, 0, 1,
+										[
+											{offset: 0, color: '#2378f7'},
+											{offset: 0.7, color: '#2378f7'},
+											{offset: 1, color: '#0efdff'}
+										]
+									)
+								}
+							},
+							data: data
+						}
+					]
+				};
+
+				// Enable data zoom when user click bar.
+				/*var zoomSize = 6;
+				myChart.on('click', function (params) {
+					console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
+					myChart.dispatchAction({
+						type: 'dataZoom',
+						startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+						endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
+					});
+				});*/
+
+				
+				// 使用刚指定的配置项和数据显示图表。
+				myChart.setOption(option);
+						//};
+			
+		 	})();
+
+
+			// 饼图 各销售人员分配的医院数量
+			(function () { 
+				var myChart = echarts.init(document.getElementById('chartmain_bing'));
+				var	option = {
+						// title: {
+						// 	text: '业务人员',
+						// 	subtext: '',
+						// 	left: 'right',
+						// 	textStyle: {
+						// 		color: '#fff',
+						// 		fontSize: 12
+						// 	}
+						// },
+						tooltip: {
+							trigger: 'item',
+							formatter: '{b} : {c} ({d}%)'
+						},
+						// legend: {
+						// 	// orient: 'vertical',
+						// 	// top: 'middle',
+						// 	type: 'scroll',
+						// 	orient: 'vertical',
+						// 	right: 10,
+						// 	top: 40,
+						// 	bottom: 20,
+						// 	left: 'right',
+						// 	data: resultset['HospitalSalesmanCount']['salesmannamelist'],
+						// 	textStyle: {
+						// 		color: '#fff',
+						// 		fontSize: 12
+						// 	}
+
+						// },
+						grid:{
+							x:'-10%',
+							y:40,
+							x2:20,
+							y2:20,
+						},
+						color : [ '#09d0fb', '#f88cfb', '#95f8fe', '#f9f390',  '#ecfeb7' ],
+						series: [
+							{
+								type: 'pie',
+								radius: ["50%", "70%"],
+								center: ['50%', '50%'],
+								selectedMode: 'single',
+								data: resultset['HospitalSalesmanCount']['salesmanhospitalcount'],
+								emphasis: {
+									itemStyle: {
+										shadowBlur: 10,
+										shadowOffsetX: 0,
+										shadowColor: 'rgba(0, 0, 0, 0.5)'
+									}
+								}
+							}
+						]
+					};
+                							
+				// 使用刚指定的配置项和数据显示图表。
+				myChart.setOption(option);		
+		})();
+	
+	
+			// 右边 中间 品牌排行榜！！！
+			// 首先把dom拿出来，然后清空，然后逐行插入
+			var BrandCount_dom = $('.biaoge_listIn .ul_listIn')
+			// 先清空dom
+			BrandCount_dom.empty()
+			for (let index = 0; index < resultset['BrandCount'].length; index++) {
+				BrandCount_dom.append(
+					// 模板字符串，用反引号								
+								`<ul class="ul_con">
+                                    <li class="brand_title">${resultset['BrandCount'][index]['brand']}</li>
+                                    <li>${resultset['BrandCount'][index]['realmachinenumber']}</li>
+                                    <li>${resultset['BrandCount'][index]['%']}</li>
+									<li>${resultset['BrandCount'][index]['rank']}</li>
+								</ul>`
+					)
+			};
+
+			// 左下角  医院排行榜！！！
+			// 首先把dom拿出来，然后清空，然后逐行插入
+			var Hospitalsales_dom = $('.hospital_biaoge_listIn .hospital_ul_listIn')
+			// 先清空dom
+			Hospitalsales_dom.empty()
+			for (let index = 0; index < resultset['Hospitalsales'].length; index++) {
+				Hospitalsales_dom.append(
+					// 模板字符串，用反引号								
+								`<ul class="ul_con">
+                                    <li class="hospital_title">${resultset['Hospitalsales'][index]['hospitalname']}</li>
+                                    <li>${resultset['Hospitalsales'][index]['salesman']}</li>
+                                    <li>${resultset['Hospitalsales'][index]['q1actualsales']}</li>
+									<li>${resultset['Hospitalsales'][index]['q2actualsales']}</li>
+									<li>${resultset['Hospitalsales'][index]['q3actualsales']}</li>
+									<li>${resultset['Hospitalsales'][index]['q4actualsales']}</li>
+									<li>${resultset['Hospitalsales'][index]['total']}</li>
+									<li>${resultset['Hospitalsales'][index]['%']}</li>
+									<li>${resultset['Hospitalsales'][index]['rank']}</li>
+
+								</ul>`
+					)
+			}
+	
+	
+			// 左底部1  q1完成情况 进度条
+			var q1salescomplete_dom = $('.leftMain_bottom_1_in .biaoge_paiIn_1 ul')
+			q1salescomplete_dom.empty()
+			for (let index = 0; index < resultset['q1SalesmanCompleteWithTarget'].length; index++) {
+				q1salescomplete_dom.append(
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['q1SalesmanCompleteWithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q1SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['q1SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`
+					)
+			}
+			
+			// 左底部2  q2完成情况 进度条
+			var q2salescomplete_dom = $('.leftMain_bottom_1_in .biaoge_paiIn_2 ul')
+			q2salescomplete_dom.empty()
+			for (let index = 0; index < resultset['q2SalesmanCompleteWithTarget'].length; index++) {
+				q2salescomplete_dom.append(
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['q2SalesmanCompleteWithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q2SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['q2SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`
+					)
+			}
+
+			// 左底部3  q3完成情况 进度条
+			var q3salescomplete_dom = $('.leftMain_bottom_1_in .biaoge_paiIn_3 ul')
+			q3salescomplete_dom.empty()
+			for (let index = 0; index < resultset['q3SalesmanCompleteWithTarget'].length; index++) {
+				q3salescomplete_dom.append(
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['q3SalesmanCompleteWithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q3SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['q3SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`
+					)
+			}
+
+			// 左底部4  q4完成情况 进度条
+			var q4salescomplete_dom = $('.leftMain_bottom_2_in .biaoge_paiIn_4 ul')
+			q4salescomplete_dom.empty()
+			for (let index = 0; index < resultset['q4SalesmanCompleteWithTarget'].length; index++) {
+				q4salescomplete_dom.append(
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['q4SalesmanCompleteWithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q4SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['q4SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`
+					)
+			}
+
+			// 左底部4  q4完成情况 进度条
+			var totalsalescomplete_dom = $('.rightMain_bottom_1_in .biaoge_paiIn_5 ul')
+			totalsalescomplete_dom.empty()
+			for (let index = 0; index < resultset['totalSalesmanCompletewithTarget'].length; index++) {
+				totalsalescomplete_dom.append(
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['totalSalesmanCompletewithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['totalSalesmanCompletewithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['totalSalesmanCompletewithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`
+					)
+			}
+
+
+			;
+
+	
+	
+	
+	
+			
+	}
+
+
+
+		// 首次加载页面后发送一个ajax,获取全部的数据
+		let popup = document.getElementById("popup")
+		popup.style.display = "block"
+		setTimeout(function () {
+			var result = getdata();
+			updateCharts(collectdata(result));
+			popup.style.display = "none"
+		},500)
+
+
+		// 绑定项目按钮事件
+		// $('#CRPSAABtn').on('click',function(){
+		// 	var projectname = $('#CRPSAABtn').text()
+		// 	var newdata = getdata(projectname)
+		// 	updateCharts(collectdata(newdata))
+		// })
+
+		// 绑定项目按钮事件
+		$.each($('.button'),function(index,element){
+			$(element).on('click',function(){
+
+				var projectname = $(element).text()
+				
+				// let overlay = document.createElement("div")
+				// overlay.id = "overlay"
+				// document.body.appendChild(overlay)
+				let popup = document.getElementById("popup")
+				popup.style.display = "block"
+
+
+				setTimeout(function() {
+					var newdata = getdata(projectname)
+					updateCharts(collectdata(newdata))
+					popup.style.display = "none"
+				},500)				
+						
+				
+				
+
+
+
+				
+
+			})
+		})
+		
+
+
+	})
+
+
+</script>
+
