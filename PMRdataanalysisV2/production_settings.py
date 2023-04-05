@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,7 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3vt@)efszr@@qjw1hh7j_^5qjp*cs1*9e=g6ggi6va@h9c^y_q'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -84,11 +85,11 @@ DATABASES = {
     #'default':{},
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'Kathy83305136',
-        'HOST': '139.224.61.6',
-        'PORT': '5432',
+        'NAME': os.environ.get('POSTGRESQL_INTERNAL_DBNAME'),
+        'USER': os.environ.get('POSTGRESQL_INTERNAL_USERNAME'),
+        'PASSWORD': os.environ.get('POSTGRESQL_INTERNAL_PASSWORD'),
+        'HOST': os.environ.get('POSTGRESQL_INTERNAL_HOST'), 
+        'PORT': os.environ.get('POSTGRESQL_INTERNAL_PORT'),
         'OPTIONS': {
             'options': '-c search_path="django_admin_v2","marketing_research_v2"'
         }
