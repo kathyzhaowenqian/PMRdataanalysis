@@ -9,12 +9,12 @@ on:
     branches: [ main ]
 
 env:
-  IMAGE_NAME: davidzhu/django-chatgpt-api  # 镜像名，阿里云的镜像仓库命名规则
-  IMAGE_TAG: v0.1.0                       # 镜像的版本号，   
-  REGION: cn-shanghai                     # 阿里云镜像地址   
-  ACCESS_KEY_ID: ${{ secrets.AWS_EC2_ACCESS_KEY }}      # 登陆ecs 服务器 id ，可以是 root,放在 secrets中
-  ACCESS_KEY_SECRET: ${{ secrets.AWS_EC2_SECRET_KEY }}   # 登陆 ecs 服务器 私钥，放在 secrets 中
-  ECS_CLUSTER_ID:  ${{ secrets.AWS_EC2_EXTERNAL_HOST }}                       # 服务器地址
+  IMAGE_NAME: pmrdataanalysis/pmrdataanalysis   # 镜像名，阿里云的镜像仓库命名规则
+  IMAGE_TAG: v0.1.0                             # 镜像的版本号，   
+  REGION: cn-shanghai                           # 阿里云镜像地址   
+  ACCESS_KEY_ID: ${{ secrets.ALI_EC2_ACCESS_KEY }}      # 登陆ecs 服务器 id ，可以是 root,放在 secrets中
+  ACCESS_KEY_SECRET: ${{ secrets.ALI_EC2_SECRET_KEY }}   # 登陆 ecs 服务器 私钥，放在 secrets 中
+  ECS_CLUSTER_ID:  ${{ secrets.ALI_EC2_EXTERNAL_HOST }}                       # 服务器地址
 
 jobs:
   deploy:
@@ -60,21 +60,9 @@ jobs:
             POSTGRESQL_INTERNAL_PASSWORD=${{ secrets.POSTGRESQL_INTERNAL_PASSWORD }}
             POSTGRESQL_INTERNAL_USERNAME=${{ secrets.POSTGRESQL_INTERNAL_USERNAME }}
             POSTGRESQL_INTERNAL_DBNAME=${{ secrets.POSTGRESQL_INTERNAL_DBNAME }}
-            REDIS_INTERNAL_HOST=${{ secrets.REDIS_INTERNAL_HOST }}
-            REDIS_INTERNAL_PASSWORD=${{ secrets.REDIS_INTERNAL_PASSWORD }}
-            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
-            OPENAI_SECRETKEY=${{ secrets.OPENAI_SECRETKEY }}
-            JWT_TOKEN_KEY=${{ secrets.JWT_TOKEN_KEY }}
             ALI_ECS_EXTERNAL_IP=${{ secrets.ALI_ECS_EXTERNAL_IP }}
-            ALIYUN_APP_KEY_WOMAN=${{ secrets.ALIYUN_APP_KEY_WOMAN }}
-            ALIYUN_ACCESS_TOKEN_KEY_IN_REDIS=${{ secrets.ALIYUN_ACCESS_TOKEN_KEY_IN_REDIS }}
             ALIYUN_ACCESS_ID=${{ secrets.ALIYUN_ACCESS_ID }}
             ALIYUN_ACCESSKEY_SECRET=${{ secrets.ALIYUN_ACCESSKEY_SECRET }}
-            AWS_EC2_EXTERNAL_HOST=${{ secrets.AWS_EC2_EXTERNAL_HOST }}
-            AWS_EC2_INERNAL_HOST=${{ secrets.AWS_EC2_INERNAL_HOST }}
-            AWS_EC2_ACCESS_KEY=${{ secrets.AWS_EC2_ACCESS_KEY }}
-            AWS_EC2_SECRET_KEY=${{ secrets.AWS_EC2_SECRET_KEY }}
-            GPT_DOMAIN_NAME=${{ secrets.GPT_DOMAIN_NAME }}
 
       env:
         DOCKER_USERNAME: ${{ secrets.ALIYUN_CONTAINER_REGISTRY_USERNAME }}
@@ -97,7 +85,7 @@ jobs:
         # SOURCE: "./dist" # optional, default is 
         
         # Target directory,把当前的项目代码目标拷贝到Target目录 /opt/DjangoChatGPTAPI
-        TARGET:  "/opt/DjangoChatGPTAPI"
+        TARGET:  "/opt/pmrdataanalysis"
       
        
        
@@ -117,11 +105,11 @@ jobs:
           
           docker pull registry.${{ env.REGION }}.aliyuncs.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           
-          sed -i "s|image:.*|image: registry.${{ env.REGION }}.aliyuncs.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}|" /opt/DjangoChatGPTAPI/docker-compose.yml
+          sed -i "s|image:.*|image: registry.${{ env.REGION }}.aliyuncs.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}|" /opt/pmrdataanalysis/docker-compose.yml
           
-          docker compose -f /opt/DjangoChatGPTAPI/docker-compose.yml down
+          docker compose -f /opt/pmrdataanalysis/docker-compose.yml down
           
           
           docker image prune -f --filter "dangling=true"
-          rm -f /opt/DjangoChatGPTAPI/djangostatic/*
-          docker compose -f /opt/DjangoChatGPTAPI/docker-compose.yml up -d
+          rm -f /opt/pmrdataanalysis/djangostatic/*
+          docker compose -f /opt/pmrdataanalysis/docker-compose.yml up -d
