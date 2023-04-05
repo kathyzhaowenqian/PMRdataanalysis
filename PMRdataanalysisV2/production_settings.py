@@ -24,7 +24,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -364,7 +364,7 @@ SIMPLEUI_CONFIG = {
     ]
 }
 
-
+STATIC_ROOT = '/djangostatic'
 
 #可以展示的时间 。 
 MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS = 30
