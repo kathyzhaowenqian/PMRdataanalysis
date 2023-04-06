@@ -52,7 +52,7 @@ class IfTargetCustomerFilter(SimpleListFilter):
         # pdb.set_trace()
         if self.value() == '1':
 
-            return queryset.filter((Q(salestarget2_q1target__gt= 0)|Q(salestarget2__q2target__gt =0)|Q(salestarget2__q3target__gt =0)|Q(salestarget2__q4target__gt=0)) & Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') )
+            return queryset.filter((Q(salestarget2__q1target__gt= 0)|Q(salestarget2__q2target__gt =0)|Q(salestarget2__q3target__gt =0)|Q(salestarget2__q4target__gt=0)) & Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') )
  
         elif self.value() == '2':
             return queryset.filter(Q(detailcalculate2__newold = '已有业务(含我司仪器)')| Q(detailcalculate2__totalsumpermonth__gt = 0))
