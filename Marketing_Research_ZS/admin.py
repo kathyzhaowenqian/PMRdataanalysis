@@ -440,7 +440,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 37})}
     } 
     autocomplete_fields=['project','hospital']       
-    ordering = ('-id',)#('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',) #('-id',)#
+    ordering = ('id',)#('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',) #('-id',)#
     list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,IfTargetCustomerFilter]
     search_fields = ['hospital__hospitalname','gsmrresearchdetail__brand__brand']
     fieldsets = (('作战背景', {'fields': ('company','project','hospital','salesman1','salesman2',

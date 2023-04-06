@@ -161,7 +161,7 @@ AUTH_USER_MODEL = 'Marketing_Research.UserInfo'
 SIMPLEUI_ANALYSIS = False
 
 SIMPLEUI_HOME_PAGE ='http://139.224.61.6:8088/login/'
-SIMPLEUI_HOME_TITLE = 'superset'
+SIMPLEUI_HOME_TITLE = 'Superset BI 数据看板'
 SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
 
 SIMPLEUI_CONFIG = {
@@ -369,3 +369,6 @@ STATIC_ROOT = '/djangostatic'
 #可以展示的时间 。 
 MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS = 30
 MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS = 30
+
+
+SIMPLEUI_LOGO = '/static/pmr/images/logo.png'
