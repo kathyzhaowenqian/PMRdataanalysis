@@ -12,11 +12,11 @@ services:
       #把静态文件夹目录挂载出来,方便 nginx 转发
       - /opt/pmrdataanalysis/djangostatic:/djangostatic
 
-    #deploy:
-    #  replicas : 3
+    deploy:
+      replicas : 2
         
     ports:
-      - 8000:8000
+      - "8001-8002:8000"
     restart: always
 
      # 限制容器日志的大小
