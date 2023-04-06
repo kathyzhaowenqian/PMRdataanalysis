@@ -1818,7 +1818,7 @@ class PMRResearchListDeleteAdmin(admin.ModelAdmin):
         if request.user.groups.values()[0]['name'] in ['boss','pmronlyview','pmrmanager']:
             return qs.filter(is_active=False,company_id=1)
        #普通销售的话:
-        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=1))|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=1)))
+        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=1)))#|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=1)))
     
 
     def has_delete_permission(self, request,obj=None):

@@ -1804,7 +1804,7 @@ class PMRResearchList2DeleteAdmin(admin.ModelAdmin):
                 return qs.filter(is_active=False,company_id=3)
             
        #普通销售的话:
-        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=3))|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=3)))
+        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=3)))#|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=3)))
     
 
     def has_delete_permission(self, request,obj=None):

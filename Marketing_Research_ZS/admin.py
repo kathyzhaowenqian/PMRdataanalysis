@@ -1707,7 +1707,7 @@ class GSMRResearchListDeleteAdmin(admin.ModelAdmin):
                 return qs.filter(is_active=False,company_id=5)      
 
        #普通销售的话:
-        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=5))|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=5)))
+        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=5)))#|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=5)))
     
 
     def has_delete_permission(self, request,obj=None):
