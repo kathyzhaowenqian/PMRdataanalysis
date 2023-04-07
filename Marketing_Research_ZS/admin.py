@@ -239,7 +239,7 @@ class GSMRResearchDetailInline(admin.StackedInline):
     # readonly_fields = ('sumpermonth',)
     autocomplete_fields=['detailedproject','brand']
     verbose_name = verbose_name_plural = ('招商调研详情表')
-    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview']
+    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -316,7 +316,7 @@ class SalesTargetInline(admin.StackedInline):
                                             )                              
     
     verbose_name = verbose_name_plural = ('作战计划和成果')
-    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview']
+    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
 
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
@@ -452,7 +452,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                  ('作战路径及需求', {'fields': ('saleschannel','support','memo'),
                               'classes': ('wide',)}),                
                 )
-    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview']
+    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
 
 
     # 新增或修改数据时，设置外键可选值，
@@ -476,7 +476,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
 #下面三个还没有修改
     def has_delete_permission(self, request,obj=None):
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] == 'gsmronlyview':
+            if request.user.groups.values()[0]['name'] == 'gsmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 return False
             
         if obj==None:
@@ -503,7 +503,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
     def has_change_permission(self,request, obj=None):
         print('我在PmrResearchListAdmin has change permission:: obj',obj)
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] =='gsmronlyview':
+            if request.user.groups.values()[0]['name'] =='gsmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 return False
         if obj==None:
             print('我在PmrResearchListAdmin has change permission obj==None,True ',request.POST.get('salesman1'))
@@ -528,7 +528,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
     def has_add_permission(self,request):#,obj=None):
         
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] =='gsmronlyview':
+            if request.user.groups.values()[0]['name'] =='gsmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 return False
         if request.POST.get('salesman1'):
             if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
@@ -1443,7 +1443,7 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
     autocomplete_fields=['researchlist','brand']
     readonly_fields=('is_active','expiration')
     ordering = ('-id',)
-    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview']
+    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
 
 
     def get_actions(self, request):
@@ -1692,7 +1692,7 @@ class GSMRResearchListDeleteAdmin(admin.ModelAdmin):
     exclude = ('operator','is_active')
     readonly_fields=('company','hospital','project','salesman1','salesman2','testspermonth','owntestspermonth','salesmode','saleschannel','support','memo')
     search_fields=['uniquestring']
-    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview']
+    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
 
     def get_queryset(self, request):
         qs = super(GSMRResearchListDeleteAdmin,self).get_queryset(request)
@@ -1724,7 +1724,7 @@ class GSMRResearchListDeleteAdmin(admin.ModelAdmin):
 
         #配置恢复权限
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] == 'gsmronlyview' or request.user.groups.values()[0]['name'] =='JC':
+            if request.user.groups.values()[0]['name'] == 'gsmronlyview' or request.user.groups.values()[0]['name'] =='JC' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 del actions['restore']      
             else:  
                 return actions

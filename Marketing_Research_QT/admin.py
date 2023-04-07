@@ -85,7 +85,7 @@ class SalesmanFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(~Q(username__in= ['admin', 'lxg','ssl','chm','lijun','pdh']))
+        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -103,7 +103,7 @@ class SalesmanFilter2(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(~Q(username__in= ['admin', 'lxg','ssl','chm','lijun','pdh']))
+        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -121,7 +121,7 @@ class SalesmanFilterforDetail(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(~Q(username__in= ['admin', 'lxg','ssl','chm','lijun','pdh']))
+        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -261,7 +261,7 @@ class PMRResearchDetailInline(admin.TabularInline):
     # readonly_fields = ('sumpermonth',)
     autocomplete_fields=['detailedproject','brand']
     verbose_name = verbose_name_plural = ('市场调研仪器详情表')
-    QT_view_group_list = ['boss','pmrmanager','QTmanager']
+    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -338,7 +338,7 @@ class SalesTargetInline(admin.StackedInline):
                                             )                              
     
     verbose_name = verbose_name_plural = ('作战计划和成果')
-    QT_view_group_list = ['boss','pmrmanager','QTmanager']
+    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
 
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
@@ -478,7 +478,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                  ('作战路径及需求', {'fields': ('saleschannel','support','adminmemo'),
                               'classes': ('wide',)}),                
                 )
-    QT_view_group_list = ['boss','pmrmanager','QTmanager']
+    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
 
 
     # 新增或修改数据时，设置外键可选值，
@@ -491,9 +491,9 @@ class PMRResearchListAdmin(GlobalAdmin):
             kwargs["queryset"] = Project.objects.filter(is_active=True,company_id=2) 
         if db_field.name == 'salesman1': 
             # kwargs['initial'] = #设置默认值
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & ~Q(username__in= ['admin', 'lxg','ssl','chm','lijun','pdh']))
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy']))
         if db_field.name == 'salesman2':  
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & ~Q(username__in= ['admin', 'lxg','ssl','chm','lijun','pdh'])) 
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy'])) 
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
@@ -502,7 +502,7 @@ class PMRResearchListAdmin(GlobalAdmin):
 #下面三个还没有修改
     def has_delete_permission(self, request,obj=None):
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] == 'pmronlyview':
+            if request.user.groups.values()[0]['name'] == 'pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 return False
             
         if obj==None:
@@ -529,7 +529,7 @@ class PMRResearchListAdmin(GlobalAdmin):
     def has_change_permission(self,request, obj=None):
         print('我在PmrResearchListAdmin has change permission:: obj',obj)
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] =='pmronlyview':
+            if request.user.groups.values()[0]['name'] =='pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 return False
         if obj==None:
             print('我在PmrResearchListAdmin has change permission obj==None,True ',request.POST.get('salesman1'))
@@ -554,7 +554,7 @@ class PMRResearchListAdmin(GlobalAdmin):
     def has_add_permission(self,request):#,obj=None):
         
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] =='pmronlyview':
+            if request.user.groups.values()[0]['name'] =='pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 return False
         if request.POST.get('salesman1'):
             if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
@@ -1512,7 +1512,7 @@ class PMRResearchDetailAdmin(GlobalAdmin):
     autocomplete_fields=['researchlist','brand']
     # fields=('researchlist__project__project','detailedproject','ownbusiness','band','machinemodel')
     ordering = ('-id',)
-    QT_view_group_list = ['boss','pmrmanager','QTmanager']
+    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
 
 
     def get_actions(self, request):
@@ -1798,7 +1798,7 @@ class PMRResearchList3DeleteAdmin(admin.ModelAdmin):
     exclude = ('operator','is_active','olddata')
     readonly_fields=('company','hospital','project','salesman1','salesman2','testspermonth','contactname','contactmobile','salesmode','saleschannel','support','adminmemo')
     search_fields=['uniquestring']
-    QT_view_group_list = ['boss','pmrmanager','QTmanager']
+    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
 
     def get_queryset(self, request):
         qs = super(PMRResearchList3DeleteAdmin,self).get_queryset(request)
@@ -1830,7 +1830,7 @@ class PMRResearchList3DeleteAdmin(admin.ModelAdmin):
 
         #配置恢复权限
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] == 'pmronlyview' or request.user.groups.values()[0]['name'] =='JC':
+            if request.user.groups.values()[0]['name'] == 'pmronlyview' or request.user.groups.values()[0]['name'] =='JC' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 del actions['restore']      
             else:  
                 return actions

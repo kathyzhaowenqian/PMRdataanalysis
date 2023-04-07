@@ -33,7 +33,7 @@ class QTANALYSIS(View):
 
     def get(self, request):
         login_user = request.user.chinesename
-        view_group_list = ['boss','QTmanager','pmrmanager','pmrdirectsales']
+        view_group_list = ['boss','QTmanager','pmrmanager','pmrdirectsales','allviewonly']
         user_in_group_list = request.user.groups.values('name')
 
         
@@ -51,7 +51,7 @@ class QTANALYSISDETAIL(View):
     def get(self,request):
     
         login_user = request.user.chinesename
-        view_group_list = ['boss','QTmanager','pmrmanager','pmrdirectsales']
+        view_group_list = ['boss','QTmanager','pmrmanager','pmrdirectsales','allviewonly']
         user_in_group_list = request.user.groups.values('name')
         print(user_in_group_list)
 

@@ -33,7 +33,7 @@ class WDANALYSIS(View):
 
     def get(self, request):
         login_user = request.user.chinesename
-        view_group_list = ['boss','WDmanager','pmrmanager','pmrdirectsales']
+        view_group_list = ['boss','WDmanager','pmrmanager','pmrdirectsales','allviewonly']
         user_in_group_list = request.user.groups.values('name')
 
         
@@ -51,7 +51,7 @@ class WDANALYSISDETAIL(View):
     def get(self,request):
     
         login_user = request.user.chinesename
-        view_group_list = ['boss','WDmanager','pmrmanager','pmrdirectsales']
+        view_group_list = ['boss','WDmanager','pmrmanager','pmrdirectsales','allviewonly']
         user_in_group_list = request.user.groups.values('name')
         print(user_in_group_list)
 

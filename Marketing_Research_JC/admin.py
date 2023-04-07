@@ -73,8 +73,6 @@ class JCResearchListAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime','is_active','operator')
     search_fields=['hospital__hospitalname','brand__brand']
     list_filter = ['hospital__district','hospital__hospitalclass','jcornot']
-
-
     list_display_links =('list_hospitalname',)
     empty_value_display = '--'
     list_per_page = 10
@@ -113,7 +111,7 @@ class JCResearchListAdmin(GlobalAdmin):
         qs = super().get_queryset(request)
         print('我在PMRResearchDetailAdmin-get_queryset')
         #通过外键连list中的负责人名称
-        if request.user.is_superuser  or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='JC' or request.user.groups.values()[0]['name'] =='JConlyview': 
+        if request.user.is_superuser  or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='JC' or request.user.groups.values()[0]['name'] =='JConlyview' or request.user.groups.values()[0]['name'] =='allviewonly': 
             return qs.filter(is_active=True)
 
 

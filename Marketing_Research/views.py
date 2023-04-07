@@ -33,13 +33,14 @@ class PMRANALYSIS(View):
 
     def get(self, request):
         login_user = request.user.chinesename
-        view_group_list = ['boss','pmronlyview','pmrmanager','pmrdirectsales']
+        view_group_list = ['boss','pmronlyview','pmrmanager','pmrdirectsales','allviewonly']
         user_in_group_list = request.user.groups.values('name')
 
         
         for user_in_group_dict in user_in_group_list:
             if user_in_group_dict['name'] in view_group_list :
                 return render(request, 'PMRanalysis/index.html')
+            
         if request.user.username=='admin':
             return render(request, 'PMRanalysis/index.html')
         else:
@@ -51,7 +52,7 @@ class PMRANALYSISDETAIL(View):
     def get(self,request):
     
         login_user = request.user.chinesename
-        view_group_list = ['boss','pmronlyview','pmrmanager','pmrdirectsales']
+        view_group_list = ['boss','pmronlyview','pmrmanager','pmrdirectsales','allviewonly']
         user_in_group_list = request.user.groups.values('name')
         print(user_in_group_list)
 
