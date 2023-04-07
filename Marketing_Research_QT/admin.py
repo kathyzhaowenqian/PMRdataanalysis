@@ -1501,7 +1501,7 @@ class PMRResearchListAdmin(GlobalAdmin):
 class PMRResearchDetailAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=['researchlist__hospital__hospitalname','brand__brand','machinemodel','competitionrelation__competitionrelation']
-    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilter,SalesmanFilterforDetail,'competitionrelation','researchlist__detailcalculate3__newold','expiration']
+    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilter,SalesmanFilterforDetail,'competitionrelation','ownbusiness','expiration']
 
 
     list_display_links =('list_hospitalname',)
