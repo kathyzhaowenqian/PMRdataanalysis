@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.urls import path,include
 from django.views.generic.base import RedirectView
 favicon_view = RedirectView.as_view(url='/static/pmr/images/favicon.ico',permanent=True)
+mainsite_view=RedirectView.as_view(url='admin/',permanent=True)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', mainsite_view),
     path('Marketing_Research/',include('Marketing_Research.urls')),
     path('Marketing_Research_QT/',include('Marketing_Research_QT.urls')),
     path('Marketing_Research_WD/',include('Marketing_Research_WD.urls')),
