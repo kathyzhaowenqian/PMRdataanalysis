@@ -160,7 +160,7 @@ AUTH_USER_MODEL = 'Marketing_Research.UserInfo'
 
 SIMPLEUI_ANALYSIS = False
 
-SIMPLEUI_HOME_PAGE ='http://139.224.61.6:8088/login/'
+SIMPLEUI_HOME_PAGE ='http://data.bio-merry.com:8088/login/'
 SIMPLEUI_HOME_TITLE = 'Superset BI 数据看板'
 SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
 
