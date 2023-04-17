@@ -22,7 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -44,7 +43,12 @@ INSTALLED_APPS = [
     'Marketing_Research_WD',
     'Marketing_Research_QT',
     'Marketing_Research_JC',
-    'Marketing_Research_ZS'
+    'Marketing_Research_ZS',
+    'PMR_U8_001',
+    'PMR_U8_009',
+    'PMR_U8_010',
+    'PMR_U8_011',
+    'PMR_U8_012',
 ]
 
 MIDDLEWARE = [
@@ -92,11 +96,9 @@ DATABASES = {
         'HOST': os.environ.get('POSTGRESQL_INTERNAL_HOST'), 
         'PORT': os.environ.get('POSTGRESQL_INTERNAL_PORT'),
         'OPTIONS': {
-            'options': '-c search_path="django_admin_v2","marketing_research_v2"'
+            'options': '-c search_path="django_admin_v2","marketing_research_v2","PMR_U8_001","PMR_U8_009","PMR_U8_010","PMR_U8_011","PMR_U8_012"'
         }
     },
-
-    
 }
 
 
@@ -147,13 +149,7 @@ STATICFILES_DIRS = ['Marketing_Research/static/',]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# # 为各个应用配置database路由
-# DATABASE_ROUTERS = ['PMRdataanalysisV2.database_router.DatabaseAppsRouter']
-# DATABASE_APPS_MAPPING = {
-#     #  'PMR_U8_001': 'PMR_U8_001',
-#     #  'PMR_Finance':'PMR_Finance',
-#     'Marketing_Research': 'Marketing_Research_V2',  #  app : 数据库名称
-# }
+
 
 
 AUTH_USER_MODEL = 'Marketing_Research.UserInfo'
@@ -167,57 +163,71 @@ SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
 
 SIMPLEUI_CONFIG = {
     'system_keep': True,
-    'menu_display': ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','认证授权'],# '内网穿透','PMR_U8_001总结','PMR_U8_001','市场调研表总结'],    # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
+    'menu_display': ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','用友-普美瑞-U8-001','用友-盈帅-U8-009','用友-国赛美瑞-U8-010','用友-其田-U8-011','用友-卫顿-U8-012','认证授权'],  
     'dynamic': True,    # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
     'menus': [
-        #一级菜单：内网穿透
-        # {
-        #     'name': '内网穿透',
-        #     'url': 'https://www.wezoz.com',
-        #     'icon': 'fab fa-github'
-        # },
-        # #一级菜单：PMR_U8_001
-        # {
-        #     'name': 'PMR_U8_001',
-        #     #'url': '/admin/PMR_U8_001/consignmentlist/',
-        #     'icon': 'fab fa-github',
-        #     'models': [
-        #         {
-        #         'name': '发货相关',
-        #         'icon': 'far fa-surprise',
-        #         # 第三级菜单 ，
-        #             'models': [
-        #                 {
-        #                 'name': '发货单列表',
-        #                 'url': '/admin/PMR_U8_001/consignmentlist/'
-        #                 }, 
-        #                 {
-        #                     'name': '发货单详情表',
-        #                     'icon': 'far fa-surprise',
-        #                     'url': '/admin/PMR_U8_001/consignmentdetail/'
-        #                 }
-        #             ]
-        #         }, 
-        #         {
-        #         'name': 'PMR_U8_001自定义',
-        #         'url': 'https://www.baidu.com',
-        #         'icon': 'fab fa-github'
-        #         }
-        #     ]
+
+        #一级菜单：PMR_U8_001
+        {
+            'name': '用友-普美瑞-U8-001',
+            'icon': 'fab fa-github',
+            'models': [
+                {
+                'name': '发货单',
+                'url': '/admin/PMR_U8_001/consignments/'
+                }, 
+         
+            ]
         
-        # },
-        #  #一级菜单：PMR_U8_001/test
-        # {
-        #     'name': 'PMR_U8_001总结',
-        #     'url': '/PMR_U8_001/test',
-        #     'icon': 'fab fa-github'
-        # },
-        #一级菜单：市场调研表总结
-        # {
-        #     'name': '市场调研表总结',
-        #     'url': '/Marketing_Research/test',
-        #     'icon': 'fab fa-github'
-        # },
+        },
+        #一级菜单：PMR_U8_009
+        {
+            'name': '用友-盈帅-U8-009',
+            'icon': 'fab fa-github',
+            'models': [
+                {
+                'name': '发货单',
+                'url': '/admin/PMR_U8_009/consignments/'
+                }, 
+         
+            ]
+        
+        },
+        #一级菜单：PMR_U8_010
+        {
+            'name': '用友-国赛美瑞-U8-010',
+            'icon': 'fab fa-github',
+            'models': [
+                {
+                'name': '发货单',
+                'url': '/admin/PMR_U8_010/consignments/'
+                },          
+            ]        
+        },  
+        #一级菜单：PMR_U8_011
+        {
+            'name': '用友-其田-U8-011',
+            'icon': 'fab fa-github',
+            'models': [
+                {
+                'name': '发货单',
+                'url': '/admin/PMR_U8_011/consignments/'
+                },          
+            ]        
+        },  
+        #一级菜单：PMR_U8_012
+        {
+            'name': '用友-卫顿-U8-012',
+            'icon': 'fab fa-github',
+            'models': [
+                {
+                'name': '发货单',
+                'url': '/admin/PMR_U8_012/consignments/'
+                },          
+            ]        
+        },                  
+
+
 
         #一级菜单：普美瑞直销调研表
         {

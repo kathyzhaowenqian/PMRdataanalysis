@@ -18,6 +18,7 @@ from Marketing_Research.tools.calculate_Quater_target import result_of_Quatar_di
 from django.db.models import Avg,Sum,Count,Max,Min
 
 from django.contrib.admin import SimpleListFilter
+from django.db.models import Case, When, Value, IntegerField
 
 
 class ProjectFilter(SimpleListFilter):
@@ -460,8 +461,18 @@ class PMRResearchListAdmin(GlobalAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 37})}
     } 
-    autocomplete_fields=['project','hospital']       
-    ordering = ('-id',)#('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',)#('-id',)#
+    autocomplete_fields=['project','hospital']   
+    ordering = ('-hospital__district',
+                Case(
+                        When(hospital__hospitalclass='三级', then=Value(1)),
+                        When(hospital__hospitalclass='二级', then=Value(2)),
+                        When(hospital__hospitalclass='一级', then=Value(3)),
+                        When(hospital__hospitalclass='未定级', then=Value(4)),
+                        output_field=IntegerField(),
+                    ),
+                'hospital__hospitalname','salesman1','project',)
+
+    # ordering = ('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',)#('-id',)#
     list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate2__newold',IfTargetCustomerFilter,IfActualSalesFilter]
     search_fields = ['hospital__hospitalname','pmrresearchdetail2__brand__brand','pmrresearchdetail2__machinemodel']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
@@ -545,26 +556,36 @@ class PMRResearchListAdmin(GlobalAdmin):
             print('我在PmrResearchListAdmin has change permission else else else',False)
             return False
 
-    def has_add_permission(self,request):#,obj=None):
+    # def has_add_permission(self,request):#,obj=None):
         
-        if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] =='pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
-                return False
-        if request.POST.get('salesman1'):
-            if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
-                print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 True SUPERUSER!!)',request.POST.get('salesman1'))
-                return True
-            if request.POST.get('salesman1')!=str(request.user.id):
-                print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 false!!)',request.POST.get('salesman1'),request.user.id)
-                raise PermissionDenied('Forbidden ++++++++++++++++++++++')
-                #return False
-            else:
-                print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 true!!)',request.POST.get('salesman1'))
-                return True
-        else:
-            print('我在PmrResearchListAdmin has add permission else else',True)
-            return True
+    #     if request.user.groups.values():
+    #         if request.user.groups.values()[0]['name'] =='pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
+    #             return False
+    #     if request.POST.get('salesman1'):
+    #         if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
+    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 True SUPERUSER!!)',request.POST.get('salesman1'))
+    #             return True
+    #         if request.POST.get('salesman1')!=str(request.user.id):
+    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 false!!)',request.POST.get('salesman1'),request.user.id)
+    #             raise PermissionDenied('Forbidden ++++++++++++++++++++++')
+    #             #return False
+    #         else:
+    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 true!!)',request.POST.get('salesman1'))
+    #             return True
+    #     else:
+    #         print('我在PmrResearchListAdmin has add permission else else',True)
+    #         return True
 
+    def has_add_permission(self,request):
+        if  request.user.is_superuser:
+            return True
+        if request.user.groups.values():
+            if request.user.groups.values()[0]['name'] =='boss':
+                return True        
+            else:
+              return False
+        else:
+            return False
 
 
     def get_queryset(self, request):
@@ -1507,7 +1528,16 @@ class PMRResearchDetailAdmin(GlobalAdmin):
                     'renamed_detailedproject','ownbusiness','brand','machinemodel','machineseries','machinenumber','installdate','colored_expiration','testprice','endsupplier','colored_competitionrelation')
     autocomplete_fields=['researchlist','brand']
     # fields=('researchlist__project__project','detailedproject','ownbusiness','band','machinemodel')
-    ordering = ('-id',)
+    # ordering = ('-id',)
+    ordering = ('-researchlist__hospital__district',
+                Case(
+                        When(researchlist__hospital__hospitalclass='三级', then=Value(1)),
+                        When(researchlist__hospital__hospitalclass='二级', then=Value(2)),
+                        When(researchlist__hospital__hospitalclass='一级', then=Value(3)),
+                        When(researchlist__hospital__hospitalclass='未定级', then=Value(4)),
+                        output_field=IntegerField(),
+                    ),
+                'researchlist__hospital__hospitalname','researchlist__salesman1','researchlist__project',)
     WD_view_group_list = ['boss','pmrmanager','WDmanager','allviewonly']
 
 

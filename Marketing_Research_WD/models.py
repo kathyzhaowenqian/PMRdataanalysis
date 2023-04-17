@@ -229,7 +229,7 @@ class PMRResearchList2(models.Model):
     salesman1 = models.ForeignKey('UserInfo2', models.CASCADE, db_column='salesman1',to_field='id',related_name='salesman1wd',verbose_name= '第一负责人')
     salesman2 = models.ForeignKey('UserInfo2', models.CASCADE, db_column='salesman2',to_field='id',related_name='salesman2wd',verbose_name= '第二负责人')
 
-    salesmode=MultiSelectField(verbose_name='销售模式',max_length=25,choices=salesmode_choices,blank=True,null=True)
+    salesmode=MultiSelectField(verbose_name='销售模式(可多选)',max_length=25,choices=salesmode_choices,blank=True,null=True)
 
 
     testspermonth = models.PositiveIntegerField(verbose_name='月总测试数',default = 0)

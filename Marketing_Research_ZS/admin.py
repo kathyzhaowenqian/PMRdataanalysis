@@ -525,27 +525,37 @@ class GSMRResearchListAdmin(GlobalAdmin):
             print('我在PmrResearchListAdmin has change permission else else else',False)
             return False
 
-    def has_add_permission(self,request):#,obj=None):
+    # def has_add_permission(self,request):#,obj=None):
         
-        if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] =='gsmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
-                return False
-        if request.POST.get('salesman1'):
-            if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
-                print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 True SUPERUSER!!)',request.POST.get('salesman1'))
-                return True
-            if request.POST.get('salesman1')!=str(request.user.id):
-                print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 false!!)',request.POST.get('salesman1'),request.user.id)
-                raise PermissionDenied('Forbidden ++++++++++++++++++++++')
-                #return False
-            else:
-                print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 true!!)',request.POST.get('salesman1'))
-                return True
-        else:
-            print('我在PmrResearchListAdmin has add permission else else',True)
+    #     if request.user.groups.values():
+    #         if request.user.groups.values()[0]['name'] =='gsmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
+    #             return False
+    #     if request.POST.get('salesman1'):
+    #         if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
+    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 True SUPERUSER!!)',request.POST.get('salesman1'))
+    #             return True
+    #         if request.POST.get('salesman1')!=str(request.user.id):
+    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 false!!)',request.POST.get('salesman1'),request.user.id)
+    #             raise PermissionDenied('Forbidden ++++++++++++++++++++++')
+    #             #return False
+    #         else:
+    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 true!!)',request.POST.get('salesman1'))
+    #             return True
+    #     else:
+    #         print('我在PmrResearchListAdmin has add permission else else',True)
+    #         return True
+
+    def has_add_permission(self,request):
+        if  request.user.is_superuser:
             return True
-
-
+        if request.user.groups.values():
+            if request.user.groups.values()[0]['name'] =='boss':
+                return True        
+            else:
+              return False
+        else:
+            return False
+        
 
     def get_queryset(self, request):
         if request.user.groups.values():
@@ -1442,6 +1452,7 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
                     'testprice','endsupplier','colored_competitionrelation')
     autocomplete_fields=['researchlist','brand']
     readonly_fields=('is_active','expiration')
+    
     ordering = ('-id',)
     GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
 
