@@ -784,6 +784,7 @@ class PMRResearchListAdmin(GlobalAdmin):
             return  '--'
         else:
             return obj.detailcalculate2.totalmachinenumber
+    detailcalculate_totalmachinenumber.admin_order_field = '-detailcalculate2__totalmachinenumber'
     
     @admin.display(description='我司仪器占比')
     def detailcalculate_ownmachinenumberpercent(self, obj):
@@ -791,6 +792,7 @@ class PMRResearchListAdmin(GlobalAdmin):
             return '--'
         else:
             return '{:.1f}%'.format(obj.detailcalculate2.ownmachinepercent*100)
+    detailcalculate_ownmachinenumberpercent.admin_order_field = '-detailcalculate2__ownmachinepercent'
     
     @admin.display(description='业务类型')
     def detailcalculate_newold(self, obj):
@@ -804,11 +806,11 @@ class PMRResearchListAdmin(GlobalAdmin):
     def hospital_hospitalclass(self, obj):
         return obj.hospital.hospitalclass
 
-    @admin.display(description='第一责任人')
+    @admin.display(ordering="salesman1__chinesename",description='第一责任人')
     def salesman1_chinesename(self, obj):
         return obj.salesman1.chinesename
 
-    @admin.display(description='第二责任人')
+    @admin.display(ordering="salesman2__chinesename",description='第二责任人')
     def salesman2_chinesename(self, obj):
         return obj.salesman2.chinesename
 
@@ -850,6 +852,7 @@ class PMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
+    salestarget_23_q1.admin_order_field = '-salestarget2__q1target'
 
     @admin.display(description='23/Q2目标')
     def salestarget_23_q2(self, obj):
@@ -862,7 +865,9 @@ class PMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-       
+    salestarget_23_q2.admin_order_field = '-salestarget2__q2target'
+
+   
     @admin.display(description='23/Q3目标')
     def salestarget_23_q3(self, obj):
         if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3target == 0:
@@ -874,6 +879,7 @@ class PMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
+    salestarget_23_q3.admin_order_field = '-salestarget2__q3target'
 
     @admin.display(description='23/Q4目标')
     def salestarget_23_q4(self, obj):
@@ -886,7 +892,8 @@ class PMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)    
-    
+    salestarget_23_q4.admin_order_field = '-salestarget2__q4target'
+
     @admin.display(description='24/Q1目标')
     def salestarget_24_q1(self, obj):
         if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1target == 0:
@@ -898,7 +905,8 @@ class PMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    
+    salestarget_24_q1.admin_order_field = '-salestarget2__q1target'
+
     @admin.display(description='24/Q2目标')
     def salestarget_24_q2(self, obj):
         if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2target == 0:
@@ -910,6 +918,7 @@ class PMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
+    salestarget_24_q2.admin_order_field = '-salestarget2__q2target'
         
     @admin.display(description='24/Q3目标')
     def salestarget_24_q3(self, obj):
@@ -922,7 +931,8 @@ class PMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    
+    salestarget_24_q3.admin_order_field = '-salestarget2__q3target'
+
     @admin.display(description='24/Q4目标')
     def salestarget_24_q4(self, obj):
         if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4target == 0:
@@ -934,209 +944,223 @@ class PMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    
+    salestarget_24_q4.admin_order_field = '-salestarget2__q4target'
+
 
 #目标完成月
     @admin.display(description='23/Q1目标月')
     def completemonth_23_q1(self, obj):
         return obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1completemonth
+    completemonth_23_q1.admin_order_field = 'salestarget2__q1completemonth'
 
     @admin.display(description='23/Q2目标月')
     def completemonth_23_q2(self, obj):
         return obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2completemonth
+    completemonth_23_q2.admin_order_field = 'salestarget2__q2completemonth'
     
     @admin.display(description='23/Q3目标月')
     def completemonth_23_q3(self, obj):
         return obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3completemonth
+    completemonth_23_q3.admin_order_field = 'salestarget2__q3completemonth'
 
     @admin.display(description='23/Q4目标月')
     def completemonth_23_q4(self, obj):
         return obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4completemonth
+    completemonth_23_q4.admin_order_field = 'salestarget2__q4completemonth'    
     
     @admin.display(description='24/Q1目标月')
     def completemonth_24_q1(self, obj):
         return obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1completemonth
+    completemonth_24_q1.admin_order_field = 'salestarget2__q1completemonth'
 
     @admin.display(description='24/Q2目标月')
     def completemonth_24_q2(self, obj):
         return obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2completemonth
+    completemonth_24_q2.admin_order_field = 'salestarget2__q2completemonth'
     
     @admin.display(description='24/Q3目标月')
     def completemonth_24_q3(self, obj):
         return obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3completemonth
+    completemonth_24_q3.admin_order_field = 'salestarget2__q3completemonth'
 
     @admin.display(description='24/Q4目标月')
     def completemonth_24_q4(self, obj):
         return obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4completemonth
+    completemonth_24_q4.admin_order_field = 'salestarget2__q4completemonth'
 
 
 #每季度实际完成额
     @admin.display(description='23/Q1实际')
     def actualsales_23_q1(self, obj):
         return obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1actualsales
+    actualsales_23_q1.admin_order_field = '-salestarget2__q1actualsales'
 
     @admin.display(description='23/Q2实际')
     def actualsales_23_q2(self, obj):
         return obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2actualsales
+    actualsales_23_q2.admin_order_field = '-salestarget2__q2actualsales'
     
     @admin.display(description='23/Q3实际')
     def actualsales_23_q3(self, obj):
         return obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3actualsales
+    actualsales_23_q3.admin_order_field = '-salestarget2__q3actualsales'
 
     @admin.display(description='23/Q4实际')
     def actualsales_23_q4(self, obj):
         return obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4actualsales
+    actualsales_23_q4.admin_order_field = '-salestarget2__q4actualsales'
     
     @admin.display(description='24/Q1实际')
     def actualsales_24_q1(self, obj):
         return obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1actualsales
+    actualsales_24_q1.admin_order_field = '-salestarget2__q1actualsales'
 
     @admin.display(description='24/Q2实际')
     def actualsales_24_q2(self, obj):
         return obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2actualsales
+    actualsales_24_q2.admin_order_field = '-salestarget2__q2actualsales'
     
     @admin.display(description='24/Q3实际')
     def actualsales_24_q3(self, obj):
         return obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3actualsales
+    actualsales_24_q3.admin_order_field = '-salestarget2__q3actualsales'
 
     @admin.display(description='24/Q4实际')
     def actualsales_24_q4(self, obj):
         return obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4actualsales
+    actualsales_24_q4.admin_order_field = '-salestarget2__q4actualsales'
 
 
 #每季度实际完成率
     @admin.display(description='23/Q1完成率')
     def finishrate_23_q1(self, obj):
-        if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1target and obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1target != 0: #如果target不是0
-            finishrate=obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1actualsales/obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1target
-            obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1finishrate=finishrate
+        sales_target = obj.salestarget2_set.filter(year='2023',is_active=True)[0]
+        if sales_target.q1target and sales_target.q1target != 0:#如果target不是0
+            finishrate = sales_target.q1actualsales / sales_target.q1target
+            sales_target.q1finishrate = finishrate
+            sales_target.save()
             return '{:.1f}%'.format(finishrate*100)
 
-        else: #如果target是0 但actual不是0
-            if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1actualsales !=0:  
-                finishrate=0
-                obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1finishrate=finishrate
-                return '--'
-            else: #如果target是0 actual是0
-                finishrate=0
-                obj.salestarget2_set.filter(year='2023',is_active=True)[0].q1finishrate=finishrate
-                return '--'
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q1finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_23_q1.admin_order_field = '-salestarget2__q1finishrate'
 
     @admin.display(description='23/Q2完成率')
     def finishrate_23_q2(self, obj):
-        if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2target and obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2target != 0:
-            finishrate=obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2actualsales/obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2target
-            obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2finishrate=finishrate
+        sales_target = obj.salestarget2_set.filter(year='2023',is_active=True)[0]
+        if sales_target.q2target and sales_target.q2target != 0:#如果target不是0
+            finishrate = sales_target.q2actualsales / sales_target.q2target
+            sales_target.q2finishrate = finishrate
+            sales_target.save()
             return '{:.1f}%'.format(finishrate*100)
 
-        else: #如果target是0 但actual不是0
-            if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2actualsales !=0:  
-                finishrate=0
-                obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2finishrate=finishrate
-                return '--'
-            else: #如果target是0 actual是0
-                finishrate=0
-                obj.salestarget2_set.filter(year='2023',is_active=True)[0].q2finishrate=finishrate
-                return '--'
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q2finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_23_q2.admin_order_field = '-salestarget2__q2finishrate'
+
+
     
     @admin.display(description='23/Q3完成率')
     def finishrate_23_q3(self, obj):
-        if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3target and obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3target != 0:
-            finishrate=obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3actualsales/obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3target
-            obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3finishrate=finishrate
+        sales_target = obj.salestarget2_set.filter(year='2023',is_active=True)[0]
+        if sales_target.q3target and sales_target.q3target != 0:#如果target不是0
+            finishrate = sales_target.q3actualsales / sales_target.q3target
+            sales_target.q3finishrate = finishrate
+            sales_target.save()
             return '{:.1f}%'.format(finishrate*100)
 
-        else: #如果target是0 但actual不是0
-            if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3actualsales !=0:  
-                finishrate=0
-                obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3finishrate=finishrate
-                return '--'
-            else: #如果target是0 actual是0
-                finishrate=0
-                obj.salestarget2_set.filter(year='2023',is_active=True)[0].q3finishrate=finishrate
-                return '--'
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q3finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_23_q3.admin_order_field = '-salestarget2__q3finishrate'
 
     @admin.display(description='23/Q4完成率')
     def finishrate_23_q4(self, obj):
-        if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4target and obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4target != 0:
-            finishrate=obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4actualsales/obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4target
-            obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4finishrate=finishrate
+        sales_target = obj.salestarget2_set.filter(year='2023',is_active=True)[0]
+        if sales_target.q4target and sales_target.q4target != 0:#如果target不是0
+            finishrate = sales_target.q4actualsales / sales_target.q4target
+            sales_target.q4finishrate = finishrate
+            sales_target.save()
             return '{:.1f}%'.format(finishrate*100)
 
-        else: #如果target是0 但actual不是0
-            if obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4actualsales !=0:  
-                finishrate=0
-                obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4finishrate=finishrate
-                return '--'
-            else: #如果target是0 actual是0
-                finishrate=0
-                obj.salestarget2_set.filter(year='2023',is_active=True)[0].q4finishrate=finishrate
-                return '--'
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q4finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_23_q4.admin_order_field = '-salestarget2__q4finishrate'
     
     @admin.display(description='24/Q1完成率')
     def finishrate_24_q1(self, obj):
-        if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1target and obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1target != 0:
-            finishrate=obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1actualsales/obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1target
-            obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1finishrate=finishrate
+        sales_target = obj.salestarget2_set.filter(year='2024',is_active=True)[0]
+        if sales_target.q1target and sales_target.q1target != 0:#如果target不是0
+            finishrate = sales_target.q1actualsales / sales_target.q1target
+            sales_target.q1finishrate = finishrate
+            sales_target.save()
             return '{:.1f}%'.format(finishrate*100)
 
-        else: #如果target是0 但actual不是0
-            if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1actualsales !=0:  
-                finishrate=0
-                obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1finishrate=finishrate
-                return '--'
-            else: #如果target是0 actual是0
-                finishrate=0
-                obj.salestarget2_set.filter(year='2024',is_active=True)[0].q1finishrate=finishrate
-                return '--'
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q1finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_24_q1.admin_order_field = '-salestarget2__q1finishrate'
 
     @admin.display(description='24/Q2完成率')
     def finishrate_24_q2(self, obj):
-        if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2target and obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2target != 0:
-            finishrate=obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2actualsales/obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2target
-            obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2finishrate=finishrate
+        sales_target = obj.salestarget2_set.filter(year='2024',is_active=True)[0]
+        if sales_target.q2target and sales_target.q2target != 0:#如果target不是0
+            finishrate = sales_target.q2actualsales / sales_target.q2target
+            sales_target.q2finishrate = finishrate
+            sales_target.save()
             return '{:.1f}%'.format(finishrate*100)
-        else: #如果target是0 但actual不是0
-            if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2actualsales !=0:  
-                finishrate=0
-                obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2finishrate=finishrate
-                return '--'
-            else: #如果target是0 actual是0
-                finishrate=0
-                obj.salestarget2_set.filter(year='2024',is_active=True)[0].q2finishrate=finishrate
-                return '--'
+
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q2finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_24_q2.admin_order_field = '-salestarget2__q2finishrate'
     
     @admin.display(description='24/Q3完成率')
     def finishrate_24_q3(self, obj):
-        if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3target and obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3target != 0:
-            finishrate=obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3actualsales/obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3target
-            obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3finishrate=finishrate
+        sales_target = obj.salestarget2_set.filter(year='2024',is_active=True)[0]
+        if sales_target.q3target and sales_target.q3target != 0:#如果target不是0
+            finishrate = sales_target.q3actualsales / sales_target.q3target
+            sales_target.q3finishrate = finishrate
+            sales_target.save()
             return '{:.1f}%'.format(finishrate*100)
-        else: #如果target是0 但actual不是0
-            if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3actualsales !=0:  
-                finishrate=0
-                obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3finishrate=finishrate
-                return '--'
-            else: #如果target是0 actual是0
-                finishrate=0
-                obj.salestarget2_set.filter(year='2024',is_active=True)[0].q3finishrate=finishrate
-                return '--'
+
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q3finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_24_q3.admin_order_field = '-salestarget2__q3finishrate'
     
     @admin.display(description='24/Q4完成率')
     def finishrate_24_q4(self, obj):
-        if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4target and obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4target != 0:
-            finishrate=obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4actualsales/obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4target
-            obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4finishrate=finishrate
+        sales_target = obj.salestarget2_set.filter(year='2024',is_active=True)[0]
+        if sales_target.q4target and sales_target.q4target != 0:#如果target不是0
+            finishrate = sales_target.q4actualsales / sales_target.q4target
+            sales_target.q4finishrate = finishrate
+            sales_target.save()
             return '{:.1f}%'.format(finishrate*100)
-        else: #如果target是0 但actual不是0
-            if obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4actualsales !=0:  
-                finishrate=0
-                obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4finishrate=finishrate
-                return '--'
-            else: #如果target是0 actual是0
-                finishrate=0
-                obj.salestarget2_set.filter(year='2024',is_active=True)[0].q4finishrate=finishrate
-                return '--'
+
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q4finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_24_q4.admin_order_field = '-salestarget2__q4finishrate'
 
     #通过display计算的仪器值，不做任何保存！！！
     @admin.display(description='test仪器总数')
@@ -1594,26 +1618,6 @@ class PMRResearchDetailAdmin(GlobalAdmin):
             obj.researchlist.operator=request.user
             obj.save()
 
-    # #需要核对
-    # def delete_queryset(self,request, queryset):        
-    #     print('我在delete_queryset')
-    #     for delete_obj in queryset:     
-    #         print('delete_queryset delete_obj',delete_obj,delete_obj.researchlist.salesman1)                    
-    #         if request.user.is_superuser or delete_obj.researchlist.salesman1==request.user or request.user.groups.values()[0]['name'] =='boss':     
-    #             delete_obj.is_active=False
-    #             print('delete_queryset detail 已假删')
-    #             delete_obj.operator=request.user
-    #             delete_obj.save()
-
-
-
-    # # 外键只显示active的(但是会被autocomplete覆盖，所以要在外键对应的“一”表的admin中重写getsearchresult)   
-    # def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
-    #     context['adminform'].form.fields['researchlist'].queryset = PMRResearchList.objects.filter(is_active=True)
-    #     context['adminform'].form.fields['detailedproject'].queryset = ProjectDetail.objects.filter(is_active=True)
-    #     context['adminform'].form.fields['brand'].queryset = Brand.objects.filter(is_active=True)
-    #     context['adminform'].form.fields['competitionrelation'].queryset = CompetitionRelation.objects.filter(is_active=True)
-    #     return super(PMRResearchDetailAdmin, self).render_change_form(request, context, add, change, form_url, obj)
 
 #一下变化，在list的inline中有体现，
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -1640,19 +1644,19 @@ class PMRResearchDetailAdmin(GlobalAdmin):
     def list_hospitalclass(self, obj):
         return obj.researchlist.hospital.hospitalclass
     
-    @admin.display(description='医院名称')
+    @admin.display(ordering="researchlist__hospital__hospitalname",description='医院名称')
     def list_hospitalname(self, obj):
         return obj.researchlist.hospital.hospitalname
     
-    @admin.display(description='项目细分')
+    @admin.display(ordering="detailedproject",description='项目细分')
     def renamed_detailedproject(self, obj):
         return obj.detailedproject
 
-    @admin.display(description='第一负责人')
+    @admin.display(ordering="researchlist__salesman1__chinesename",description='第一负责人')
     def list_salesman1(self, obj): #用relatedname
         return obj.researchlist.salesman1.chinesename
 
-    @admin.display(description='项目')
+    @admin.display(ordering="researchlist__project__project",description='项目')
     def list_project(self,obj):
         if not obj.researchlist.project.project:
             obj.researchlist.project.project = '--'
@@ -1680,7 +1684,7 @@ class PMRResearchDetailAdmin(GlobalAdmin):
                 color_code,
                 obj.researchlist.project.project, )
 
-    @admin.display(description='装机时间')
+    @admin.display(ordering="-expiration",description='装机时间')
     def colored_expiration(self,obj):
     # """自定义列表字段, 根据数据单截止日期和当前日期判断是否过期,并对数据库进行更新"""
 
@@ -1703,7 +1707,7 @@ class PMRResearchDetailAdmin(GlobalAdmin):
                 )
 
 
-    @admin.display(description='竞品关系点')
+    @admin.display(ordering="competitionrelation",description='竞品关系点')
     def colored_competitionrelation(self,obj):
         if not obj.competitionrelation:
             ret = '--'
