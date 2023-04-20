@@ -814,7 +814,7 @@ class PMRResearchListAdmin(GlobalAdmin):
     def salesman2_chinesename(self, obj):
         return obj.salesman2.chinesename
 
-    @admin.display(ordering="project__project",description='项目')
+    @admin.display(ordering="project__project",description='项目名称')
     def colored_project(self,obj):
         if obj.project.project=='曲霉GM':
             color_code='red'  
@@ -1656,7 +1656,7 @@ class PMRResearchDetailAdmin(GlobalAdmin):
     def list_salesman1(self, obj): #用relatedname
         return obj.researchlist.salesman1.chinesename
 
-    @admin.display(ordering="researchlist__project__project",description='项目')
+    @admin.display(ordering="researchlist__project__project",description='项目名称')
     def list_project(self,obj):
         if not obj.researchlist.project.project:
             obj.researchlist.project.project = '--'
