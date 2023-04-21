@@ -232,7 +232,7 @@ class PMRResearchList2(models.Model):
     salesmode=MultiSelectField(verbose_name='销售模式(可多选)',max_length=25,choices=salesmode_choices,blank=True,null=True)
 
 
-    testspermonth = models.PositiveIntegerField(verbose_name='月总测试数',default = 0)
+    testspermonth = models.PositiveIntegerField(verbose_name='月总测试数(人份)',default = 0)
     owntestspermonth = models.PositiveIntegerField(verbose_name='我司业务月测试数',default = 0)
     contactname = models.CharField(verbose_name='主任姓名',max_length=255, blank=True, null=True)
     contactmobile = models.CharField(verbose_name='联系方式',max_length=255, blank=True, null=True)

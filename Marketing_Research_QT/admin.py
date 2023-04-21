@@ -483,7 +483,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),
                               'classes': ('wide','extrapretty',),
                               'description': format_html(
-                '<span style="color:{};font-size:10.0pt;">{}</span>','red','注意："第一负责人"只允许填登录用户自己的姓名')}),
+                '<span style="color:{};font-size:10.0pt;">{}</span>','blue','注意："第一负责人"只允许填登录用户自己的姓名')}),
 
                  ('作战路径及需求', {'fields': ('saleschannel','support','adminmemo'),
                               'classes': ('wide',)}),                

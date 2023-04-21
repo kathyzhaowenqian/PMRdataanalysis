@@ -215,7 +215,7 @@ class GSMRResearchList(models.Model):
 
     salesmode=MultiSelectField(verbose_name='销售模式(可多选)',max_length=25,choices=salesmode_choices,blank=True,null=True)
 
-    testspermonth = models.PositiveIntegerField(verbose_name='总体月测试数',default = 0)
+    testspermonth = models.PositiveIntegerField(verbose_name='总体月测试数(人份)',default = 0)
     owntestspermonth = models.PositiveIntegerField(verbose_name='我司业务月测试数',default = 0)
     
     director = models.CharField(verbose_name='科室主任',max_length=255, blank=True, null=True)
@@ -269,7 +269,7 @@ class GSMRResearchDetail(models.Model):
     secondtierdistribution=models.CharField(verbose_name='二级代理',max_length=255, blank=True, null=True)
     
     
-    detailedprojecttestspermonth=models.PositiveIntegerField(verbose_name='细分项目月测试数',default = 0)
+    detailedprojecttestspermonth=models.PositiveIntegerField(verbose_name='细分项目月测试数(人份)',default = 0)
     
     is_goldsite=models.BooleanField(verbose_name='是否国赛',null=False, default = False,choices=is_goldsite_choices)
     ownbusiness=models.BooleanField(verbose_name='是否我司业务',null=False, default = False,choices=ownbusiness_choices)
