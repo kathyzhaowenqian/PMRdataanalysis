@@ -711,6 +711,11 @@ class PMRResearchListAdmin(GlobalAdmin):
     def save_model(self, request, obj, form, change):
         obj.operator = request.user
         obj.uniquestring = '公司:{}, 医院:{}, 项目:{}, 第一责任人:{}'.format(obj.company,obj.hospital,obj.project,obj.salesman1)
+        print('打印某医院所有项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=obj.hospital.id))])
+        print('打印某医院相关项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=obj.hospital.id) & Q(project__project=obj.project.project))])
+        # for i in PMRResearchList.objects.filter(Q(hospital_id=obj.hospital.id)):
+        #     if not i.contactname:
+        #         i.contactname=
         # machine_details=obj.pmrresearchdetail_set.all()
         # print('machine_details',machine_details)
         # for eachmachine in machine_details:
@@ -734,7 +739,7 @@ class PMRResearchListAdmin(GlobalAdmin):
         ###注意要判断是否共用仪器！！！！！！！如果我司仪器必填序列号，怎么validate？？？！？
         print('我在save_related')
         super().save_related(request, form, formsets, change)
-        print('formsetsformsetsformsets',formsets)
+        # print('formsetsformsetsformsets',formsets)
         if form.cleaned_data.get('salesman1')==request.user or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss': 
             machine_total_number=0
             new_or_old_list=[]
@@ -829,6 +834,37 @@ class PMRResearchListAdmin(GlobalAdmin):
                         SalesTarget.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
                     if not SalesTarget.objects.filter(researchlist_id=form.instance.id,year='2024',is_active=True):
                         SalesTarget.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
+            # print('我在saverelated的get(contactname)',form.cleaned_data.get('contactname'))
+            # print('打印某医院所有项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id))])
+            #补充不同公司的同一家医院的主任姓名和电话，在空的时候或者姓名相同的时候，才覆盖
+            samehospital=PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id))
+            for x in samehospital:
+                if not x.contactname:
+                    x.contactname=form.cleaned_data.get('contactname')
+                    if not x.contactname:
+                        x.contactmobile=form.cleaned_data.get('contactmobile')
+
+                if x.contactname == form.cleaned_data.get('contactname') and not x.contactmobile:
+                    x.contactmobile=form.cleaned_data.get('contactmobile')
+                x.save()
+            #更新同一个销售的不同公司的同一家医院，一更新就全部更新
+            samehospitalandsalesman=PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(salesman1_id=form.instance.salesman1.id))
+            for y in samehospitalandsalesman:
+                if form.cleaned_data.get('contactname'):#如果本次填数据了就更新，没填就不动
+                    y.contactname=form.cleaned_data.get('contactname')
+                    if form.cleaned_data.get('contactmobile'):
+                        y.contactmobile=form.cleaned_data.get('contactmobile')
+                y.save()
+            # print('打印某医院相关项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(project__project=form.instance.project.project))])
+            
+            #更新同一个销售的不同公司的同一家医院，CRP/SAA项目，一更新总测试数，就联动更新
+            # print('form.instance.project.project',form.instance.project.project)
+            # print('form.cleaned_data.get(testspermont)',form.cleaned_data.get('testspermonth'))
+            if form.instance.project.project=='CRP/SAA' and form.cleaned_data.get('testspermonth'):
+                sameCRPSAA=PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(salesman1_id=form.instance.salesman1.id)& Q(project__project='CRP/SAA') & Q(company_id=2))
+                for z in sameCRPSAA:
+                    z.testspermonth=form.cleaned_data.get('testspermonth')
+                    z.save()
 
             print('saverelated 保存成功')
             # form.save()      
@@ -1611,10 +1647,6 @@ class PMRResearchListAdmin(GlobalAdmin):
     calculate.short_description = "统计" 
     calculate.type = 'info'
     calculate.style = 'color:white;'
-
-
-
-
 
 
 
