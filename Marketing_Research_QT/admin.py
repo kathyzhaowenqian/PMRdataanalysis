@@ -46,6 +46,27 @@ class ProjectFilter(SimpleListFilter):
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
 
+class ProjectFilterforDetail(SimpleListFilter):
+    title = '项目' 
+    parameter_name = 'project'
+
+    def lookups(self, request, model_admin):
+
+        projects = Project.objects.filter(company_id=2)
+        return [(project.id, project.project) for project in projects]
+
+        # projects = set([c.project for c in model_admin.model.objects.all()])#为什么这个方法可以直接过滤？？？
+        # print([(c.id, c.project) for c in projects])
+        # return [(c.id, c.project) for c in projects]
+    
+    def queryset(self, request, queryset):
+        if self.value():
+        # 筛选条件有值时, 查询对应的 node 的文章
+            return queryset.filter(researchlist__project__id=self.value())
+        else:
+        # 筛选条件没有值时，全部的时候是没有值的
+            return queryset
+
 class IfTargetCustomerFilter(SimpleListFilter):
     title = '客户类型'
     parameter_name = 'customertype'
@@ -777,7 +798,7 @@ class PMRResearchListAdmin(GlobalAdmin):
             for x in samehospital:
                 if not x.contactname:
                     x.contactname=form.cleaned_data.get('contactname')
-                    if not x.contactname:
+                    if not x.contactmobile:
                         x.contactmobile=form.cleaned_data.get('contactmobile')
 
                 if x.contactname == form.cleaned_data.get('contactname') and not x.contactmobile:
@@ -793,6 +814,15 @@ class PMRResearchListAdmin(GlobalAdmin):
                 y.save()
             # print('打印某医院相关项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(project__project=form.instance.project.project))])
             
+
+            #补充不同公司的同一家医院，CRP/SAA项目总测试数，在空的时候，才覆盖
+            if form.instance.project.project=='CRP/SAA' and form.cleaned_data.get('testspermonth'):
+                sameCRPSAA=PMRResearchList3.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(project__project='CRP/SAA') & Q(company_id=1) )
+                for z in sameCRPSAA:
+                    if not z.testspermonth:
+                        z.testspermonth=form.cleaned_data.get('testspermonth')
+                        z.save()
+
             #更新同一个销售的不同公司的同一家医院，CRP/SAA项目，一更新总测试数，就联动更新
             # print('form.instance.project.project',form.instance.project.project)
             # print('form.cleaned_data.get(testspermont)',form.cleaned_data.get('testspermonth'))
@@ -1558,6 +1588,30 @@ class PMRResearchListAdmin(GlobalAdmin):
                 j.save()
             i.save()           
 
+            #补充不同公司的同一家医院的主任姓名和电话，在空的时候或者姓名相同的时候，才覆盖
+            samehospital=PMRResearchList3.objects.filter(Q(hospital_id=i.hospital.id))
+            for x in samehospital:
+                if not x.contactname:
+                    x.contactname=i.contactname
+                    if not x.contactmobile:
+                        x.contactmobile=i.contactmobile
+
+                if x.contactname == i.contactname and not x.contactmobile:
+                    x.contactmobile=i.contactmobile
+                x.save()
+
+
+            #不同公司的同一家医院，CRP/SAA项目，补充总测试数
+            if i.project.project=='CRP/SAA' and i.testspermonth:
+                sameCRPSAA=PMRResearchList3.objects.filter(Q(hospital_id=i.hospital.id) & Q(project__project='CRP/SAA') & Q(company_id=1) )
+                for z in sameCRPSAA:
+                    if not z.testspermonth:
+                        z.testspermonth=i.testspermonth
+                        z.save()
+            i.save()
+
+
+
 
     calculate.short_description = "统计" 
     calculate.type = 'info'
@@ -1573,7 +1627,7 @@ class PMRResearchListAdmin(GlobalAdmin):
 class PMRResearchDetailAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=['researchlist__hospital__hospitalname','brand__brand','machinemodel','competitionrelation__competitionrelation']
-    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilter,SalesmanFilterforDetail,'competitionrelation','ownbusiness','expiration']
+    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilterforDetail,SalesmanFilterforDetail,'competitionrelation','ownbusiness','expiration']
 
 
     list_display_links =('list_hospitalname',)

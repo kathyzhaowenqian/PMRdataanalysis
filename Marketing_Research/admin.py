@@ -51,6 +51,26 @@ class ProjectFilter(SimpleListFilter):
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
 
+class ProjectFilterforDetail(SimpleListFilter):
+    title = '项目' 
+    parameter_name = 'project'
+
+    def lookups(self, request, model_admin):
+
+        projects = Project.objects.filter(company_id=1)
+        return [(project.id, project.project) for project in projects]
+
+        # projects = set([c.project for c in model_admin.model.objects.all()])#为什么这个方法可以直接过滤？？？
+        # print([(c.id, c.project) for c in projects])
+        # return [(c.id, c.project) for c in projects]
+    
+    def queryset(self, request, queryset):
+        if self.value():
+        # 筛选条件有值时, 查询对应的 node 的文章
+            return queryset.filter(researchlist__project__id=self.value())
+        else:
+        # 筛选条件没有值时，全部的时候是没有值的
+            return queryset
 
 class IfTargetCustomerFilter(SimpleListFilter):
     title = '客户类型'
@@ -789,6 +809,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                 newold='已有业务(含我司仪器)'
             else:
                 newold='新商机(不含我司仪器)'
+
             #如果有计算项（老数据修改），则以更新的方式
             if DetailCalculate.objects.filter(researchlist_id=form.instance.id):
                 print('能获取对应的detailcalculate::::',DetailCalculate.objects.filter(researchlist_id=form.instance.id))
@@ -804,8 +825,9 @@ class PMRResearchListAdmin(GlobalAdmin):
                 print('不能获取对应的detailcalculate')
                 DetailCalculate.objects.create(researchlist=form.instance,totalmachinenumber=machine_total_number,ownmachinenumber=machine_own_number,ownmachinepercent=ownmachinepercent,newold=newold,is_active=True).save()
         
+            #不筛选是否active的，全部更新仪器expiration
             for eachdetail in PMRResearchDetail.objects.filter(researchlist_id=form.instance.id):
-                print('eachdetail',eachdetail)
+                # print('eachdetail',eachdetail)
                 if not eachdetail.installdate:
                     ret = '--'
                 else:
@@ -834,6 +856,8 @@ class PMRResearchListAdmin(GlobalAdmin):
                         SalesTarget.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
                     if not SalesTarget.objects.filter(researchlist_id=form.instance.id,year='2024',is_active=True):
                         SalesTarget.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
+           
+           
             # print('我在saverelated的get(contactname)',form.cleaned_data.get('contactname'))
             # print('打印某医院所有项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id))])
             #补充不同公司的同一家医院的主任姓名和电话，在空的时候或者姓名相同的时候，才覆盖
@@ -841,7 +865,7 @@ class PMRResearchListAdmin(GlobalAdmin):
             for x in samehospital:
                 if not x.contactname:
                     x.contactname=form.cleaned_data.get('contactname')
-                    if not x.contactname:
+                    if not x.contactmobile:
                         x.contactmobile=form.cleaned_data.get('contactmobile')
 
                 if x.contactname == form.cleaned_data.get('contactname') and not x.contactmobile:
@@ -857,15 +881,101 @@ class PMRResearchListAdmin(GlobalAdmin):
                 y.save()
             # print('打印某医院相关项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(project__project=form.instance.project.project))])
             
+            #补充不同公司的同一家医院，CRP/SAA项目总测试数，在空的时候，才覆盖
+            if form.instance.project.project=='CRP/SAA' and form.cleaned_data.get('testspermonth'):
+                sameCRPSAA=PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(project__project='CRP/SAA') & Q(company_id=2) )
+                for z in sameCRPSAA:
+                    if not z.testspermonth:
+                        z.testspermonth=form.cleaned_data.get('testspermonth')
+                        z.save()
+
+
             #更新同一个销售的不同公司的同一家医院，CRP/SAA项目，一更新总测试数，就联动更新
             # print('form.instance.project.project',form.instance.project.project)
             # print('form.cleaned_data.get(testspermont)',form.cleaned_data.get('testspermonth'))
             if form.instance.project.project=='CRP/SAA' and form.cleaned_data.get('testspermonth'):
-                sameCRPSAA=PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(salesman1_id=form.instance.salesman1.id)& Q(project__project='CRP/SAA') & Q(company_id=2))
+                sameCRPSAA=PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(salesman1_id=form.instance.salesman1.id)& Q(project__project='CRP/SAA') & Q(company_id=2) )
                 for z in sameCRPSAA:
                     z.testspermonth=form.cleaned_data.get('testspermonth')
                     z.save()
 
+
+            # #如果项目大类是CRPSAA，则普美瑞和其田有重复的地方，在普美瑞中，国赛是自有业务、迈瑞是竞品，在其田中迈瑞是自有业务、国赛是竞品。
+            # # 需要将普美瑞中填的完整的国赛导入其田当作竞品，把其田中填的完整的迈瑞导入普美瑞中当作竞品
+            # #暂定同一个销售的可以互相同步，不同销售的暂时不同步
+            # if form.instance.project.project=='CRP/SAA':
+            #     #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要把其田的迈瑞的和其他竞品的都拿过来
+            #     owncompetitormachinedetail= PMRResearchDetail.objects.filter(Q(researchlist_id=form.instance.id) & Q(is_active=True) & ~Q(machinenumber=0) & (Q(detailedproject_id=1) | Q(detailedproject_id=2)))
+            #     owneachactivedetailllist=[]
+            #     if owncompetitormachinedetail:
+            #         for owneachactivedetail in owncompetitormachinedetail:
+            #             owneachactivedetailldict={}
+            #             owneachactivedetailldict['detailedproject_id']=owneachactivedetail.detailedproject.id if owneachactivedetail.detailedproject else None
+            #             owneachactivedetailldict['brand__brand']=owneachactivedetail.brand.brand if owneachactivedetail.brand else None
+            #             owneachactivedetailldict['machinemodel']=owneachactivedetail.machinemodel if owneachactivedetail.machinemodel else None
+            #             owneachactivedetailldict['installdate']=owneachactivedetail.installdate if owneachactivedetail.installdate else None
+            #             owneachactivedetailldict['endsupplier']=owneachactivedetail.endsupplier if owneachactivedetail.endsupplier else None
+            #             owneachactivedetailldict['competitionrelation__competitionrelation']=owneachactivedetail.competitionrelation.competitionrelation if owneachactivedetail.competitionrelation else None
+            #             owneachactivedetailldict['machineseries']=owneachactivedetail.machineseries if owneachactivedetail.machineseries else None
+            #             owneachactivedetailldict['testprice']=owneachactivedetail.testprice if owneachactivedetail.testprice else None
+            #             owneachactivedetailllist.append(owneachactivedetailldict)
+            #     ownbrandlist= list(set(item['brand__brand'] for item in owneachactivedetailllist))
+            #     print('ownbrandlist',ownbrandlist)
+
+            #     #找出其田下面的同一家医院同一个项目的 品牌不为未知的数据，拿过来对比
+            #     QTmachinedetail= PMRResearchDetail.objects.filter(Q(researchlist__hospital__id=form.instance.hospital.id) & Q(researchlist__project__project='CRP/SAA') & Q(is_active=True) & ~Q(brand__brand='未知') &  ~Q(machinenumber=0) & Q(researchlist__company__id=2) & (Q(detailedproject_id=12) | Q(detailedproject_id=13)))
+            #     print('打印打印!!!competitorcompetitormachinedetail',QTmachinedetail)
+            #     QTeachactivedetailllist=[]
+            #     if QTmachinedetail:
+            #         print('对应的其田的CRP/SAA的id',QTmachinedetail[0].researchlist.id)               
+            #         for QTeachactivedetail in QTmachinedetail:
+            #             # print('QTeachactivedetail.researchlist)',QTeachactivedetail.researchlist)
+            #             QTeachactivedetailldict={}
+            #             QTeachactivedetailldict['detailedproject_id']=QTeachactivedetail.detailedproject.id if QTeachactivedetail.detailedproject else None
+            #             QTeachactivedetailldict['brand__brand']=QTeachactivedetail.brand.brand if QTeachactivedetail.brand else None
+            #             QTeachactivedetailldict['machinemodel']=QTeachactivedetail.machinemodel if QTeachactivedetail.machinemodel else None
+            #             QTeachactivedetailldict['installdate']=QTeachactivedetail.installdate if QTeachactivedetail.installdate else None
+            #             QTeachactivedetailldict['endsupplier']=QTeachactivedetail.endsupplier if QTeachactivedetail.endsupplier else None
+            #             QTeachactivedetailldict['competitionrelation__competitionrelation']=QTeachactivedetail.competitionrelation.competitionrelation if QTeachactivedetail.competitionrelation else None
+            #             QTeachactivedetailldict['machineseries']=QTeachactivedetail.machineseries if QTeachactivedetail.machineseries else None
+            #             QTeachactivedetailldict['testprice']=QTeachactivedetail.testprice if QTeachactivedetail.testprice else None
+            #             QTeachactivedetailllist.append(QTeachactivedetailldict)
+            #     QTbrandlist= list(set(item['brand__brand'] for item in QTeachactivedetailllist))
+            #     QTmorebrandlist = [item for item in QTbrandlist if item not in ownbrandlist]
+            #     print('QTmorebrandlist',QTmorebrandlist)
+            #     OWNmorebrandlist = [item for item in ownbrandlist if item not in QTbrandlist]
+            #     print('OWNmorebrandlist',OWNmorebrandlist)
+            #     SAMEbrandlist = [item for item in ownbrandlist if item in QTbrandlist]
+            #     print('SAMEbrandlist',SAMEbrandlist)
+            #     # #如果QT有额外品牌，则在此obj中新增仪器
+            #     # if QTmorebrandlist:
+            #     #     for data in QTeachactivedetailllist:#遍历QT那边对应的所有仪器
+            #     #         if data['brand__brand'] in QTmorebrandlist:#如果该仪器在QT有而PMR没有的品牌列表中，需要在普美瑞这里添加进去
+            #     #             if data['brand__brand']=='国赛':
+            #     #                 data['ownbusiness']=True
+            #     #             if data['brand__brand']=='迈瑞Mindray':
+            #     #                 data['ownbusiness']=False    
+            #     #             if data['detailedproject_id']==12:
+            #     #                 data['detailedproject_id']=1  
+            #     #             if data['detailedproject_id']==13:
+            #     #                 data['detailedproject_id']=2  
+            #     #             PMRResearchDetail.objects.create(researchlist=form.instance,is_active=True,detailedproject_id=data['detailedproject_id'],brand__brand=data['brand__brand'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation__competitionrelation=data['competitionrelation__competitionrelation'],machineseries=data['machineseries'],testprice=data['testprice']).save()
+            #     # #如果PMR有额外品牌，则在对应的QT那边新增仪器
+            #     # if OWNmorebrandlist:
+            #     #     for data in owneachactivedetailllist:#遍历PMR自己所有的仪器
+            #     #         if data['brand__brand'] in OWNmorebrandlist:#入股该仪器在PMR有而QT没有的品牌列表中，需要到QT那边去添加该仪器
+            #     #             if data['brand__brand']=='国赛':
+            #     #                 data['ownbusiness']=False
+            #     #             if data['brand__brand']=='迈瑞Mindray':
+            #     #                 data['ownbusiness']=True 
+            #     #             if data['detailedproject_id']==1:
+            #     #                 data['detailedproject_id']=12 
+            #     #             if data['detailedproject_id']==2:
+            #     #                 data['detailedproject_id']=13
+            #     #             print(data)
+            #     #             PMRResearchDetail.objects.create(researchlist_id=QTmachinedetail[0].researchlist.id,is_active=True,detailedproject_id=data['detailedproject_id'],brand__brand=data['brand__brand'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation__competitionrelation=data['competitionrelation__competitionrelation'],machineseries=data['machineseries'],testprice=data['testprice']).save()                    
+
+                
             print('saverelated 保存成功')
             # form.save()      
 
@@ -1643,6 +1753,28 @@ class PMRResearchListAdmin(GlobalAdmin):
                 j.save()
             i.save()           
 
+            #补充不同公司的同一家医院的主任姓名和电话，在空的时候或者姓名相同的时候，才覆盖
+            samehospital=PMRResearchList.objects.filter(Q(hospital_id=i.hospital.id))
+            for x in samehospital:
+                if not x.contactname:
+                    x.contactname=i.contactname
+                    if not x.contactmobile:
+                        x.contactmobile=i.contactmobile
+
+                if x.contactname == i.contactname and not x.contactmobile:
+                    x.contactmobile=i.contactmobile
+                x.save()
+
+
+            #更新同一个销售的不同公司的同一家医院，CRP/SAA项目，一更新总测试数，就联动更新
+            if i.project.project=='CRP/SAA' and i.testspermonth:
+                sameCRPSAA=PMRResearchList.objects.filter(Q(hospital_id=i.hospital.id) & Q(project__project='CRP/SAA') & Q(company_id=2) )
+                for z in sameCRPSAA:
+                    if not z.testspermonth:
+                        z.testspermonth=i.testspermonth
+                        z.save()
+
+            i.save() 
 
     calculate.short_description = "统计" 
     calculate.type = 'info'
@@ -1654,7 +1786,7 @@ class PMRResearchListAdmin(GlobalAdmin):
 class PMRResearchDetailAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=['researchlist__hospital__hospitalname','brand__brand','machinemodel','competitionrelation__competitionrelation']
-    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilter,SalesmanFilterforDetail,'competitionrelation','ownbusiness','expiration']
+    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilterforDetail,SalesmanFilterforDetail,'competitionrelation','ownbusiness','expiration']
 
 
     list_display_links =('list_hospitalname',)
