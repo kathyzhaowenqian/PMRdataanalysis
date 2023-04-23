@@ -64,11 +64,11 @@ class ProjectFilterforDetail(SimpleListFilter):
             return queryset
 
 class IfTargetCustomerFilter(SimpleListFilter):
-    title = '客户类型'
-    parameter_name = 'customertype'
+    title = '是否填写目标'
+    parameter_name = 'iftarget'
 
     def lookups(self, request, model_admin):
-        return [(1, '23年目标客户(已填目标额/任何季度)'), (2, '老客户(已有我司仪器或去年已开票)'), (3, '23年未跟进客户(剩余客户)')]
+        return [(1, '已填目标额/任何季度'), (2, '未填目标额')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
@@ -77,9 +77,42 @@ class IfTargetCustomerFilter(SimpleListFilter):
             return queryset.filter((Q(salestarget2__q1target__gt= 0)|Q(salestarget2__q2target__gt =0)|Q(salestarget2__q3target__gt =0)|Q(salestarget2__q4target__gt=0)) & Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') )
  
         elif self.value() == '2':
-            return queryset.filter(Q(detailcalculate2__newold = '已有业务(含我司仪器)')| Q(detailcalculate2__totalsumpermonth__gt = 0))
-        elif self.value() == '3':
-            return queryset.filter(Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') & Q(salestarget2__q1target = 0)& Q(salestarget2__q2target =0) & Q(salestarget2__q3target =0)& Q(salestarget2__q4target=0)& Q(detailcalculate2__newold = '新商机(不含我司仪器)') & Q(detailcalculate2__totalsumpermonth = 0) )
+            return queryset.filter(Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') & Q(salestarget2__q1target = 0)& Q(salestarget2__q2target =0) & Q(salestarget2__q3target =0)& Q(salestarget2__q4target=0))
+
+
+
+class CustomerProjectTypeFilter(SimpleListFilter):
+    title = '医院项目分类'
+    parameter_name = 'customerprojecttype'
+
+    def lookups(self, request, model_admin):
+        return [(1, '老项目(22年已开票)'),(2, '丢失的项目(22年已开票、23年至今未开票)'), (3, 'Q1新项目(22年未开票、23Q1已开票)'), (4, 'Q2新项目(22-23Q1未开票、23Q2已开票)'),(5, 'Q3新项目(22-23Q2未开票、23Q3已开票)'),(6, 'Q4新项目(22-23Q3未开票、23Q4已开票)'),(7, '潜在项目(至今未曾开票)'),]
+
+
+    def queryset(self, request, queryset):
+        # pdb.set_trace()
+        if self.value() == '1':#老客户(去年已开票)
+            return queryset.filter(Q(detailcalculate2__totalsumpermonth__gt = 0))
+ 
+        elif self.value() == '2':#丢失的老客户(22年已开票、23年至今未开票)
+            return queryset.filter(Q(detailcalculate2__totalsumpermonth__gt = 0) &  Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') & Q(salestarget2__q1actualsales= 0) & Q(salestarget2__q2actualsales= 0) & Q(salestarget2__q3actualsales= 0) & Q(salestarget2__q4actualsales= 0)) 
+
+        elif self.value() == '3': #Q1新客户(22年未开票、23Q1已开票)
+            return queryset.filter(Q(detailcalculate2__totalsumpermonth = 0) & ( Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') &  Q(salestarget2__q1actualsales__gt= 0)) )
+        
+        elif self.value() == '4': #Q2新客户(22-23Q1未开票、23Q2已开票
+            return queryset.filter(Q(detailcalculate2__totalsumpermonth = 0) & ( Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') &  Q(salestarget2__q1actualsales= 0) &  Q(salestarget2__q2actualsales__gt= 0)) )
+        
+        elif self.value() == '5': #Q3新客户(22-23Q2未开票、23Q3已开票)'
+            return queryset.filter(Q(detailcalculate2__totalsumpermonth = 0) & ( Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') &  Q(salestarget2__q1actualsales= 0) &  Q(salestarget2__q2actualsales= 0) & Q(salestarget2__q3actualsales__gt= 0)) )
+        
+        elif self.value() == '6': #Q4新客户(22-23Q3未开票、23Q4已开票)
+            return queryset.filter(Q(detailcalculate2__totalsumpermonth = 0) & ( Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') &  Q(salestarget2__q1actualsales= 0) &  Q(salestarget2__q2actualsales= 0) &  Q(salestarget2__q3actualsales= 0) & Q(salestarget2__q4actualsales__gt= 0)) )
+        
+        elif self.value() == '7': #潜在客户  
+            return queryset.filter(Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') & Q(salestarget2__q1actualsales = 0)& Q(salestarget2__q2actualsales =0) & Q(salestarget2__q3actualsales =0)& Q(salestarget2__q4actualsales=0) & Q(detailcalculate2__totalsumpermonth = 0) )
+
+
 
 class IfActualSalesFilter(SimpleListFilter):
     title = '23年是否开票'
@@ -523,7 +556,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                 'hospital__hospitalname','salesman1','project',)
 
     # ordering = ('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',)#('-id',)#
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate2__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter]
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate2__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter,CustomerProjectTypeFilter]
     search_fields = ['hospital__hospitalname','pmrresearchdetail2__brand__brand','pmrresearchdetail2__machinemodel']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),
@@ -1638,7 +1671,7 @@ class PMRResearchDetailAdmin(GlobalAdmin):
     empty_value_display = '--'
     list_per_page = 15
     list_display = ('list_district','list_hospitalclass','list_hospitalname','list_salesman1','list_project', 
-                    'renamed_detailedproject','ownbusiness','brand','machinemodel','machineseries','machinenumber','installdate','colored_expiration','testprice','endsupplier','colored_competitionrelation')
+                    'renamed_detailedproject','ownbusiness','brand','machinemodel','renamed_machineseries','machinenumber','installdate','colored_expiration','testprice','endsupplier','colored_competitionrelation')
     autocomplete_fields=['researchlist','brand']
     # fields=('researchlist__project__project','detailedproject','ownbusiness','band','machinemodel')
     # ordering = ('-id',)
@@ -1740,6 +1773,10 @@ class PMRResearchDetailAdmin(GlobalAdmin):
     @admin.display(ordering="detailedproject",description='项目细分')
     def renamed_detailedproject(self, obj):
         return obj.detailedproject
+
+    @admin.display(ordering="machineseries",description='序列号')
+    def renamed_machineseries(self, obj):
+        return obj.machineseries
 
     @admin.display(ordering="researchlist__salesman1__chinesename",description='第一负责人')
     def list_salesman1(self, obj): #用relatedname

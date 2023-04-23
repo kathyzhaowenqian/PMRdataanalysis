@@ -68,11 +68,11 @@ class ProjectFilterforDetail(SimpleListFilter):
             return queryset
 
 class IfTargetCustomerFilter(SimpleListFilter):
-    title = '客户类型'
-    parameter_name = 'customertype'
+    title = '是否填写目标'
+    parameter_name = 'iftarget'
 
     def lookups(self, request, model_admin):
-        return [(1, '23年目标客户(已填目标额/任何季度)'), (2, '老客户(已有我司仪器或去年已开票)'), (3, '23年未跟进客户(剩余客户)')]
+        return [(1, '已填目标额/任何季度'), (2, '未填目标额')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
@@ -81,9 +81,42 @@ class IfTargetCustomerFilter(SimpleListFilter):
             return queryset.filter((Q(salestarget3__q1target__gt= 0)|Q(salestarget3__q2target__gt =0)|Q(salestarget3__q3target__gt =0)|Q(salestarget3__q4target__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
  
         elif self.value() == '2':
-            return queryset.filter(Q(detailcalculate3__newold = '已有业务(含我司仪器)')| Q(detailcalculate3__totalsumpermonth__gt = 0))
-        elif self.value() == '3':
-            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1target = 0)& Q(salestarget3__q2target =0) & Q(salestarget3__q3target =0)& Q(salestarget3__q4target=0)& Q(detailcalculate3__newold = '新商机(不含我司仪器)') & Q(detailcalculate3__totalsumpermonth = 0) )
+            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1target = 0)& Q(salestarget3__q2target =0) & Q(salestarget3__q3target =0)& Q(salestarget3__q4target=0))
+
+
+
+class CustomerProjectTypeFilter(SimpleListFilter):
+    title = '医院项目分类'
+    parameter_name = 'customerprojecttype'
+
+    def lookups(self, request, model_admin):
+        return [(1, '老项目(22年已开票)'),(2, '丢失的项目(22年已开票、23年至今未开票)'), (3, 'Q1新项目(22年未开票、23Q1已开票)'), (4, 'Q2新项目(22-23Q1未开票、23Q2已开票)'),(5, 'Q3新项目(22-23Q2未开票、23Q3已开票)'),(6, 'Q4新项目(22-23Q3未开票、23Q4已开票)'),(7, '潜在项目(至今未曾开票)'),]
+
+
+    def queryset(self, request, queryset):
+        # pdb.set_trace()
+        if self.value() == '1':#老客户(去年已开票)
+            return queryset.filter(Q(detailcalculate3__totalsumpermonth__gt = 0))
+ 
+        elif self.value() == '2':#丢失的老客户(22年已开票、23年至今未开票)
+            return queryset.filter(Q(detailcalculate3__totalsumpermonth__gt = 0) &  Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales= 0) & Q(salestarget3__q2actualsales= 0) & Q(salestarget3__q3actualsales= 0) & Q(salestarget3__q4actualsales= 0)) 
+
+        elif self.value() == '3': #Q1新客户(22年未开票、23Q1已开票)
+            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales__gt= 0)) )
+        
+        elif self.value() == '4': #Q2新客户(22-23Q1未开票、23Q2已开票
+            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales__gt= 0)) )
+        
+        elif self.value() == '5': #Q3新客户(22-23Q2未开票、23Q3已开票)'
+            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales= 0) & Q(salestarget3__q3actualsales__gt= 0)) )
+        
+        elif self.value() == '6': #Q4新客户(22-23Q3未开票、23Q4已开票)
+            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales= 0) &  Q(salestarget3__q3actualsales= 0) & Q(salestarget3__q4actualsales__gt= 0)) )
+        
+        elif self.value() == '7': #潜在客户  
+            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0) & Q(detailcalculate3__totalsumpermonth = 0) )
+
+
 
 
 class IfActualSalesFilter(SimpleListFilter):
@@ -529,7 +562,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                     ),
                 'hospital__hospitalname','salesman1','project',)
     # ordering = ('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',) #('-id',)#
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate3__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter]
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate3__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter,CustomerProjectTypeFilter]
     search_fields = ['hospital__hospitalname','pmrresearchdetail3__brand__brand','pmrresearchdetail3__machinemodel']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),
@@ -862,6 +895,69 @@ class PMRResearchListAdmin(GlobalAdmin):
                 for z in sameCRPSAA:
                     z.testspermonth=form.cleaned_data.get('testspermonth')
                     z.save()
+
+
+            #CRP/SAA 普美瑞和其田的数据联动（仅针对同一个医院的同一个销售）
+            if form.instance.project.project=='CRP/SAA':
+                #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要更新至QT
+                ownmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist_id=form.instance.id)  & Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(is_active=True) & ~Q(machinenumber=0))
+               
+                #找出其田下面的，同一家医院同一个项目的同一个人的，所有仪器obj
+                PMRmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist__hospital__id=form.instance.hospital.id) & Q(researchlist__project__project='CRP/SAA') &  Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(researchlist__company__id=1) )
+                print('PMRmachinedetail',PMRmachinedetail)
+                PMRresearchlist=PMRResearchList3.objects.filter(hospital__id=form.instance.hospital.id,project__project='CRP/SAA',salesman1_id=form.instance.salesman1.id,company__id=1)
+                print('PMRresearchlist',PMRresearchlist)
+
+                owneachactivedetailllist=[]
+                #如果PMR这边的CRPSAA有仪器数据
+                if ownmachinedetail:
+                    for owneachactivedetail in ownmachinedetail:
+                        owneachactivedetailldict={}
+                        owneachactivedetailldict['detailedproject_id']=owneachactivedetail.detailedproject.id if owneachactivedetail.detailedproject else None
+                        owneachactivedetailldict['ownbusiness']=owneachactivedetail.ownbusiness if owneachactivedetail.ownbusiness else False
+                        owneachactivedetailldict['brand_id']=owneachactivedetail.brand.id if owneachactivedetail.brand else None
+                        owneachactivedetailldict['machinemodel']=owneachactivedetail.machinemodel if owneachactivedetail.machinemodel else None
+                        owneachactivedetailldict['machinenumber']=owneachactivedetail.machinenumber if owneachactivedetail.machinenumber else None
+                        owneachactivedetailldict['installdate']=owneachactivedetail.installdate if owneachactivedetail.installdate else None
+                        owneachactivedetailldict['expiration']=owneachactivedetail.expiration if owneachactivedetail.expiration else None
+                        owneachactivedetailldict['endsupplier']=owneachactivedetail.endsupplier if owneachactivedetail.endsupplier else None
+                        owneachactivedetailldict['competitionrelation_id']=owneachactivedetail.competitionrelation.id if owneachactivedetail.competitionrelation else None
+                        owneachactivedetailldict['machineseries']=owneachactivedetail.machineseries if owneachactivedetail.machineseries else None
+                        owneachactivedetailldict['testprice']=owneachactivedetail.testprice if owneachactivedetail.testprice else None
+                        owneachactivedetailllist.append(owneachactivedetailldict)
+
+                     #查看下品牌，要把迈瑞的变成'是'，国赛的变成'否'，然后再复制给QT
+                    ownbrandlist= list(set(item['brand_id'] for item in owneachactivedetailllist))
+                    print('ownbrandlist',ownbrandlist)  
+
+                    if PMRresearchlist:
+                        PMR_researchlist_id=PMRresearchlist[0].id
+                        if PMRmachinedetail:
+                            #批量删除QTmachinedetail
+                            PMRmachinedetail.update(is_active=False)                              
+
+                        #在对应的QT那边新增PMR中的仪器
+                        for data in owneachactivedetailllist:#遍历PMR自己所有的仪器
+                            if data['brand_id']== 9: #'国赛'
+                                data['ownbusiness']=True
+                            if data['brand_id']==14: #'迈瑞Mindray'
+                                data['ownbusiness']=False 
+                            if data['detailedproject_id']==12:
+                                data['detailedproject_id']=1 
+                            if data['detailedproject_id']==13:
+                                data['detailedproject_id']=2
+                            print('data',data)
+                            PMRResearchDetail3.objects.create(researchlist_id=PMR_researchlist_id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
+                
+                if not ownmachinedetail:
+                    #批量删除PMRmachinedetail
+                    if PMRmachinedetail:
+                        PMRmachinedetail.update(is_active=False)
+                        print('普美瑞公司中的该医院CRPSAA仪器全部删除，QT跟着全部删除')
+
+
+
+
 
 
             print('saverelated 保存成功')
@@ -1640,7 +1736,151 @@ class PMRResearchListAdmin(GlobalAdmin):
                         z.testspermonth=i.testspermonth
                         z.save()
             i.save()
+            '''
+            #如果项目大类是CRPSAA，则普美瑞和其田有重复的地方，在普美瑞中，国赛是自有业务、迈瑞是竞品，在其田中迈瑞是自有业务、国赛是竞品。
+            # 需要将普美瑞中填的完整的国赛导入其田当作竞品，把其田中填的完整的迈瑞导入普美瑞中当作竞品
+            if i.project.project=='CRP/SAA':
+                #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要把其田的迈瑞的和其他竞品的都拿过来
+                ownmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist_id=i.id) & Q(is_active=True) & ~Q(machinenumber=0) & ~Q(brand__brand='未知') & (Q(detailedproject_id=12) | Q(detailedproject_id=13)))
+                #找出其田下面的，同一家医院同一个项目的同一个人的，所有仪器obj
+                PMRmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist__hospital__id=i.hospital.id) & Q(researchlist__project__project='CRP/SAA') & Q(is_active=True) & ~Q(brand__brand='未知') &  ~Q(machinenumber=0) & Q(researchlist__company__id=1) & (Q(detailedproject_id=1) | Q(detailedproject_id=2)))
+                print('PMRmachinedetail',PMRmachinedetail)
 
+                PMRresearchlist=PMRResearchList3.objects.filter(hospital__id=i.hospital.id,project__project='CRP/SAA', company__id=1)
+                print('PMRresearchlist',PMRresearchlist)
+
+                owneachactivedetailllist=[]
+                #如果PMR这边的CRPSAA有仪器数据
+                if ownmachinedetail:
+                    for owneachactivedetail in ownmachinedetail:
+                        owneachactivedetailldict={}
+                        owneachactivedetailldict['detailedproject_id']=owneachactivedetail.detailedproject.id if owneachactivedetail.detailedproject else None
+                        owneachactivedetailldict['ownbusiness']=owneachactivedetail.ownbusiness if owneachactivedetail.ownbusiness else False
+                        owneachactivedetailldict['brand_id']=owneachactivedetail.brand.id if owneachactivedetail.brand else None
+                        owneachactivedetailldict['machinemodel']=owneachactivedetail.machinemodel if owneachactivedetail.machinemodel else None
+                        owneachactivedetailldict['machinenumber']=owneachactivedetail.machinenumber if owneachactivedetail.machinenumber else None
+                        owneachactivedetailldict['installdate']=owneachactivedetail.installdate if owneachactivedetail.installdate else None
+                        owneachactivedetailldict['expiration']=owneachactivedetail.expiration if owneachactivedetail.expiration else None
+                        owneachactivedetailldict['endsupplier']=owneachactivedetail.endsupplier if owneachactivedetail.endsupplier else None
+                        owneachactivedetailldict['competitionrelation_id']=owneachactivedetail.competitionrelation.id if owneachactivedetail.competitionrelation else None
+                        owneachactivedetailldict['machineseries']=owneachactivedetail.machineseries if owneachactivedetail.machineseries else None
+                        owneachactivedetailldict['testprice']=owneachactivedetail.testprice if owneachactivedetail.testprice else None
+                        owneachactivedetailllist.append(owneachactivedetailldict)
+
+                    ownbrandlist= list(set(item['brand_id'] for item in owneachactivedetailllist))
+                    print('ownbrandlist',ownbrandlist)
+
+                    if PMRresearchlist:#先判断对方是否有这个医院项目
+                        PMR_researchlist_id=PMRresearchlist[0].id
+                        print('对应的其田的CRP/SAA的id',PMR_researchlist_id)  
+                        PMRbrandlist=[] 
+                        PMReachactivedetailllist=[]
+                        if PMRmachinedetail:#然后判断对方有没有仪器数据
+                            for PMReachactivedetail in PMRmachinedetail:
+                                PMReachactivedetailldict={}
+                                PMReachactivedetailldict['detailedproject_id']=PMReachactivedetail.detailedproject.id if PMReachactivedetail.detailedproject else None
+                                PMReachactivedetailldict['ownbusiness']=PMReachactivedetail.ownbusiness if PMReachactivedetail.ownbusiness else False
+                                PMReachactivedetailldict['brand_id']=PMReachactivedetail.brand.id if PMReachactivedetail.brand else None
+                                PMReachactivedetailldict['machinemodel']=PMReachactivedetail.machinemodel if PMReachactivedetail.machinemodel else None
+                                PMReachactivedetailldict['machinenumber']=PMReachactivedetail.machinenumber if PMReachactivedetail.machinenumber else None
+                                PMReachactivedetailldict['installdate']=PMReachactivedetail.installdate if PMReachactivedetail.installdate else None
+                                PMReachactivedetailldict['expiration']=PMReachactivedetail.expiration if PMReachactivedetail.expiration else None
+                                PMReachactivedetailldict['endsupplier']=PMReachactivedetail.endsupplier if PMReachactivedetail.endsupplier else None
+                                PMReachactivedetailldict['competitionrelation_id']=PMReachactivedetail.competitionrelation.id if PMReachactivedetail.competitionrelation else None
+                                PMReachactivedetailldict['machineseries']=PMReachactivedetail.machineseries if PMReachactivedetail.machineseries else None
+                                PMReachactivedetailldict['testprice']=PMReachactivedetail.testprice if PMReachactivedetail.testprice else None
+                                PMReachactivedetailllist.append(PMReachactivedetailldict)
+
+                            PMRbrandlist= list(set(item['brand_id'] for item in PMReachactivedetailllist))
+                            print('PMRbrandlist',PMRbrandlist)
+
+                            PMRmorebrandlist = [item for item in PMRbrandlist if item not in ownbrandlist]
+                            print('PMRmorebrandlist',PMRmorebrandlist)
+                            OWNmorebrandlist = [item for item in ownbrandlist if item not in PMRbrandlist]
+                            print('OWNmorebrandlist',OWNmorebrandlist)
+                            # SAMEbrandlist = [item for item in ownbrandlist if item in PMRbrandlist]
+                            # print('SAMEbrandlist',SAMEbrandlist)
+
+                            #如果PMR有额外品牌，则在此obj中新增仪器
+                            if PMRmorebrandlist:
+                                for data in PMReachactivedetailllist:#遍历PMR那边对应的所有仪器                              
+                                    if data['brand_id'] in PMRmorebrandlist and data['brand_id']!=14 : #PMR中的14是迈瑞，但是迈瑞在QT中才是准的，所以去除
+                                        #如果该仪器在PMR有而QT没有，需要在QT这里添加进去
+                                        if data['brand_id']== 9: #国赛于QT来说是竞品，要变成False
+                                            data['ownbusiness']=False    
+                                        if data['detailedproject_id']==1:
+                                            data['detailedproject_id']=12  
+                                        if data['detailedproject_id']==2:
+                                            data['detailedproject_id']=13  
+                                        print('添加到PMR里面的data',data)
+                                        PMRResearchDetail3.objects.create(researchlist_id=i.id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
+                            
+                            #如果QT有额外品牌，则在对应的PMR那边新增仪器
+                            if OWNmorebrandlist:
+                                for data in owneachactivedetailllist:#遍历QT自己所有的仪器
+                                    if data['brand_id'] in OWNmorebrandlist and  data['brand_id']!=9 : #QT中的9是国赛，但是国赛在PMR中才是准的，所以去除
+                                        #若该仪器在QT有而PMR没有的品牌列表中，需要到PMR那边去添加该仪器
+                                        if data['brand_id']== 14:
+                                            data['ownbusiness']=False
+                                        if data['detailedproject_id']==12:
+                                            data['detailedproject_id']=1 
+                                        if data['detailedproject_id']==13:
+                                            data['detailedproject_id']=2
+                                        print('添加到PMR里面的data',data)
+                                        PMRResearchDetail3.objects.create(researchlist_id=PMR_researchlist_id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
+                        
+                        #如果对方没有数据，则直接添加到对方
+                        if not PMRmachinedetail:
+                            for data in owneachactivedetailllist:#遍历QT自己所有的仪器
+                                if data['brand_id']==14 : 
+                                    data['ownbusiness']=False
+                                if data['brand_id']== 9:
+                                    data['ownbusiness']=True
+                                if data['detailedproject_id']==12:
+                                    data['detailedproject_id']=1
+                                if data['detailedproject_id']==13:
+                                    data['detailedproject_id']=2
+                                print('添加到PMR里面的data',data)
+                                PMRResearchDetail3.objects.create(researchlist_id=PMR_researchlist_id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
+                 
+
+
+                if not ownmachinedetail:
+                    if PMRresearchlist:#先判断对方是否有这个医院项目
+                        PMR_researchlist_id=PMRresearchlist[0].id
+                        print('对应的其田的CRP/SAA的id',PMR_researchlist_id)   
+                        PMReachactivedetailllist=[]
+                        if PMRmachinedetail:#然后判断对方有没有仪器数据
+                            for PMReachactivedetail in PMRmachinedetail:
+                                PMReachactivedetailldict={}
+                                PMReachactivedetailldict['detailedproject_id']=PMReachactivedetail.detailedproject.id if PMReachactivedetail.detailedproject else None
+                                PMReachactivedetailldict['ownbusiness']=PMReachactivedetail.ownbusiness if PMReachactivedetail.ownbusiness else False
+                                PMReachactivedetailldict['brand_id']=PMReachactivedetail.brand.id if PMReachactivedetail.brand else None
+                                PMReachactivedetailldict['machinemodel']=PMReachactivedetail.machinemodel if PMReachactivedetail.machinemodel else None
+                                PMReachactivedetailldict['machinenumber']=PMReachactivedetail.machinenumber if PMReachactivedetail.machinenumber else None
+                                PMReachactivedetailldict['installdate']=PMReachactivedetail.installdate if PMReachactivedetail.installdate else None
+                                PMReachactivedetailldict['expiration']=PMReachactivedetail.expiration if PMReachactivedetail.expiration else None
+                                PMReachactivedetailldict['endsupplier']=PMReachactivedetail.endsupplier if PMReachactivedetail.endsupplier else None
+                                PMReachactivedetailldict['competitionrelation_id']=PMReachactivedetail.competitionrelation.id if PMReachactivedetail.competitionrelation else None
+                                PMReachactivedetailldict['machineseries']=PMReachactivedetail.machineseries if PMReachactivedetail.machineseries else None
+                                PMReachactivedetailldict['testprice']=PMReachactivedetail.testprice if PMReachactivedetail.testprice else None
+                                PMReachactivedetailllist.append(PMReachactivedetailldict)
+
+
+                            for data in PMReachactivedetailllist:#遍历QT那边对应的所有仪器                              
+                                if data['brand_id']==9 : 
+                                    data['ownbusiness']=False 
+                                if data['brand_id']== 14: 
+                                    data['ownbusiness']=True    
+                                if data['detailedproject_id']==1:
+                                    data['detailedproject_id']=12  
+                                if data['detailedproject_id']==2:
+                                    data['detailedproject_id']=13  
+                                print('添加到PMR里面的data',data)
+                                PMRResearchDetail3.objects.create(researchlist_id=i.id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
+                i.save()       
+
+                '''
 
 
 
@@ -1665,7 +1905,7 @@ class PMRResearchDetailAdmin(GlobalAdmin):
     empty_value_display = '--'
     list_per_page = 15
     list_display = ('list_district','list_hospitalclass','list_hospitalname','list_salesman1','list_project', 
-                    'renamed_detailedproject','ownbusiness','brand','machinemodel','machineseries','machinenumber','installdate','colored_expiration','testprice','endsupplier','colored_competitionrelation')
+                    'renamed_detailedproject','ownbusiness','brand','machinemodel','renamed_machineseries','machinenumber','installdate','colored_expiration','testprice','endsupplier','colored_competitionrelation')
     autocomplete_fields=['researchlist','brand']
     # fields=('researchlist__project__project','detailedproject','ownbusiness','band','machinemodel')
     ordering = ('-researchlist__hospital__district',
@@ -1791,6 +2031,9 @@ class PMRResearchDetailAdmin(GlobalAdmin):
     def renamed_detailedproject(self, obj):
         return obj.detailedproject
     
+    @admin.display(ordering="machineseries",description='序列号')
+    def renamed_machineseries(self, obj):
+        return obj.machineseries
 
 
     @admin.display(ordering="researchlist__salesman1__chinesename",description='第一负责人')

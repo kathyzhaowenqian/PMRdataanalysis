@@ -275,10 +275,10 @@ class PMRResearchDetail3(models.Model):
     detailedproject = models.ForeignKey('ProjectDetail3', models.CASCADE, db_column='detailedproject',to_field='id',verbose_name= '项目细分(注意根据本页主项目填报)',help_text=u"例如:本页项目为流式,则项目细分为流式项目下的具体细分",null=True)
 
     # detailedproject2=models.CharField(verbose_name='项目细分',max_length=255, blank=True, null=True)
-    ownbusiness=models.BooleanField(verbose_name='是否我司业务',null=False, default = False,choices=ownbusiness_choices)
+    ownbusiness=models.BooleanField(verbose_name='是否我司业务',null=False, default = False,help_text=u"其田CRP/SAA的国赛品牌为'竞品',选'否'",choices=ownbusiness_choices)
     brand = models.ForeignKey('Brand', models.CASCADE, db_column='brand',to_field='id',verbose_name= '品牌',null=True)
     machinemodel = models.CharField(verbose_name='仪器型号',max_length=255, blank=True, null=True)
-    machineseries = models.CharField(verbose_name='序列号(我司仪器必填)',max_length=255, blank=True, null=True)
+    machineseries = models.CharField(verbose_name='序列号(我司仪器必填。若序列号未知但共用仪器时,请同时在此填相同的随机字符,并不可与其他仪器重复，不然影响计算)',max_length=255, blank=True, null=True)
     machinenumber = models.PositiveIntegerField(verbose_name='仪器数量',default = 1)
     installdate = models.DateField(verbose_name='装机日期',blank=True, null=True,help_text=u'例: 2023/02/01')
     testprice = models.DecimalField(verbose_name='单价',max_digits=25, decimal_places=2, blank=True, null=True)
