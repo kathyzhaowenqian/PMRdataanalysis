@@ -1037,14 +1037,15 @@ class PMRResearchListAdmin(GlobalAdmin):
             #     #             PMRResearchDetail.objects.create(researchlist_id=QTmachinedetail[0].researchlist.id,is_active=True,detailedproject_id=data['detailedproject_id'],brand__brand=data['brand__brand'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation__competitionrelation=data['competitionrelation__competitionrelation'],machineseries=data['machineseries'],testprice=data['testprice']).save()                    
                 '''
 
-            #CRP/SAA 普美瑞和其田的数据联动（仅针对同一个医院的同一个销售）
+            #CRP/SAA 普美瑞和其田的数据联动（仅针对同一个医院的同一个销售）只把普美瑞公司中的国赛和其他品牌同步给其田，迈瑞以其田中的为准
             if form.instance.project.project=='CRP/SAA':
-                #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要更新至QT
-                ownmachinedetail= PMRResearchDetail.objects.filter(Q(researchlist_id=form.instance.id)  & Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(is_active=True) & ~Q(machinenumber=0))
+                #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要更新至QT,筛选不是迈瑞的
+                ownmachinedetail= PMRResearchDetail.objects.filter(Q(researchlist_id=form.instance.id)  & ~Q(brand_id=14) & Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(is_active=True) & ~Q(machinenumber=0))
                
-                #找出其田下面的，同一家医院同一个项目的同一个人的，所有仪器obj
-                QTmachinedetail= PMRResearchDetail.objects.filter(Q(researchlist__hospital__id=form.instance.hospital.id) & Q(researchlist__project__project='CRP/SAA') &  Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(researchlist__company__id=2) )
-                print('QTmachinedetail',QTmachinedetail)
+                #找出其田下面的，同一家医院同一个项目的同一个人的，不是迈瑞的，因为这个是要被替代的
+                QTmachinedetailnotMindray= PMRResearchDetail.objects.filter(Q(researchlist__hospital__id=form.instance.hospital.id)& ~Q(brand_id=14) & Q(researchlist__project__project='CRP/SAA') &  Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(researchlist__company__id=2) )
+                print('QTmachinedetail',QTmachinedetailnotMindray)
+
                 QTresearchlist=PMRResearchList.objects.filter(hospital__id=form.instance.hospital.id,project__project='CRP/SAA',salesman1_id=form.instance.salesman1.id,company__id=2)
                 print('QTresearchlist',QTresearchlist)
 
@@ -1070,29 +1071,29 @@ class PMRResearchListAdmin(GlobalAdmin):
                     ownbrandlist= list(set(item['brand_id'] for item in owneachactivedetailllist))
                     print('ownbrandlist',ownbrandlist)  
 
-                    if QTresearchlist:
+                    if QTresearchlist:#如果有对应的QT的医院项目
                         QT_researchlist_id=QTresearchlist[0].id
-                        if QTmachinedetail:
+                        if QTmachinedetailnotMindray:
                             #批量删除QTmachinedetail
-                            QTmachinedetail.update(is_active=False)                              
+                            QTmachinedetailnotMindray.update(is_active=False)                              
 
                         #在对应的QT那边新增PMR中的仪器
                         for data in owneachactivedetailllist:#遍历PMR自己所有的仪器
                             if data['brand_id']== 9: #'国赛'
                                 data['ownbusiness']=False
-                            if data['brand_id']==14: #'迈瑞Mindray'
-                                data['ownbusiness']=True 
+                            # if data['brand_id']==14: #'迈瑞Mindray'
+                            #     data['ownbusiness']=True 
                             if data['detailedproject_id']==1:
                                 data['detailedproject_id']=12 
                             if data['detailedproject_id']==2:
                                 data['detailedproject_id']=13
-                            print(data)
+                            print('data',data)
                             PMRResearchDetail.objects.create(researchlist_id=QT_researchlist_id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
-                
+                        
                 if not ownmachinedetail:
                     #批量删除QTmachinedetail
-                    if QTmachinedetail:
-                        QTmachinedetail.update(is_active=False)
+                    if QTmachinedetailnotMindray:
+                        QTmachinedetailnotMindray.update(is_active=False)
                         print('普美瑞公司中的该医院CRPSAA仪器全部删除，QT跟着全部删除')
 
 

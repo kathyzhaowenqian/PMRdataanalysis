@@ -899,12 +899,12 @@ class PMRResearchListAdmin(GlobalAdmin):
 
             #CRP/SAA 普美瑞和其田的数据联动（仅针对同一个医院的同一个销售）
             if form.instance.project.project=='CRP/SAA':
-                #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要更新至QT
-                ownmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist_id=form.instance.id)  & Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(is_active=True) & ~Q(machinenumber=0))
+                #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要更新至QT,除去国赛，因为国赛在其田里不准，在普美瑞中才准
+                ownmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist_id=form.instance.id) & ~Q(brand_id=9) & Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(is_active=True) & ~Q(machinenumber=0))
                
                 #找出其田下面的，同一家医院同一个项目的同一个人的，所有仪器obj
-                PMRmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist__hospital__id=form.instance.hospital.id) & Q(researchlist__project__project='CRP/SAA') &  Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(researchlist__company__id=1) )
-                print('PMRmachinedetail',PMRmachinedetail)
+                PMRmachinedetailnotGUOSAI= PMRResearchDetail3.objects.filter(Q(researchlist__hospital__id=form.instance.hospital.id) & ~Q(brand_id=9) & Q(researchlist__project__project='CRP/SAA') &  Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(researchlist__company__id=1) )
+                print('PMRmachinedetailnotGUOSAI',PMRmachinedetailnotGUOSAI)
                 PMRresearchlist=PMRResearchList3.objects.filter(hospital__id=form.instance.hospital.id,project__project='CRP/SAA',salesman1_id=form.instance.salesman1.id,company__id=1)
                 print('PMRresearchlist',PMRresearchlist)
 
@@ -932,14 +932,14 @@ class PMRResearchListAdmin(GlobalAdmin):
 
                     if PMRresearchlist:
                         PMR_researchlist_id=PMRresearchlist[0].id
-                        if PMRmachinedetail:
+                        if PMRmachinedetailnotGUOSAI:
                             #批量删除QTmachinedetail
-                            PMRmachinedetail.update(is_active=False)                              
+                            PMRmachinedetailnotGUOSAI.update(is_active=False)                              
 
                         #在对应的QT那边新增PMR中的仪器
                         for data in owneachactivedetailllist:#遍历PMR自己所有的仪器
-                            if data['brand_id']== 9: #'国赛'
-                                data['ownbusiness']=True
+                            # if data['brand_id']== 9: #'国赛'
+                            #     data['ownbusiness']=True
                             if data['brand_id']==14: #'迈瑞Mindray'
                                 data['ownbusiness']=False 
                             if data['detailedproject_id']==12:
@@ -951,12 +951,9 @@ class PMRResearchListAdmin(GlobalAdmin):
                 
                 if not ownmachinedetail:
                     #批量删除PMRmachinedetail
-                    if PMRmachinedetail:
-                        PMRmachinedetail.update(is_active=False)
+                    if PMRmachinedetailnotGUOSAI:
+                        PMRmachinedetailnotGUOSAI.update(is_active=False)
                         print('普美瑞公司中的该医院CRPSAA仪器全部删除，QT跟着全部删除')
-
-
-
 
 
 
