@@ -227,13 +227,13 @@ class PMRResearchList3(models.Model):
     salesman1 = models.ForeignKey('UserInfo3', models.CASCADE, db_column='salesman1',to_field='id',related_name='salesman1qt',verbose_name= '第一负责人')
     salesman2 = models.ForeignKey('UserInfo3', models.CASCADE, db_column='salesman2',to_field='id',related_name='salesman2qt',verbose_name= '第二负责人')
 
-    salesmode=MultiSelectField(verbose_name='销售模式(可多选)',max_length=25,choices=salesmode_choices,blank=True,null=True)
+    salesmode=MultiSelectField(verbose_name='销售模式',max_length=25,choices=salesmode_choices,blank=True,null=True)
 
-    testspermonth = models.PositiveIntegerField(verbose_name='月总测试数(人份)',default = 0)
-    owntestspermonth = models.PositiveIntegerField(verbose_name='我司业务月测试数',default = 0)
+    testspermonth = models.PositiveIntegerField(verbose_name='月总测试数',help_text=u"注意：此处测试数为人份数，请填写该医院该项目的总体月均人份数",default = 0)
+    owntestspermonth = models.PositiveIntegerField(verbose_name='我司月测试数',help_text=u"注意：此处测试数为人份数, 请填写我司业务的月均人份数，从而了解市场占有率",default = 0)
     contactname = models.CharField(verbose_name='主任姓名',max_length=255, blank=True, null=True)
     contactmobile = models.CharField(verbose_name='联系方式',max_length=255, blank=True, null=True)
-    saleschannel = models.TextField(verbose_name='销售路径',max_length=255, blank=True, null=True)
+    saleschannel = models.TextField(verbose_name='销售路径及进展',max_length=255, blank=True, null=True)
     support = models.TextField(verbose_name='所需支持',max_length=500, blank=True, null=True)
     adminmemo=models.TextField(verbose_name='备注',max_length=500, blank=True, null=True)
     operator = models.ForeignKey('UserInfo3', models.CASCADE, db_column='operator',to_field='id',related_name='operatorqt',verbose_name= '最后操作人')
