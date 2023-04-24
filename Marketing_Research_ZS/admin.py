@@ -153,6 +153,24 @@ class IfSupportFilter(SimpleListFilter):
             return queryset.filter(Q(support__isnull=True) | Q(support=''))
 
 
+class IfMemoFilter(SimpleListFilter):
+    title = '备注'
+    parameter_name = 'ifmemo'
+
+    def lookups(self, request, model_admin):
+        return [(1, '把握较大'), (2, '在跟进'),(3,'未备注')]
+
+    def queryset(self, request, queryset):
+        # pdb.set_trace()
+        if self.value() == '1':
+            return queryset.filter(memo='把握较大') 
+ 
+        elif self.value() == '2':
+            return queryset.filter(memo='在跟进')
+        
+        elif self.value() == '3':
+            return queryset.filter(Q(memo__isnull=True) | Q(memo=''))
+
 
 class SalesmanFilter(SimpleListFilter):
     title = '第一负责人' 
@@ -527,7 +545,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
     list_display_links =('hospital',)
     exclude = ('operator','is_active')
     search_fields=['uniquestring']
-    list_per_page = 15
+    list_per_page = 10
     list_display = result_of_Quatar_display(settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS,settings.MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS)[0]
  
     formfield_overrides = {
@@ -545,7 +563,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 'hospital__hospitalname','salesman1','project',)#('id',)
     
     
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,IfTargetCustomerFilter,CustomerProjectTypeFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter]
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,IfTargetCustomerFilter,CustomerProjectTypeFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter,IfMemoFilter]
     search_fields = ['hospital__hospitalname','gsmrresearchdetail__brand__brand']
     fieldsets = (('作战背景', {'fields': ('company','project','hospital','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','salesmode','director',),
