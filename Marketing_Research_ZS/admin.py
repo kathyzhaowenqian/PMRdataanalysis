@@ -22,6 +22,7 @@ from Marketing_Research_ZS.tools.calculate_Quater_target import result_of_Quatar
 from django.db.models import Avg,Sum,Count,Max,Min
 
 from django.contrib.admin import SimpleListFilter
+from django.db.models import Case, When, Value, IntegerField
 
 
 class ProjectFilter(SimpleListFilter):
@@ -40,13 +41,29 @@ class ProjectFilter(SimpleListFilter):
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
 
-
-class IfTargetCustomerFilter(SimpleListFilter):
-    title = '客户类型'
-    parameter_name = 'customertype'
+class ProjectFilterforDetail(SimpleListFilter):
+    title = '项目' 
+    parameter_name = 'project'
 
     def lookups(self, request, model_admin):
-        return [(1, '目标客户(已填目标额/任何季度)'), (2, '老客户(我司测试数大于0)'), (3, '未跟进客户(剩余客户)')]
+        projects = Project.objects.filter(company_id=5)
+        return [(project.id, project.project) for project in projects]
+    
+    def queryset(self, request, queryset):
+        if self.value():
+        # 筛选条件有值时, 查询对应的 node 的文章
+            return queryset.filter(researchlist__project__id=self.value())
+        else:
+        # 筛选条件没有值时，全部的时候是没有值的
+            return queryset
+        
+
+class IfTargetCustomerFilter(SimpleListFilter):
+    title = '是否填写目标'
+    parameter_name = 'iftarget'
+
+    def lookups(self, request, model_admin):
+        return [(1, '已填目标额/任何季度'), (2, '未填目标额')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
@@ -55,9 +72,86 @@ class IfTargetCustomerFilter(SimpleListFilter):
             return queryset.filter((Q(gsmrsalestarget__q1target__gt= 0)|Q(gsmrsalestarget__q2target__gt =0)|Q(gsmrsalestarget__q3target__gt =0)|Q(gsmrsalestarget__q4target__gt=0)) & Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') )
  
         elif self.value() == '2':
-            return queryset.filter(Q(owntestspermonth__gt= 0) | Q(gsmrdetailcalculate__totalsumpermonth__gt = 0))
-        elif self.value() == '3':
-            return queryset.filter(Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') & Q(gsmrsalestarget__q1target = 0)& Q(gsmrsalestarget__q2target =0) & Q(gsmrsalestarget__q3target =0)& Q(gsmrsalestarget__q4target=0)& Q(gsmrdetailcalculate__totalsumpermonth = 0) & Q(owntestspermonth= 0) )
+            return queryset.filter(Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') & Q(gsmrsalestarget__q1target = 0)& Q(gsmrsalestarget__q2target =0) & Q(gsmrsalestarget__q3target =0)& Q(gsmrsalestarget__q4target=0))
+
+class CustomerProjectTypeFilter(SimpleListFilter):
+    title = '医院项目分类'
+    parameter_name = 'customerprojecttype'
+
+    def lookups(self, request, model_admin):
+        return [(1, '老项目(22年已开票)'),(2, '丢失的项目(22年已开票、23年至今未开票)'), (3, 'Q1新项目(22年未开票、23Q1已开票)'), (4, 'Q2新项目(22-23Q1未开票、23Q2已开票)'),(5, 'Q3新项目(22-23Q2未开票、23Q3已开票)'),(6, 'Q4新项目(22-23Q3未开票、23Q4已开票)'),(7, '潜在项目(至今未曾开票)'),]
+
+
+    def queryset(self, request, queryset):
+        # pdb.set_trace()
+        if self.value() == '1':#老客户(去年已开票)
+            return queryset.filter(Q(gsmrdetailcalculate__totalsumpermonth__gt = 0))
+ 
+        elif self.value() == '2':#丢失的老客户(22年已开票、23年至今未开票)
+            return queryset.filter(Q(gsmrdetailcalculate__totalsumpermonth__gt = 0) &  Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') & Q(gsmrsalestarget__q1actualsales= 0) & Q(gsmrsalestarget__q2actualsales= 0) & Q(gsmrsalestarget__q3actualsales= 0) & Q(gsmrsalestarget__q4actualsales= 0)) 
+
+        elif self.value() == '3': #Q1新客户(22年未开票、23Q1已开票)
+            return queryset.filter(Q(gsmrdetailcalculate__totalsumpermonth = 0) & ( Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') &  Q(gsmrsalestarget__q1actualsales__gt= 0)) )
+        
+        elif self.value() == '4': #Q2新客户(22-23Q1未开票、23Q2已开票
+            return queryset.filter(Q(gsmrdetailcalculate__totalsumpermonth = 0) & ( Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') &  Q(gsmrsalestarget__q1actualsales= 0) &  Q(gsmrsalestarget__q2actualsales__gt= 0)) )
+        
+        elif self.value() == '5': #Q3新客户(22-23Q2未开票、23Q3已开票)'
+            return queryset.filter(Q(gsmrdetailcalculate__totalsumpermonth = 0) & ( Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') &  Q(gsmrsalestarget__q1actualsales= 0) &  Q(gsmrsalestarget__q2actualsales= 0) & Q(gsmrsalestarget__q3actualsales__gt= 0)) )
+        
+        elif self.value() == '6': #Q4新客户(22-23Q3未开票、23Q4已开票)
+            return queryset.filter(Q(gsmrdetailcalculate__totalsumpermonth = 0) & ( Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') &  Q(gsmrsalestarget__q1actualsales= 0) &  Q(gsmrsalestarget__q2actualsales= 0) &  Q(gsmrsalestarget__q3actualsales= 0) & Q(gsmrsalestarget__q4actualsales__gt= 0)) )
+        
+        elif self.value() == '7': #潜在客户  
+            return queryset.filter(Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') & Q(gsmrsalestarget__q1actualsales = 0)& Q(gsmrsalestarget__q2actualsales =0) & Q(gsmrsalestarget__q3actualsales =0)& Q(gsmrsalestarget__q4actualsales=0) & Q(gsmrdetailcalculate__totalsumpermonth = 0) )
+
+class IfActualSalesFilter(SimpleListFilter):
+    title = '23年是否开票'
+    parameter_name = 'ifactualsales'
+
+    def lookups(self, request, model_admin):
+        return [(1, '23年已开票'), (2, '23年未开票')]
+
+    def queryset(self, request, queryset):
+        # pdb.set_trace()
+        if self.value() == '1':
+            return queryset.filter((Q(gsmrsalestarget__q1actualsales__gt= 0)|Q(gsmrsalestarget__q2actualsales__gt =0)|Q(gsmrsalestarget__q3actualsales__gt =0)|Q(gsmrsalestarget__q4actualsales__gt=0)) & Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') )
+ 
+        elif self.value() == '2':
+            return queryset.filter(Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') & Q(gsmrsalestarget__q1actualsales = 0)& Q(gsmrsalestarget__q2actualsales =0) & Q(gsmrsalestarget__q3actualsales =0)& Q(gsmrsalestarget__q4actualsales=0))
+
+
+
+class IfSalesChannelFilter(SimpleListFilter):
+    title = '销售路径'
+    parameter_name = 'ifsaleschannel'
+
+    def lookups(self, request, model_admin):
+        return [(1, '已填写销售路径'), (2, '未填写销售路径')]
+
+    def queryset(self, request, queryset):
+        # pdb.set_trace()
+        if self.value() == '1':
+            return queryset.filter(Q(saleschannel__isnull=False) & ~Q(saleschannel=''))
+ 
+        elif self.value() == '2':
+            return queryset.filter(Q(saleschannel__isnull=True) | Q(saleschannel=''))
+
+class IfSupportFilter(SimpleListFilter):
+    title = '所需支持'
+    parameter_name = 'ifsupport'
+
+    def lookups(self, request, model_admin):
+        return [(1, '已填写所需支持'), (2, '未填写所需支持')]
+
+    def queryset(self, request, queryset):
+        # pdb.set_trace()
+        if self.value() == '1':
+            return queryset.filter(Q(support__isnull=False) & ~Q(support=''))
+ 
+        elif self.value() == '2':
+            return queryset.filter(Q(support__isnull=True) | Q(support=''))
+
 
 
 class SalesmanFilter(SimpleListFilter):
@@ -66,7 +160,7 @@ class SalesmanFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = GSMRUserInfo.objects.filter(~Q(username__in= ['admin','ssl','chm','lijun','pdh','ybb','fzj','gsj','zxl','zjm','gjb','wh','jll','yy']))
+        salesmans = GSMRUserInfo.objects.filter(Q(username__in= ['lxg']))
         print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -84,7 +178,7 @@ class SalesmanFilter2(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = GSMRUserInfo.objects.filter(~Q(username__in= ['admin','ssl','chm','lijun','pdh','ybb','fzj','gsj','zxl','zjm','gjb','wh','jll','yy']))
+        salesmans = GSMRUserInfo.objects.filter(Q(username__in= ['lxg']))
         print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -102,7 +196,7 @@ class SalesmanFilterforDetail(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = GSMRUserInfo.objects.filter(~Q(username__in= ['admin','ssl','chm','lijun','pdh','ybb','fzj','gsj','zxl','zjm','gjb','wh','jll','yy']))
+        salesmans = GSMRUserInfo.objects.filter(Q(username__in= ['lxg']))
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
     def queryset(self, request, queryset):
@@ -440,8 +534,18 @@ class GSMRResearchListAdmin(GlobalAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 37})}
     } 
     autocomplete_fields=['project','hospital']       
-    ordering = ('id',)#('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',) #('-id',)#
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,IfTargetCustomerFilter]
+    ordering = ('-hospital__district',
+                Case(
+                        When(hospital__hospitalclass='三级', then=Value(1)),
+                        When(hospital__hospitalclass='二级', then=Value(2)),
+                        When(hospital__hospitalclass='一级', then=Value(3)),
+                        When(hospital__hospitalclass='未定级', then=Value(4)),
+                        output_field=IntegerField(),
+                    ),
+                'hospital__hospitalname','salesman1','project',)#('id',)
+    
+    
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,IfTargetCustomerFilter,CustomerProjectTypeFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter]
     search_fields = ['hospital__hospitalname','gsmrresearchdetail__brand__brand']
     fieldsets = (('作战背景', {'fields': ('company','project','hospital','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','salesmode','director',),
@@ -739,7 +843,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
     def hospital_hospitalclass(self, obj):
         return obj.hospital.hospitalclass
 
-    @admin.display(description='第一责任人')
+    @admin.display(ordering="salesman1__chinesename",description='第一责任人')
     def salesman1_chinesename(self, obj):
         return obj.salesman1.chinesename
 
@@ -783,6 +887,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
+    salestarget_23_q1.admin_order_field = '-gsmrsalestarget__q1target'
 
     @admin.display(description='23/Q2目标')
     def salestarget_23_q2(self, obj):
@@ -795,7 +900,8 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-       
+    salestarget_23_q2.admin_order_field = '-gsmrsalestarget__q2target'
+   
     @admin.display(description='23/Q3目标')
     def salestarget_23_q3(self, obj):
         if obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q3target == 0:
@@ -807,6 +913,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
+    salestarget_23_q3.admin_order_field = '-gsmrsalestarget__q3target'
 
     @admin.display(description='23/Q4目标')
     def salestarget_23_q4(self, obj):
@@ -819,7 +926,9 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)    
+    salestarget_23_q4.admin_order_field = '-gsmrsalestarget__q4target'
     
+
     @admin.display(description='24/Q1目标')
     def salestarget_24_q1(self, obj):
         if obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q1target == 0:
@@ -831,7 +940,10 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
+    salestarget_24_q1.admin_order_field = '-gsmrsalestarget__q1target'
     
+
+
     @admin.display(description='24/Q2目标')
     def salestarget_24_q2(self, obj):
         if obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q2target == 0:
@@ -843,6 +955,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
+    salestarget_24_q2.admin_order_field = '-gsmrsalestarget__q2target'
         
     @admin.display(description='24/Q3目标')
     def salestarget_24_q3(self, obj):
@@ -855,6 +968,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
+    salestarget_24_q3.admin_order_field = '-gsmrsalestarget__q3target'
     
     @admin.display(description='24/Q4目标')
     def salestarget_24_q4(self, obj):
@@ -867,74 +981,91 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    
+    salestarget_24_q4.admin_order_field = '-gsmrsalestarget__q4target'
+
 
 #目标完成月
     @admin.display(description='23/Q1目标月')
     def completemonth_23_q1(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q1completemonth
+    completemonth_23_q1.admin_order_field = 'gsmrsalestarget__q1completemonth'
 
     @admin.display(description='23/Q2目标月')
     def completemonth_23_q2(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q2completemonth
+    completemonth_23_q2.admin_order_field = 'gsmrsalestarget__q2completemonth'
     
     @admin.display(description='23/Q3目标月')
     def completemonth_23_q3(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q3completemonth
+    completemonth_23_q3.admin_order_field = 'gsmrsalestarget__q3completemonth'
 
     @admin.display(description='23/Q4目标月')
     def completemonth_23_q4(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q4completemonth
+    completemonth_23_q4.admin_order_field = 'gsmrsalestarget__q4completemonth'
     
     @admin.display(description='24/Q1目标月')
     def completemonth_24_q1(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q1completemonth
+    completemonth_24_q1.admin_order_field = 'gsmrsalestarget__q1completemonth'
 
     @admin.display(description='24/Q2目标月')
     def completemonth_24_q2(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q2completemonth
+    completemonth_24_q2.admin_order_field = 'gsmrsalestarget__q2completemonth'
     
     @admin.display(description='24/Q3目标月')
     def completemonth_24_q3(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q3completemonth
+    completemonth_24_q3.admin_order_field = 'gsmrsalestarget__q3completemonth'
 
     @admin.display(description='24/Q4目标月')
     def completemonth_24_q4(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q4completemonth
+    completemonth_24_q4.admin_order_field = 'gsmrsalestarget__q4completemonth'
 
 
 #每季度实际完成额
     @admin.display(description='23/Q1实际')
     def actualsales_23_q1(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q1actualsales
+    actualsales_23_q1.admin_order_field = '-gsmrsalestarget__q1actualsales'
 
     @admin.display(description='23/Q2实际')
     def actualsales_23_q2(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q2actualsales
+    actualsales_23_q2.admin_order_field = '-gsmrsalestarget__q2actualsales'
     
     @admin.display(description='23/Q3实际')
     def actualsales_23_q3(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q3actualsales
+    actualsales_23_q3.admin_order_field = '-gsmrsalestarget__q3actualsales'
 
     @admin.display(description='23/Q4实际')
     def actualsales_23_q4(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q4actualsales
+    actualsales_23_q4.admin_order_field = '-gsmrsalestarget__q4actualsales'
     
     @admin.display(description='24/Q1实际')
     def actualsales_24_q1(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q1actualsales
+    actualsales_24_q1.admin_order_field = '-gsmrsalestarget__q1actualsales'
 
     @admin.display(description='24/Q2实际')
     def actualsales_24_q2(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q2actualsales
-    
+    actualsales_24_q2.admin_order_field = '-gsmrsalestarget__q2actualsales'
+
     @admin.display(description='24/Q3实际')
     def actualsales_24_q3(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q3actualsales
+    actualsales_24_q3.admin_order_field = '-gsmrsalestarget__q3actualsales'
 
     @admin.display(description='24/Q4实际')
     def actualsales_24_q4(self, obj):
         return obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q4actualsales
+    actualsales_24_q4.admin_order_field = '-gsmrsalestarget__q4actualsales'
 
 
 #每季度实际完成率
@@ -954,6 +1085,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 finishrate=0
                 obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q1finishrate=finishrate
                 return '--'
+    finishrate_23_q1.admin_order_field = '-gsmrsalestarget__q1finishrate'
 
     @admin.display(description='23/Q2完成率')
     def finishrate_23_q2(self, obj):
@@ -971,7 +1103,8 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 finishrate=0
                 obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q2finishrate=finishrate
                 return '--'
-    
+    finishrate_23_q2.admin_order_field = '-gsmrsalestarget__q2finishrate'
+
     @admin.display(description='23/Q3完成率')
     def finishrate_23_q3(self, obj):
         if obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q3target and obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q3target != 0:
@@ -988,6 +1121,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 finishrate=0
                 obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q3finishrate=finishrate
                 return '--'
+    finishrate_23_q3.admin_order_field = '-gsmrsalestarget__q3finishrate'
 
     @admin.display(description='23/Q4完成率')
     def finishrate_23_q4(self, obj):
@@ -1005,6 +1139,8 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 finishrate=0
                 obj.gsmrsalestarget_set.filter(year='2023',is_active=True)[0].q4finishrate=finishrate
                 return '--'
+    finishrate_23_q4.admin_order_field = '-gsmrsalestarget__q4finishrate'
+ 
     
     @admin.display(description='24/Q1完成率')
     def finishrate_24_q1(self, obj):
@@ -1022,6 +1158,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 finishrate=0
                 obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q1finishrate=finishrate
                 return '--'
+    finishrate_24_q1.admin_order_field = '-gsmrsalestarget__q1finishrate'
 
     @admin.display(description='24/Q2完成率')
     def finishrate_24_q2(self, obj):
@@ -1038,6 +1175,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 finishrate=0
                 obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q2finishrate=finishrate
                 return '--'
+    finishrate_24_q2.admin_order_field = '-gsmrsalestarget__q2finishrate'
     
     @admin.display(description='24/Q3完成率')
     def finishrate_24_q3(self, obj):
@@ -1054,6 +1192,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 finishrate=0
                 obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q3finishrate=finishrate
                 return '--'
+    finishrate_24_q3.admin_order_field = '-gsmrsalestarget__q3finishrate'
     
     @admin.display(description='24/Q4完成率')
     def finishrate_24_q4(self, obj):
@@ -1070,6 +1209,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 finishrate=0
                 obj.gsmrsalestarget_set.filter(year='2024',is_active=True)[0].q4finishrate=finishrate
                 return '--'
+    finishrate_24_q4.admin_order_field = '-gsmrsalestarget__q4finishrate'
 
     #通过display计算的仪器值，不做任何保存！！！
     @admin.display(description='test仪器总数')
@@ -1441,19 +1581,27 @@ class GSMRResearchListAdmin(GlobalAdmin):
 class GSMRResearchDetailAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=['researchlist__hospital__hospitalname','brand__brand','machinemodel','competitionrelation__competitionrelation']
-    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilter,SalesmanFilterforDetail,'competitionrelation','researchlist__gsmrdetailcalculate__newold','expiration']
+    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilterforDetail,SalesmanFilterforDetail,'competitionrelation','researchlist__gsmrdetailcalculate__newold','expiration']
 
     list_display_links =('list_hospitalname',)
     empty_value_display = '--'
     list_per_page = 15
-    list_display = ('list_project','list_district','list_hospitalclass','list_hospitalname','list_salesman1', 
+    list_display = ('list_district','list_hospitalclass','list_hospitalname','list_salesman1', 'list_project',
                     'renamed_detailedproject','firsttierdistribution','secondtierdistribution','ownbusiness',
                     'is_goldsite','brand','machinemodel','machineseries','machinenumber','installdate','colored_expiration',
                     'testprice','endsupplier','colored_competitionrelation')
     autocomplete_fields=['researchlist','brand']
     readonly_fields=('is_active','expiration')
     
-    ordering = ('-id',)
+    ordering = ('-researchlist__hospital__district',
+                Case(
+                        When(researchlist__hospital__hospitalclass='三级', then=Value(1)),
+                        When(researchlist__hospital__hospitalclass='二级', then=Value(2)),
+                        When(researchlist__hospital__hospitalclass='一级', then=Value(3)),
+                        When(researchlist__hospital__hospitalclass='未定级', then=Value(4)),
+                        output_field=IntegerField(),
+                    ),
+                'researchlist__hospital__hospitalname','researchlist__salesman1','researchlist__project',)
     GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
 
 
@@ -1539,21 +1687,21 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
     def list_hospitalclass(self, obj):
         return obj.researchlist.hospital.hospitalclass
     
-    @admin.display(description='医院名称')
+    @admin.display(ordering="researchlist__hospital__hospitalname",description='医院名称')
     def list_hospitalname(self, obj):
         return obj.researchlist.hospital.hospitalname
     
-    @admin.display(description='项目细分')
+    @admin.display(ordering="-detailedproject",description='项目细分')
     def renamed_detailedproject(self, obj):
         return obj.detailedproject
     
 
 
-    @admin.display(description='第一负责人')
+    @admin.display(ordering="researchlist__salesman1",description='第一负责人')
     def list_salesman1(self, obj): #用relatedname
         return obj.researchlist.salesman1.chinesename
 
-    @admin.display(description='项目')
+    @admin.display(ordering="researchlist__project",description='项目')
     def list_project(self,obj):
         if not obj.researchlist.project.project:
             obj.researchlist.project.project = '--'
@@ -1582,7 +1730,7 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
                 color_code,
                 obj.researchlist.project.project, )
 
-    @admin.display(description='装机时间')
+    @admin.display(ordering="expiration",description='装机时间')
     def colored_expiration(self,obj):
     # """自定义列表字段, 根据数据单截止日期和当前日期判断是否过期,并对数据库进行更新"""
 
@@ -1605,7 +1753,7 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
                 )
 
 
-    @admin.display(description='竞品关系点')
+    @admin.display(ordering="competitionrelation",description='竞品关系点')
     def colored_competitionrelation(self,obj):
         if not obj.competitionrelation:
             ret = '--'

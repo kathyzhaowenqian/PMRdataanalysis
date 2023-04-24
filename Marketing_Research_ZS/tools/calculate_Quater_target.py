@@ -30,7 +30,7 @@ def result_of_Quatar_display(advanced_days,delayed_days):
     this_year =2023#datetime.now().year
 
     #PMRresearchlist的list显示：
-    list_display = ('colored_project','hospital_district','hospital_hospitalclass','hospital','salesman1_chinesename',                    
+    list_display = ('hospital_district','hospital_hospitalclass','hospital','colored_project', 'salesman1_chinesename',                   
                    'testspermonth','owntestspermonth','salesmode','saleschannel','support',)
             
     # list_editable = ('saleschannel','support')
@@ -126,10 +126,10 @@ def result_of_Quatar_display(advanced_days,delayed_days):
     speicial_case_date = date(2023,4,30)
     if today <= speicial_case_date:
         return ( # list_display
-                    ('colored_project','hospital_district','hospital_hospitalclass','hospital','salesman1_chinesename',#'salesman2_chinesename',                    
+                    ('hospital_district','hospital_hospitalclass','hospital','colored_project','salesman1_chinesename', #'salesman2_chinesename',                    
                    'testspermonth','owntestspermonth','salesmode','saleschannel','support',#'detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent',
                 #   'actualsales_23_q1',#'finishrate_23_q1',  'salestarget_23_q1','completemonth_23_q1',
-                   'salestarget_23_q2','completemonth_23_q2','actualsales_23_q2','finishrate_23_q2'),
+                   'actualsales_23_q1','salestarget_23_q2','completemonth_23_q2','actualsales_23_q2','finishrate_23_q2'),
                     #list_editable
                 #   ('saleschannel','support','targetsalesvalue','Q1completemonth','targetsalesvalue2','Q2completemonth'),
 
