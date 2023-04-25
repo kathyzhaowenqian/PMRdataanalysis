@@ -86,7 +86,7 @@ class CustomerProjectTypeFilter(SimpleListFilter):
     parameter_name = 'customerprojecttype'
 
     def lookups(self, request, model_admin):
-        return [(1, '老项目(22年已开票)'),(2, '丢失的项目(22年已开票、23年至今未开票)'), (3, 'Q1新项目(22年未开票、23Q1已开票)'), (4, 'Q2新项目(22-23Q1未开票、23Q2已开票)'),(5, 'Q3新项目(22-23Q2未开票、23Q3已开票)'),(6, 'Q4新项目(22-23Q3未开票、23Q4已开票)'),(7, '潜在项目(至今未曾开票)'),]
+        return [(1, '老项目(22年已开票)'),(2, '丢失的项目(22年已开票、23年至今未开票)'), (3, 'Q1新项目(22年未开票、23Q1已开票)'), (4, 'Q2新项目(22-23Q1未开票、23Q2已开票)'),(5, 'Q3新项目(22-23Q2未开票、23Q3已开票)'),(6, 'Q4新项目(22-23Q3未开票、23Q4已开票)'),(7, '潜在项目(至今未曾开票)'),(8, '潜在项目和今年新项目(22年未开票)')]
 
 
     def queryset(self, request, queryset):
@@ -111,7 +111,8 @@ class CustomerProjectTypeFilter(SimpleListFilter):
         
         elif self.value() == '7': #潜在客户  
             return queryset.filter(Q(salestarget2__is_active=True) & Q(salestarget2__year='2023') & Q(salestarget2__q1actualsales = 0)& Q(salestarget2__q2actualsales =0) & Q(salestarget2__q3actualsales =0)& Q(salestarget2__q4actualsales=0) & Q(detailcalculate2__totalsumpermonth = 0) )
-
+        elif self.value() == '8': #潜在客户 + 今年新客户， 22年未开票客户 
+            return queryset.filter(Q(detailcalculate2__totalsumpermonth = 0))
 
 
 class IfActualSalesFilter(SimpleListFilter):
@@ -472,16 +473,18 @@ class DetailCalculateInline(admin.StackedInline):
     model = DetailCalculate2
     fk_name = "researchlist"
     extra = 0
-    readonly_fields =  ('totalmachinenumber','ownmachinenumber','ownmachinepercent','newold','totalsumpermonth','detailedprojectcombine','ownbusinesscombine','brandscombine','machinemodelcombine','machineseriescombine','installdatescombine','competitionrelationcombine',)                    
+    readonly_fields =  ('totalmachinenumber','ownmachinenumber','ownmachinepercent','newold','totalsumpermonth')#,'detailedprojectcombine','ownbusinesscombine','brandscombine','machinenumbercombine','machinemodelcombine','machineseriescombine','installdatescombine','competitionrelationcombine',)                    
     verbose_name = verbose_name_plural = ('仪器情况汇总')
     fields =  (('totalmachinenumber','ownmachinenumber','ownmachinepercent','totalsumpermonth','newold'),
-               ('detailedprojectcombine'),
-               ('ownbusinesscombine'),
-               ('brandscombine'),
-               ('machinemodelcombine'),
-               ('machineseriescombine'),
-               ('installdatescombine'),
-               ('competitionrelationcombine'),)
+            #    ('detailedprojectcombine'),
+            #    ('ownbusinesscombine'),
+            #    ('brandscombine'),
+            #    ('machinenumbercombine'),
+            #    ('machinemodelcombine'),
+            #    ('machineseriescombine'),
+            #    ('installdatescombine'),
+            #    ('competitionrelationcombine'),
+               )
                                            
 
 ###------------------ADMIN-----------------------------------------------------------------------------------------------------------------------------------
@@ -1567,6 +1570,21 @@ class PMRResearchListAdmin(GlobalAdmin):
                 else:
                     ret='--'
             i.detailcalculate2.machinemodelcombine=ret
+
+            #更新仪器数量集合在detailcalculate表中
+            machinenumbers= i.pmrresearchdetail2_set.filter(is_active=True)
+            if not machinenumbers:
+                ret = '--'
+            elif len(machinenumbers)>1:
+                ret = '/'.join(str(i.machinenumber) for i in machinenumbers if i.machinenumber != 0)               
+            else:
+                if machinenumbers[0].machinenumber != 0:
+                    ret=str(machinenumbers[0].machinenumber)
+                else:
+                    ret='--'
+            i.detailcalculate2.machinenumbercombine=ret
+
+
 
             #更新仪器序列号集合在detailcalculate表中
             machineserieses= i.pmrresearchdetail2_set.filter(is_active=True)

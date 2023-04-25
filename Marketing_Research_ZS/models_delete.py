@@ -387,6 +387,7 @@ class GSMRDetailCalculateDelete(models.Model):
     machineseriescombine=models.CharField(verbose_name='序列号集合',max_length=255, blank=True, null=True)
     installdatescombine = models.CharField(verbose_name='装机时间集合',max_length=255, blank=True, null=True)
     competitionrelationcombine = models.CharField(verbose_name='竞品关系点集合',max_length=255, blank=True, null=True)
+    machinenumbercombine = models.CharField(verbose_name='仪器数量集合',max_length=255, blank=True, null=True)
 
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
