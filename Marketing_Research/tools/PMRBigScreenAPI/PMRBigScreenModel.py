@@ -138,10 +138,10 @@ def if_zero(target,actual):
         return actual/target
     
 def SalesmanCompleteWithTarget(data):
-    q1_salesman1complete_df=data[data['q1target']!=0].drop_duplicates('id').groupby('salesman1').agg({'q1target':sum,'q1actualsales':sum})
-    q2_salesman1complete_df=data[data['q2target']!=0].drop_duplicates('id').groupby('salesman1').agg({'q2target':sum,'q2actualsales':sum})
-    q3_salesman1complete_df=data[data['q3target']!=0].drop_duplicates('id').groupby('salesman1').agg({'q3target':sum,'q3actualsales':sum})
-    q4_salesman1complete_df=data[data['q4target']!=0].drop_duplicates('id').groupby('salesman1').agg({'q4target':sum,'q4actualsales':sum})
+    q1_salesman1complete_df=data[(data['q1target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id').groupby('salesman1').agg({'q1target':sum,'q1actualsales':sum})
+    q2_salesman1complete_df=data[(data['q2target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id').groupby('salesman1').agg({'q2target':sum,'q2actualsales':sum})
+    q3_salesman1complete_df=data[(data['q3target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id').groupby('salesman1').agg({'q3target':sum,'q3actualsales':sum})
+    q4_salesman1complete_df=data[(data['q4target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id').groupby('salesman1').agg({'q4target':sum,'q4actualsales':sum})
     salesmanlist=data.drop_duplicates('id').groupby('salesman1')['hospitalname'].count().to_frame().reset_index()
     combine_salesman1complete_df=pd.merge(salesmanlist,q1_salesman1complete_df,how='left',on='salesman1')
     combine_salesman1complete_df.drop(['hospitalname'],axis=1,inplace=True)
@@ -164,7 +164,7 @@ def SalesmanCompleteWithTarget(data):
 
 #Q1 各人员 有目标的数据的完成情况
 def q1SalesmanCompleteWithTarget(data):
-    q1_salesman1complete_df=data[data['q1target']!=0].drop_duplicates('id').groupby('salesman1').agg({'q1target':sum,'q1actualsales':sum})
+    q1_salesman1complete_df=data[(data['q1target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id').groupby('salesman1').agg({'q1target':sum,'q1actualsales':sum})
     salesmanlist=data.drop_duplicates('id').groupby('salesman1')['hospitalname'].count().to_frame().reset_index()
     q1combine_salesman1complete_df=pd.merge(salesmanlist,q1_salesman1complete_df,how='left',on='salesman1')
     q1combine_salesman1complete_df.drop(['hospitalname'],axis=1,inplace=True)
@@ -177,7 +177,7 @@ def q1SalesmanCompleteWithTarget(data):
 
 
 def q2SalesmanCompleteWithTarget(data):
-    q2_salesman1complete_df=data[data['q2target']!=0].drop_duplicates('id').groupby('salesman1').agg({'q2target':sum,'q2actualsales':sum})
+    q2_salesman1complete_df=data[(data['q2target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id').groupby('salesman1').agg({'q2target':sum,'q2actualsales':sum})
     salesmanlist=data.drop_duplicates('id').groupby('salesman1')['hospitalname'].count().to_frame().reset_index()
     q2combine_salesman1complete_df=pd.merge(salesmanlist,q2_salesman1complete_df,how='left',on='salesman1')
     q2combine_salesman1complete_df.drop(['hospitalname'],axis=1,inplace=True)
@@ -190,7 +190,7 @@ def q2SalesmanCompleteWithTarget(data):
 
 
 def q3SalesmanCompleteWithTarget(data):
-    q3_salesman1complete_df=data[data['q3target']!=0].drop_duplicates('id').groupby('salesman1').agg({'q3target':sum,'q3actualsales':sum})
+    q3_salesman1complete_df=data[(data['q3target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id').groupby('salesman1').agg({'q3target':sum,'q3actualsales':sum})
     salesmanlist=data.drop_duplicates('id').groupby('salesman1')['hospitalname'].count().to_frame().reset_index()
     q3combine_salesman1complete_df=pd.merge(salesmanlist,q3_salesman1complete_df,how='left',on='salesman1')
     q3combine_salesman1complete_df.drop(['hospitalname'],axis=1,inplace=True)
@@ -204,7 +204,7 @@ def q3SalesmanCompleteWithTarget(data):
 
 
 def q4SalesmanCompleteWithTarget(data):
-    q4_salesman1complete_df=data[data['q4target']!=0].drop_duplicates('id').groupby('salesman1').agg({'q4target':sum,'q4actualsales':sum})
+    q4_salesman1complete_df=data[(data['q4target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id').groupby('salesman1').agg({'q4target':sum,'q4actualsales':sum})
     salesmanlist=data.drop_duplicates('id').groupby('salesman1')['hospitalname'].count().to_frame().reset_index()
     q4combine_salesman1complete_df=pd.merge(salesmanlist,q4_salesman1complete_df,how='left',on='salesman1')
     q4combine_salesman1complete_df.drop(['hospitalname'],axis=1,inplace=True)
@@ -217,33 +217,33 @@ def q4SalesmanCompleteWithTarget(data):
 
 #q2 总体目标额
 def Q2targettotal(data):
-    Q2target=data[data['q2target']!=0].drop_duplicates('id')['q2target'].sum()
+    Q2target=data[(data['q2target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id')['q2target'].sum()
     return Q2target
 
 #q2 含目标额的实际开票额
 def Q2actualtotal(data):
-    Q2actual=data[data['q2target']!=0].drop_duplicates('id')['q2actualsales'].sum()
+    Q2actual=data[(data['q2target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id')['q2actualsales'].sum()
     return Q2actual
 
 #q3 总体目标额
 def Q3targettotal(data):
-    Q3target=data[data['q3target']!=0].drop_duplicates('id')['q3target'].sum()
+    Q3target=data[(data['q3target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id')['q3target'].sum()
     return Q3target
 
 #q3 含目标额的实际开票额
 def Q3actualtotal(data):
-    Q3actual=data[data['q3target']!=0].drop_duplicates('id')['q3actualsales'].sum()
+    Q3actual=data[(data['q3target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id')['q3actualsales'].sum()
     return Q3actual
 
 #q4 总体目标额
 def Q4targettotal(data):
-    Q4target=data[data['q4target']!=0].drop_duplicates('id')['q4target'].sum()
+    Q4target=data[(data['q4target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id')['q4target'].sum()
     return Q4target
 
 
 #q4 含目标额的实际开票额
 def Q4actualtotal(data):
-    Q4actual=data[data['q4target']!=0].drop_duplicates('id')['q4actualsales'].sum()
+    Q4actual=data[(data['q4target']!=0) & (data['totalsumpermonth']==0)].drop_duplicates('id')['q4actualsales'].sum()
     return Q4actual
 
 
