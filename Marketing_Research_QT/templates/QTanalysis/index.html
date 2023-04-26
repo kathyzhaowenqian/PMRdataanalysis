@@ -780,6 +780,11 @@
 <script>
 	$(window).ready(function(){
 
+		var projectmapping = {'CRP/SAA':7, '流式':8,'血球':9,'生化免疫':10,'所有项目':''}
+		//先将project设置为空，这样保证第一次刷新时的所有项目的时候不报错
+		window.localStorage.setItem('currentproject','')
+
+
 		function getdata(project) {
 			let result = {}
 			$.ajax({
@@ -1053,7 +1058,7 @@
 
 		// 这里写具体把数据丢进图表模型里
 		function updateCharts(resultset) {
-
+			let projectname = window.localStorage.getItem('currentproject')
 			// 左上 基本信息大数字
 			var divtop_HospitalCount = $(".leftMain_topIn .liIn .shu .shu1").text(resultset['HospitalCount'])
 			var divtop_HospitalWithOwnmachineCompare = $(".leftMain_topIn .liIn .shu .shu2").text(resultset['HospitalWithOwnmachineCompare'])
@@ -1063,13 +1068,45 @@
 			// 左中 基本信息大数字2
 			var div_OWNmachineoccupy = $(".leftMain_middle_rightIn .biaoge_bi .shu1").text(resultset['OWNmachineoccupy'])
 			var div_NormalMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu2").text(resultset['NormalMaintainMachineNumber'])
-			var div_MainMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu3").text(resultset['MainMaintainMachineNumber'])
+
+				//跟进维护仪器数:装机超5年,我司业务
+				// var div_MainMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu3").text(resultset['MainMaintainMachineNumber'])
+			if (projectname){
+				var div_MainMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu3").html(
+				`<a href="/admin/Marketing_Research_QT/pmrresearchdetail3/?project=${projectmapping[projectname]}&ownbusiness__exact=True&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4">
+				${resultset['MainMaintainMachineNumber']}
+				</a>`)
+			}else{
+				var div_MainMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu3").html(
+				`<a href="/admin/Marketing_Research_QT/pmrresearchdetail3/?ownbusiness__exact=True&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4">
+				${resultset['MainMaintainMachineNumber']}
+				</a>`)
+			}
+
+				//需关注仪器数:装机5年内,非我司业务
 			var div_ConcernMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu4").text(resultset['ConcernMachineNumber'])
-			var div_MainDevelopMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu5").text(resultset['MainDevelopMachineNumber'])
+
+
+				//重点开拓仪器数:装机超5年,非我司业务
+			if (projectname){
+				var div_MainDevelopMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu5").html(
+				`<a href="/admin/Marketing_Research_QT/pmrresearchdetail3/?project=${projectmapping[projectname]}&ownbusiness__exact=False&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4">
+				${resultset['MainDevelopMachineNumber']}
+				</a>`)
+			}else{
+				var div_MainDevelopMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu5").html(
+				`<a href="/admin/Marketing_Research_QT/pmrresearchdetail3/?ownbusiness__exact=False&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4">
+				${resultset['MainDevelopMachineNumber']}
+				</a>`)
+			}
+
+
+				//Q1所有医院总开票额(万)
 			var div_Q1SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu6").text(resultset['Q1SalesValueTotal'])
 			var div_Q2SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu7").text(resultset['Q2SalesValueTotal'])
 			var div_Q3SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu8").text(resultset['Q3SalesValueTotal'])
 			var div_Q4SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu9").text(resultset['Q4SalesValueTotal'])
+				//Q2总目标完成占比(万)
 			var div_Q2targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu10").text(resultset['Q2targetactual'])
 			var div_Q3targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu11").text(resultset['Q3targetactual'])
 			var div_Q4targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu12").text(resultset['Q4targetactual'])
@@ -1449,7 +1486,8 @@
 			$(element).on('click',function(){
 
 				var projectname = $(element).text()
-				
+				console.log(projectname)				
+				window.localStorage.setItem('currentproject',projectname)
 				// let overlay = document.createElement("div")
 				// overlay.id = "overlay"
 				// document.body.appendChild(overlay)
