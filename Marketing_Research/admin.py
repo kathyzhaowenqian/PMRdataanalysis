@@ -77,16 +77,22 @@ class IfTargetCustomerFilter(SimpleListFilter):
     parameter_name = 'iftarget'
 
     def lookups(self, request, model_admin):
-        return [(1, '已填目标额/任何季度'), (2, '未填目标额')]
+        return [(1, '已填目标额/任何季度'), (2, 'Q2已填目标额'),(3, 'Q3已填目标额'),(4, 'Q4已填目标额'),(5, '未填目标额')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-
             return queryset.filter((Q(salestarget__q1target__gt= 0)|Q(salestarget__q2target__gt =0)|Q(salestarget__q3target__gt =0)|Q(salestarget__q4target__gt=0)) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
- 
-        elif self.value() == '2':
+        if self.value() == '2':
+            return queryset.filter(Q(salestarget__q2target__gt= 0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+        if self.value() == '3':
+            return queryset.filter(Q(salestarget__q3target__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+        if self.value() == '4':
+            return queryset.filter(Q(salestarget__q4target__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+  
+        elif self.value() == '5':
             return queryset.filter(Q(salestarget__is_active=True) & Q(salestarget__year='2023') & Q(salestarget__q1target = 0)& Q(salestarget__q2target =0) & Q(salestarget__q3target =0)& Q(salestarget__q4target=0))
+
 
 
 
@@ -129,16 +135,22 @@ class CustomerProjectTypeFilter(SimpleListFilter):
 class IfActualSalesFilter(SimpleListFilter):
     title = '23年是否开票'
     parameter_name = 'ifactualsales'
-
     def lookups(self, request, model_admin):
-        return [(1, '23年已开票'), (2, '23年未开票')]
+        return [(1, '23年已开票'), (2, 'Q1已开票'),(3, 'Q2已开票'),(4, 'Q3已开票'),(5, 'Q4已开票'),(6, '23年未开票')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
-        if self.value() == '1':
+        if self.value() == '1':#23年已开票
             return queryset.filter((Q(salestarget__q1actualsales__gt= 0)|Q(salestarget__q2actualsales__gt =0)|Q(salestarget__q3actualsales__gt =0)|Q(salestarget__q4actualsales__gt=0)) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
- 
-        elif self.value() == '2':
+        if self.value() == '2': #Q1已开票
+            return queryset.filter(Q(salestarget__q1actualsales__gt= 0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+        if self.value() == '3':#Q2已开票
+            return queryset.filter(Q(salestarget__q2actualsales__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+        if self.value() == '4':#Q3已开票
+            return queryset.filter(Q(salestarget__q3actualsales__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+        if self.value() == '5':#Q4已开票
+            return queryset.filter(Q(salestarget__q4actualsales__gt=0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+        elif self.value() == '6':#23年未开票
             return queryset.filter(Q(salestarget__is_active=True) & Q(salestarget__year='2023') & Q(salestarget__q1actualsales = 0)& Q(salestarget__q2actualsales =0) & Q(salestarget__q3actualsales =0)& Q(salestarget__q4actualsales=0))
 
 class IfSalesChannelFilter(SimpleListFilter):

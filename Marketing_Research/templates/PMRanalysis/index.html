@@ -785,6 +785,10 @@
 
 
 		var projectmapping = {'CRP/SAA':1, 'WAKO':2,'发光':3,'尿蛋白':4,'索灵相关品类':5,'血型':6,'所有项目':''}
+		var salesmanmapping={'宫尚军':2, '范子剑':3,'周佳铭':4,'郭建斌':5,'姜林林':6,'赵晓玲':7,'王华':8,'叶蓓蓓':9}
+		// var brandmapping={'基立福Grifols': 2, '强生OCD': 3, 'WAKO': 4, '奥普': 5, '博士泰': 6, '富士': 8, '国赛': 9, '基蛋': 10, '锦瑞': 11, '雷度': 12, '罗氏Roche': 13, '迈瑞Mindray': 14, '诺尔曼': 15, '普门': 16, '热景': 17, '索灵DiaSorin': 18, '西门子': 19, '星童': 20, '雅培': 21, '亚能': 22, '伯乐': 23, '透景': 24, '一瑞': 25, '安度斯': 26, '安图': 27, '丹娜': 28, '喜诺': 29, 'ABX': 30, '希森美康Sysmex': 31, '奥瑞': 32, '贝克曼': 33, '蒂迈': 34, '日本光电': 35, '希都': 36, '中翰盛泰': 37, '达亚美DiaMed': 1, '汇松': 38, '艾科美': 39, '禾柏': 40, '昊戌': 41, '日立': 42, 'QuikRead': 43, 'BD': 44, '未知': 45, '优利特': 46}
+		
+		
 		//先将project设置为空，这样保证第一次刷新时的所有项目的时候不报错
 		window.localStorage.setItem('currentproject','')
 
@@ -1062,67 +1066,220 @@
 
 		// 这里写具体把数据丢进图表模型里
 		function updateCharts(resultset) {
-		
 			let projectname = window.localStorage.getItem('currentproject')
 
-
-
 			// 左上 基本信息大数字
+				// 医院总数量
 			var divtop_HospitalCount = $(".leftMain_topIn .liIn .shu .shu1").text(resultset['HospitalCount'])
-			var divtop_HospitalWithOwnmachineCompare = $(".leftMain_topIn .liIn .shu .shu2").text(resultset['HospitalWithOwnmachineCompare'])
-			var divtop_HospitalnameWithValueCompare = $(".leftMain_topIn .liIn .shu .shu3").text(resultset['HospitalnameWithValueCompare'])
-			var divtop_TestsCompare = $(".leftMain_topIn .liIn .shu .shu4").text(resultset['TestsCompare'])
+
+				// 已装我司仪器的医院占比
+			// var divtop_HospitalWithOwnmachineCompare = $(".leftMain_topIn .liIn .shu .shu2").text(resultset['HospitalWithOwnmachineCompare'])
+			if (projectname){
+				var divtop_HospitalWithOwnmachineCompare = $(".leftMain_topIn .liIn .shu .shu2").html(
+				`<a class="shu shu2" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&detailcalculate__newold=%E5%B7%B2%E6%9C%89%E4%B8%9A%E5%8A%A1%28%E5%90%AB%E6%88%91%E5%8F%B8%E4%BB%AA%E5%99%A8%29" target="_blank">
+				${resultset['HospitalWithOwnmachineCompare']}
+				</a>`)
+			}else{
+				var divtop_HospitalWithOwnmachineCompare = $(".leftMain_topIn .liIn .shu .shu2").html(
+				`<a class="shu shu2" href="/admin/Marketing_Research/pmrresearchlist/?detailcalculate__newold=%E5%B7%B2%E6%9C%89%E4%B8%9A%E5%8A%A1%28%E5%90%AB%E6%88%91%E5%8F%B8%E4%BB%AA%E5%99%A8%29" target="_blank">
+				${resultset['HospitalWithOwnmachineCompare']}
+				</a>`)
+			}
+				// 今年已开票的医院占比
+			// var divtop_HospitalnameWithValueCompare = $(".leftMain_topIn .liIn .shu .shu3").text(resultset['HospitalnameWithValueCompare'])
+			if (projectname){
+				var divtop_HospitalnameWithValueCompare = $(".leftMain_topIn .liIn .shu .shu3").html(
+				`<a class="shu shu3" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&ifactualsales=1" target="_blank">
+				${resultset['HospitalnameWithValueCompare']}
+				</a>`)
+			}else{
+				var divtop_HospitalnameWithValueCompare = $(".leftMain_topIn .liIn .shu .shu3").html(
+				`<a class="shu shu3" href="/admin/Marketing_Research/pmrresearchlist/?ifactualsales=1" target="_blank">
+				${resultset['HospitalnameWithValueCompare']}
+				</a>`)
+			}
+
+				// 我司业务测试数占比
+			// var divtop_TestsCompare = $(".leftMain_topIn .liIn .shu .shu4").text(resultset['TestsCompare'])
+			if (projectname){
+				var divtop_TestsCompare = $(".leftMain_topIn .liIn .shu .shu4").html(
+				`<a class="shu shu4" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&o=-8" target="_blank">
+				${resultset['TestsCompare']}
+				</a>`)
+			}else{
+				var divtop_TestsCompare = $(".leftMain_topIn .liIn .shu .shu4").html(
+				`<a class="shu shu4" href="/admin/Marketing_Research/pmrresearchlist/?o=-8" target="_blank">
+				${resultset['TestsCompare']}
+				</a>`)
+			}
+
+
+
 
 			// 左中 基本信息大数字2
 
 				//我司业务仪器数占比
-			var div_OWNmachineoccupy = $(".leftMain_middle_rightIn .biaoge_bi .shu1").text(resultset['OWNmachineoccupy'])
+			// var div_OWNmachineoccupy = $(".leftMain_middle_rightIn .biaoge_bi .shu1").text(resultset['OWNmachineoccupy'])
+			if (projectname){
+				var div_OWNmachineoccupy = $(".leftMain_middle_rightIn .biaoge_bi .shu1").html(
+				`<a class="shu shu1" href="/admin/Marketing_Research/pmrresearchdetail/?project=${projectmapping[projectname]}&ownbusiness__exact=True" target="_blank">
+				${resultset['OWNmachineoccupy']}
+				</a>`)
+			}else{
+				var div_OWNmachineoccupy = $(".leftMain_middle_rightIn .biaoge_bi .shu1").html(
+				`<a class="shu shu1" href="/admin/Marketing_Research/pmrresearchdetail/?ownbusiness__exact=True" target="_blank">
+				${resultset['OWNmachineoccupy']}
+				</a>`)
+			}
 
 				//常规维护仪器数:装机5年内,我司业务
-			var div_NormalMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu2").text(resultset['NormalMaintainMachineNumber'])
+			// var div_NormalMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu2").text(resultset['NormalMaintainMachineNumber'])
+			if (projectname){
+				var div_NormalMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu2").html(
+				`<a class="shu shu2" href="/admin/Marketing_Research/pmrresearchdetail/?project=${projectmapping[projectname]}&ownbusiness__exact=True&expiration=5%E5%B9%B4%E5%86%85" target="_blank">
+				${resultset['NormalMaintainMachineNumber']}
+				</a>`)
+			}else{
+				var div_NormalMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu2").html(
+				`<a class="shu shu2" href="/admin/Marketing_Research/pmrresearchdetail/?ownbusiness__exact=True&expiration=5%E5%B9%B4%E5%86%85" target="_blank">
+				${resultset['NormalMaintainMachineNumber']}
+				</a>`)
+			}
 			   
 			
-				//跟进维护仪器数:装机超5年,我司业务
+				//跟进维护仪器数:装机超5年,我司业务 在a标签中加入class能改变字体
 				// var div_MainMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu3").text(resultset['MainMaintainMachineNumber'])
 			if (projectname){
 				var div_MainMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu3").html(
-				`<a href="/admin/Marketing_Research/pmrresearchdetail/?project=${projectmapping[projectname]}&ownbusiness__exact=True&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4">
+				`<a class="shu shu3" href="/admin/Marketing_Research/pmrresearchdetail/?project=${projectmapping[projectname]}&ownbusiness__exact=True&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4" target="_blank">
 				${resultset['MainMaintainMachineNumber']}
 				</a>`)
 			}else{
 				var div_MainMaintainMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu3").html(
-				`<a href="/admin/Marketing_Research/pmrresearchdetail/?ownbusiness__exact=True&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4">
+				`<a class="shu shu3" href="/admin/Marketing_Research/pmrresearchdetail/?ownbusiness__exact=True&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4" target="_blank">
 				${resultset['MainMaintainMachineNumber']}
 				</a>`)
 			}
 
 
 				//需关注仪器数:装机5年内,非我司业务
-			var div_ConcernMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu4").text(resultset['ConcernMachineNumber'])
-			   
+				// var div_ConcernMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu4").text(resultset['ConcernMachineNumber'])
+			if (projectname){
+				var div_ConcernMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu4").html(
+				`<a class="shu shu4" href="/admin/Marketing_Research/pmrresearchdetail/?project=${projectmapping[projectname]}&ownbusiness__exact=False&expiration=5%E5%B9%B4%E5%86%85" target="_blank">
+				${resultset['ConcernMachineNumber']}
+				</a>`)
+			}else{
+				var div_ConcernMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu4").html(
+				`<a class="shu shu4" href="/admin/Marketing_Research/pmrresearchdetail/?ownbusiness__exact=False&expiration=5%E5%B9%B4%E5%86%85" target="_blank">
+				${resultset['ConcernMachineNumber']}
+				</a>`)
+			}
+
 				//重点开拓仪器数:装机超5年,非我司业务
 			if (projectname){
 				var div_MainDevelopMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu5").html(
-				`<a href="/admin/Marketing_Research/pmrresearchdetail/?project=${projectmapping[projectname]}&ownbusiness__exact=False&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4">
+				`<a class="shu shu5" href="/admin/Marketing_Research/pmrresearchdetail/?project=${projectmapping[projectname]}&ownbusiness__exact=False&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4" target="_blank">
 				${resultset['MainDevelopMachineNumber']}
 				</a>`)
 			}else{
 				var div_MainDevelopMachineNumber = $(".leftMain_middle_rightIn .biaoge_bi .shu5").html(
-				`<a href="/admin/Marketing_Research/pmrresearchdetail/?ownbusiness__exact=False&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4">
+				`<a class="shu shu5" href="/admin/Marketing_Research/pmrresearchdetail/?ownbusiness__exact=False&expiration=%E5%B7%B2%E8%B6%855%E5%B9%B4" target="_blank">
 				${resultset['MainDevelopMachineNumber']}
 				</a>`)
 			}
 			
 				//Q1所有医院总开票额(万)
-			var div_Q1SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu6").text(resultset['Q1SalesValueTotal'])
-			var div_Q2SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu7").text(resultset['Q2SalesValueTotal'])
-			var div_Q3SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu8").text(resultset['Q3SalesValueTotal'])
-			var div_Q4SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu9").text(resultset['Q4SalesValueTotal'])
+			// var div_Q1SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu6").text(resultset['Q1SalesValueTotal'])
+			if (projectname){
+				var div_Q1SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu6").html(
+				`<a class="shu shu6" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&ifactualsales=2" target="_blank">
+				${resultset['Q1SalesValueTotal']}
+				</a>`)
+			}else{
+				var div_Q1SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu6").html(
+				`<a class="shu shu6" href="/admin/Marketing_Research/pmrresearchlist/?ifactualsales=2" target="_blank">
+				${resultset['Q1SalesValueTotal']}
+				</a>`)
+			}
+				//Q2所有医院总开票额(万)
+			// var div_Q2SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu7").text(resultset['Q2SalesValueTotal'])
+			if (projectname){
+				var div_Q2SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu7").html(
+				`<a class="shu shu7" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&ifactualsales=3" target="_blank">
+				${resultset['Q2SalesValueTotal']}
+				</a>`)
+			}else{
+				var div_Q2SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu7").html(
+				`<a class="shu shu7" href="/admin/Marketing_Research/pmrresearchlist/?ifactualsales=3" target="_blank">
+				${resultset['Q2SalesValueTotal']}
+				</a>`)
+			}			
+				//Q3所有医院总开票额(万)
+			// var div_Q3SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu8").text(resultset['Q3SalesValueTotal'])
+			if (projectname){
+				var div_Q3SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu8").html(
+				`<a class="shu shu8" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&ifactualsales=4" target="_blank">
+				${resultset['Q3SalesValueTotal']}
+				</a>`)
+			}else{
+				var div_Q3SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu8").html(
+				`<a class="shu shu8" href="/admin/Marketing_Research/pmrresearchlist/?ifactualsales=4" target="_blank">
+				${resultset['Q3SalesValueTotal']}
+				</a>`)
+			}				
+				//Q4所有医院总开票额(万)
+			// var div_Q4SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu9").text(resultset['Q4SalesValueTotal'])
+			if (projectname){
+				var div_Q4SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu9").html(
+				`<a class="shu shu9" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&ifactualsales=5" target="_blank">
+				${resultset['Q4SalesValueTotal']}
+				</a>`)
+			}else{
+				var div_Q4SalesValueTotal = $(".leftMain_middle_rightIn .biaoge_bi .shu9").html(
+				`<a class="shu shu9" href="/admin/Marketing_Research/pmrresearchlist/?ifactualsales=5" target="_blank">
+				${resultset['Q4SalesValueTotal']}
+				</a>`)
+			}					
 				//Q2总目标完成占比(万)
-			var div_Q2targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu10").text(resultset['Q2targetactual'])
-			var div_Q3targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu11").text(resultset['Q3targetactual'])
-			var div_Q4targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu12").text(resultset['Q4targetactual'])
-			
+			// var div_Q2targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu10").text(resultset['Q2targetactual'])
+			if (projectname){
+				var div_Q2targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu10").html(
+				`<a class="shu shu10" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&iftarget=2&customerprojecttype=8" target="_blank">
+				${resultset['Q2targetactual']}
+				</a>`)
+			}else{
+				var div_Q2targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu10").html(
+				`<a class="shu shu10" href="/admin/Marketing_Research/pmrresearchlist/?iftarget=2&customerprojecttype=8" target="_blank">
+				${resultset['Q2targetactual']}
+				</a>`)
+			}			
+				//Q3总目标完成占比(万)
+			// var div_Q3targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu11").text(resultset['Q3targetactual'])
+			if (projectname){
+				var div_Q3targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu11").html(
+				`<a class="shu shu11" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&iftarget=3&customerprojecttype=8" target="_blank">
+				${resultset['Q3targetactual']}
+				</a>`)
+			}else{
+				var div_Q3targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu11").html(
+				`<a class="shu shu11" href="/admin/Marketing_Research/pmrresearchlist/?iftarget=3&customerprojecttype=8" target="_blank">
+				${resultset['Q3targetactual']}
+				</a>`)
+			}
+				//Q4总目标完成占比(万)
+			// var div_Q4targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu12").text(resultset['Q4targetactual'])
+			if (projectname){
+				var div_Q4targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu12").html(
+				`<a class="shu shu12" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&iftarget=4&customerprojecttype=8" target="_blank">
+				${resultset['Q4targetactual']}
+				</a>`)
+			}else{
+				var div_Q4targetactual = $(".leftMain_middle_rightIn .biaoge_bi .shu12").html(
+				`<a class="shu shu12" href="/admin/Marketing_Research/pmrresearchlist/?iftarget=4&customerprojecttype=8" target="_blank">
+				${resultset['Q4targetactual']}
+				</a>`)
+			}			
 			
 
 
@@ -1354,16 +1511,34 @@
 			// 先清空dom
 			BrandCount_dom.empty()
 			for (let index = 0; index < resultset['BrandCount'].length; index++) {
-				BrandCount_dom.append(
+
+				if (projectname){BrandCount_dom.append(
 					// 模板字符串，用反引号								
 								`<ul class="ul_con">
-                                    <li class="brand_title">${resultset['BrandCount'][index]['brand']}</li>
+                                    <li class="brand_title">
+										<a  class="brand_title" href="/admin/Marketing_Research/pmrresearchdetail/?project=${projectmapping[projectname]}&q=${resultset['BrandCount'][index]['brand']}" target="_blank">
+											${resultset['BrandCount'][index]['brand']}
+										</a>
+										
+									</li>
                                     <li>${resultset['BrandCount'][index]['realmachinenumber']}</li>
                                     <li>${resultset['BrandCount'][index]['%']}</li>
 									<li>${resultset['BrandCount'][index]['rank']}</li>
 								</ul>`
-					)
-			};
+				)}else{BrandCount_dom.append(
+					`<ul class="ul_con">
+                                    <li class="brand_title">
+										<a  class="brand_title" href="/admin/Marketing_Research/pmrresearchdetail/?q=${resultset['BrandCount'][index]['brand']}" target="_blank">
+											${resultset['BrandCount'][index]['brand']}
+										</a>
+										
+									</li>
+                                    <li>${resultset['BrandCount'][index]['realmachinenumber']}</li>
+                                    <li>${resultset['BrandCount'][index]['%']}</li>
+									<li>${resultset['BrandCount'][index]['rank']}</li>
+								</ul>`
+				)
+			}};
 
 			// 左下角  医院排行榜！！！
 			// 首先把dom拿出来，然后清空，然后逐行插入
@@ -1371,10 +1546,15 @@
 			// 先清空dom
 			Hospitalsales_dom.empty()
 			for (let index = 0; index < resultset['Hospitalsales'].length; index++) {
-				Hospitalsales_dom.append(
+				if (projectname){Hospitalsales_dom.append(
 					// 模板字符串，用反引号								
 								`<ul class="ul_con">
-                                    <li class="hospital_title">${resultset['Hospitalsales'][index]['hospitalname']}</li>
+                                    <li class="hospital_title">
+										<a  class="hospital_title" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&q=${resultset['Hospitalsales'][index]['hospitalname']}&userinfo=${salesmanmapping[resultset['Hospitalsales'][index]['salesman']]}" target="_blank">
+											${resultset['Hospitalsales'][index]['hospitalname']}
+										</a>										
+										
+									</li>
                                     <li>${resultset['Hospitalsales'][index]['salesman']}</li>
                                     <li>${resultset['Hospitalsales'][index]['q1actualsales']}</li>
 									<li>${resultset['Hospitalsales'][index]['q2actualsales']}</li>
@@ -1385,8 +1565,26 @@
 									<li>${resultset['Hospitalsales'][index]['rank']}</li>
 
 								</ul>`
-					)
-			}
+				)}else{Hospitalsales_dom.append(
+					`<ul class="ul_con">
+                                    <li class="hospital_title">
+										<a  class="hospital_title" href="/admin/Marketing_Research/pmrresearchlist/?q=${resultset['Hospitalsales'][index]['hospitalname']}&userinfo=${salesmanmapping[resultset['Hospitalsales'][index]['salesman']]}" target="_blank">
+											${resultset['Hospitalsales'][index]['hospitalname']}
+										</a>			
+									</li>
+                                    <li>${resultset['Hospitalsales'][index]['salesman']}</li>
+                                    <li>${resultset['Hospitalsales'][index]['q1actualsales']}</li>
+									<li>${resultset['Hospitalsales'][index]['q2actualsales']}</li>
+									<li>${resultset['Hospitalsales'][index]['q3actualsales']}</li>
+									<li>${resultset['Hospitalsales'][index]['q4actualsales']}</li>
+									<li>${resultset['Hospitalsales'][index]['total']}</li>
+									<li>${resultset['Hospitalsales'][index]['%']}</li>
+									<li>${resultset['Hospitalsales'][index]['rank']}</li>
+
+								</ul>`
+
+				)
+			}};
 	
 	
 			// 左底部1  q1完成情况 进度条
@@ -1408,61 +1606,138 @@
 			var q2salescomplete_dom = $('.leftMain_bottom_1_in .biaoge_paiIn_2 ul')
 			q2salescomplete_dom.empty()
 			for (let index = 0; index < resultset['q2SalesmanCompleteWithTarget'].length; index++) {
-				q2salescomplete_dom.append(
+				if (projectname){q2salescomplete_dom.append(
 					`<li>\
 						<div class="liIn liIn${index+1}">\
-							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['q2SalesmanCompleteWithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_left"><span class="bot">
+								</span><span class="zi FontHighlight">
+									<a class="zi FontHighlight" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&userinfo=${salesmanmapping[resultset['q2SalesmanCompleteWithTarget'][index]['salesman']]}&iftarget=2&customerprojecttype=8" target="_blank">
+										${resultset['q2SalesmanCompleteWithTarget'][index]['salesman']}
+									</a>	
+								</span>
+							</div>\
 							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q2SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
 							<p class="num">${resultset['q2SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
 						</div>\
 					</li>`
-					)
-			}
+				)}else{q2salescomplete_dom.append(
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot">
+								</span><span class="zi FontHighlight">
+									<a class="zi FontHighlight" href="/admin/Marketing_Research/pmrresearchlist/?userinfo=${salesmanmapping[resultset['q2SalesmanCompleteWithTarget'][index]['salesman']]}&iftarget=2&customerprojecttype=8" target="_blank">
+										${resultset['q2SalesmanCompleteWithTarget'][index]['salesman']}
+									</a>	
+								</span>
+							</div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q2SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['q2SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`)
+			}}
 
 			// 左底部3  q3完成情况 进度条
 			var q3salescomplete_dom = $('.leftMain_bottom_1_in .biaoge_paiIn_3 ul')
 			q3salescomplete_dom.empty()
 			for (let index = 0; index < resultset['q3SalesmanCompleteWithTarget'].length; index++) {
-				q3salescomplete_dom.append(
+				if (projectname){q3salescomplete_dom.append(
 					`<li>\
 						<div class="liIn liIn${index+1}">\
-							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['q3SalesmanCompleteWithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_left"><span class="bot"></span>
+								<span class="zi FontHighlight">
+									<a class="zi FontHighlight" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&userinfo=${salesmanmapping[resultset['q3SalesmanCompleteWithTarget'][index]['salesman']]}&iftarget=3&customerprojecttype=8" target="_blank">
+										${resultset['q3SalesmanCompleteWithTarget'][index]['salesman']}
+									</a>	
+								</span>
+							</div>\
 							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q3SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
 							<p class="num">${resultset['q3SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
 						</div>\
 					</li>`
-					)
+				)}else{q3salescomplete_dom.append(	
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot"></span>
+								<span class="zi FontHighlight">
+									<a class="zi FontHighlight" href="/admin/Marketing_Research/pmrresearchlist/?userinfo=${salesmanmapping[resultset['q3SalesmanCompleteWithTarget'][index]['salesman']]}&iftarget=3&customerprojecttype=8" target="_blank">
+										${resultset['q3SalesmanCompleteWithTarget'][index]['salesman']}
+									</a>	
+								</span>
+							</div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q3SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['q3SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`)				
+				}
 			}
 
 			// 左底部4  q4完成情况 进度条
 			var q4salescomplete_dom = $('.leftMain_bottom_2_in .biaoge_paiIn_4 ul')
 			q4salescomplete_dom.empty()
 			for (let index = 0; index < resultset['q4SalesmanCompleteWithTarget'].length; index++) {
-				q4salescomplete_dom.append(
+				if (projectname){q4salescomplete_dom.append(
 					`<li>\
 						<div class="liIn liIn${index+1}">\
-							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['q4SalesmanCompleteWithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_left"><span class="bot"></span>
+								<span class="zi FontHighlight">
+									<a class="zi FontHighlight" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&userinfo=${salesmanmapping[resultset['q4SalesmanCompleteWithTarget'][index]['salesman']]}&iftarget=4&customerprojecttype=8" target="_blank">
+										${resultset['q4SalesmanCompleteWithTarget'][index]['salesman']}
+									</a>																	
+								</span>
+								</div>\
 							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q4SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
 							<p class="num">${resultset['q4SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
 						</div>\
 					</li>`
-					)
-			}
+				)}else{q4salescomplete_dom.append(
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot"></span>
+								<span class="zi FontHighlight">
+									<a class="zi FontHighlight" href="/admin/Marketing_Research/pmrresearchlist/?userinfo=${salesmanmapping[resultset['q4SalesmanCompleteWithTarget'][index]['salesman']]}&iftarget=4&customerprojecttype=8" target="_blank">
+										${resultset['q4SalesmanCompleteWithTarget'][index]['salesman']}
+									</a>																	
+								</span>
+								</div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['q4SalesmanCompleteWithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['q4SalesmanCompleteWithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`)
+			}}
 
-			// 左底部4  q4完成情况 进度条
+			// 左底部5  total 进度条
 			var totalsalescomplete_dom = $('.rightMain_bottom_1_in .biaoge_paiIn_5 ul')
 			totalsalescomplete_dom.empty()
 			for (let index = 0; index < resultset['totalSalesmanCompletewithTarget'].length; index++) {
-				totalsalescomplete_dom.append(
+				if (projectname){totalsalescomplete_dom.append(
 					`<li>\
 						<div class="liIn liIn${index+1}">\
-							<div class="liIn_left"><span class="bot"></span><span class="zi">${resultset['totalSalesmanCompletewithTarget'][index]['salesman']}</span></div>\
+							<div class="liIn_left"><span class="bot"></span>
+								<span class="zi FontHighlight">
+									<a class="zi FontHighlight" href="/admin/Marketing_Research/pmrresearchlist/?project=${projectmapping[projectname]}&userinfo=${salesmanmapping[resultset['totalSalesmanCompletewithTarget'][index]['salesman']]}&iftarget=1&customerprojecttype=8" target="_blank">
+										${resultset['totalSalesmanCompletewithTarget'][index]['salesman']}
+									</a>
+								</span>
+							</div>\
 							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['totalSalesmanCompletewithTarget'][index]['complete_chartlength']};"></div></div>\
 							<p class="num">${resultset['totalSalesmanCompletewithTarget'][index]['complete_rightend']}</p>\
 						</div>\
 					</li>`
-					)
-			}
+				)}else{totalsalescomplete_dom.append(
+					`<li>\
+						<div class="liIn liIn${index+1}">\
+							<div class="liIn_left"><span class="bot"></span>
+								<span class="zi FontHighlight">
+									<a class="zi FontHighlight" href="/admin/Marketing_Research/pmrresearchlist/?userinfo=${salesmanmapping[resultset['totalSalesmanCompletewithTarget'][index]['salesman']]}&iftarget=1&customerprojecttype=8" target="_blank">
+										${resultset['totalSalesmanCompletewithTarget'][index]['salesman']}
+									</a>
+								</span>
+							</div>\
+							<div class="liIn_line"><div class="line_lineIn" style="width:${resultset['totalSalesmanCompletewithTarget'][index]['complete_chartlength']};"></div></div>\
+							<p class="num">${resultset['totalSalesmanCompletewithTarget'][index]['complete_rightend']}</p>\
+						</div>\
+					</li>`)
+			}}
 
 
 			;

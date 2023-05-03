@@ -103,16 +103,45 @@
 	font-size:0.12rem;
 	color:rgba(14,253,255,1);
 	font-family:dig;
-	margin-bottom:0.02rem;}
+	margin-bottom:0.02rem;
+}
 .leftMain_top ul li .liIn .shu i{
 	font-size:0.04rem;
 	margin-left:0.06rem;
-	font-style:normal;}
+	font-style:normal;
+}
+
+/* 蓝色的字放大变色 */
+.shu:hover {
+	/* cursor: pointer; 鼠标变小手 */
+	font-weight: bold !important; /* 字体加粗 */
+	font-size: x-large !important;
+	/* color: red; 字体高亮 */
+}
+
+
+
 .leftMain_top ul li .liIn .zi{
 	font-size:0.04rem;
 	color:#fff;
 	position:relative;
-	z-index:10;}
+	z-index:10;
+}
+
+/* 白色的字放大变色 */
+.FontHighlight:hover {
+	/* cursor: pointer; 鼠标变小手 */
+	font-weight: bold !important; /* 字体加粗 */
+	font-size: larger !important;
+	/* color: red !important;  */
+}
+
+.FontHighlight {
+	
+	color: rgb(255, 255, 255) !important; 
+}
+
+
 .leftMain_top ul li .liIn .zi .span1{
 	margin-right:0.1rem;}
 

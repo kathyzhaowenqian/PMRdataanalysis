@@ -23,6 +23,13 @@ from django.db.models import Avg,Sum,Count,Max,Min
 
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Case, When, Value, IntegerField
+from import_export.admin import ExportMixin
+from Marketing_Research_QT.resource import *
+from django.http import JsonResponse,HttpResponse
+
+
+
+
 
 
 class ProjectFilter(SimpleListFilter):
@@ -72,15 +79,20 @@ class IfTargetCustomerFilter(SimpleListFilter):
     parameter_name = 'iftarget'
 
     def lookups(self, request, model_admin):
-        return [(1, '已填目标额/任何季度'), (2, '未填目标额')]
+        return [(1, '已填目标额/任何季度'), (2, 'Q2已填目标额'),(3, 'Q3已填目标额'),(4, 'Q4已填目标额'),(5, '未填目标额')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-
             return queryset.filter((Q(salestarget3__q1target__gt= 0)|Q(salestarget3__q2target__gt =0)|Q(salestarget3__q3target__gt =0)|Q(salestarget3__q4target__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
- 
-        elif self.value() == '2':
+        if self.value() == '2':
+            return queryset.filter(Q(salestarget3__q2target__gt= 0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+        if self.value() == '3':
+            return queryset.filter(Q(salestarget3__q3target__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+        if self.value() == '4':
+            return queryset.filter(Q(salestarget3__q4target__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+  
+        elif self.value() == '5':
             return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1target = 0)& Q(salestarget3__q2target =0) & Q(salestarget3__q3target =0)& Q(salestarget3__q4target=0))
 
 
@@ -123,16 +135,22 @@ class CustomerProjectTypeFilter(SimpleListFilter):
 class IfActualSalesFilter(SimpleListFilter):
     title = '23年是否开票'
     parameter_name = 'ifactualsales'
-
     def lookups(self, request, model_admin):
-        return [(1, '23年已开票'), (2, '23年未开票')]
+        return [(1, '23年已开票'), (2, 'Q1已开票'),(3, 'Q2已开票'),(4, 'Q3已开票'),(5, 'Q4已开票'),(6, '23年未开票')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
-        if self.value() == '1':
+        if self.value() == '1':#23年已开票
             return queryset.filter((Q(salestarget3__q1actualsales__gt= 0)|Q(salestarget3__q2actualsales__gt =0)|Q(salestarget3__q3actualsales__gt =0)|Q(salestarget3__q4actualsales__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
- 
-        elif self.value() == '2':
+        if self.value() == '2': #Q1已开票
+            return queryset.filter(Q(salestarget3__q1actualsales__gt= 0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+        if self.value() == '3':#Q2已开票
+            return queryset.filter(Q(salestarget3__q2actualsales__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+        if self.value() == '4':#Q3已开票
+            return queryset.filter(Q(salestarget3__q3actualsales__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+        if self.value() == '5':#Q4已开票
+            return queryset.filter(Q(salestarget3__q4actualsales__gt=0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+        elif self.value() == '6':#23年未开票
             return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0))
 
 class IfSalesChannelFilter(SimpleListFilter):
@@ -537,7 +555,11 @@ class CompanyAdmin(GlobalAdmin):
 
 
 @admin.register(PMRResearchList3)
-class PMRResearchListAdmin(GlobalAdmin):
+class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
+    # resource_class = PMRResearchListResource
+    # resource_class = PMRResearchDetailResource
+    # resource_class = PMRResearchListResource#, PMRResearchDetailResource]
+
     form=PMRResearchListForm
     inlines=[SalesTargetInline,PMRResearchDetailInline,DetailCalculateInline]
     empty_value_display = '--'
@@ -577,6 +599,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                               'classes': ('wide',)}),                
                 )
     QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
+
 
 
     # 新增或修改数据时，设置外键可选值，
@@ -1497,8 +1520,6 @@ class PMRResearchListAdmin(GlobalAdmin):
         return ret
 
 
-
-
  #新增动作————统计按钮
     
     actions = ['calculate']
@@ -1908,7 +1929,9 @@ class PMRResearchListAdmin(GlobalAdmin):
 
 
 @admin.register(PMRResearchDetail3)
-class PMRResearchDetailAdmin(GlobalAdmin):
+class PMRResearchDetailAdmin(GlobalAdmin): #ExportMixin
+    # resource_class = PMRResearchDetailResource
+
     exclude = ('id','createtime','updatetime')
     search_fields=['researchlist__hospital__hospitalname','brand__brand','machinemodel','competitionrelation__competitionrelation']
     list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilterforDetail,SalesmanFilterforDetail,'competitionrelation','ownbusiness','expiration']
@@ -2204,6 +2227,8 @@ class CompetitionRelationAdmin(GlobalAdmin):
 
 @admin.register(SalesTarget3)  
 class SalesTargetAdmin(GlobalAdmin):   
+    # resource_class = SalesTargetResource
+
     exclude = ('id','createtime','updatetime','is_active')
 
 

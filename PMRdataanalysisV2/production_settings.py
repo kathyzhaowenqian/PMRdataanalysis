@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'PMR_U8_010',
     'PMR_U8_011',
     'PMR_U8_012',
+    'import_export',
 ]
 
 MIDDLEWARE = [

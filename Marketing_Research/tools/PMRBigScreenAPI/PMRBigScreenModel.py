@@ -313,6 +313,7 @@ def BrandMachineNumber(data):
     return brandrank_df
 
 
+
 #常规维护的仪器数量： 装机时间5年内，本公司的业务
 def NormalMaintainMachineNumber(data):
     normalmaintainance_machinenumber_total_df=data[(data['machinenumber']!= 0) & (data['ownbusiness']== '是') &  (data['expiration']== '5年内')]['machinenumber'].sum()
