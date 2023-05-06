@@ -154,34 +154,34 @@ class IfActualSalesFilter(SimpleListFilter):
             return queryset.filter(Q(salestarget__is_active=True) & Q(salestarget__year='2023') & Q(salestarget__q1actualsales = 0)& Q(salestarget__q2actualsales =0) & Q(salestarget__q3actualsales =0)& Q(salestarget__q4actualsales=0))
 
 class IfSalesChannelFilter(SimpleListFilter):
-    title = '销售路径'
+    title = '销售路径/所需支持'
     parameter_name = 'ifsaleschannel'
 
     def lookups(self, request, model_admin):
-        return [(1, '已填写销售路径'), (2, '未填写销售路径')]
+        return [(1, '已填写销售路径或所需支持'), (2, '未填写')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-            return queryset.filter(Q(saleschannel__isnull=False) & ~Q(saleschannel=''))
+            return queryset.filter((Q(saleschannel__isnull=False) & ~Q(saleschannel=''))|(Q(support__isnull=False) & ~Q(support='')))
  
         elif self.value() == '2':
-            return queryset.filter(Q(saleschannel__isnull=True) | Q(saleschannel=''))
+            return queryset.filter((Q(saleschannel__isnull=True) | Q(saleschannel=''))&(Q(support__isnull=True) | Q(support='')))
 
-class IfSupportFilter(SimpleListFilter):
-    title = '所需支持'
-    parameter_name = 'ifsupport'
+# class IfSupportFilter(SimpleListFilter):
+#     title = '所需支持'
+#     parameter_name = 'ifsupport'
 
-    def lookups(self, request, model_admin):
-        return [(1, '已填写所需支持'), (2, '未填写所需支持')]
+#     def lookups(self, request, model_admin):
+#         return [(1, '已填写所需支持'), (2, '未填写所需支持')]
 
-    def queryset(self, request, queryset):
-        # pdb.set_trace()
-        if self.value() == '1':
-            return queryset.filter(Q(support__isnull=False) & ~Q(support=''))
+#     def queryset(self, request, queryset):
+#         # pdb.set_trace()
+#         if self.value() == '1':
+#             return queryset.filter(Q(support__isnull=False) & ~Q(support=''))
  
-        elif self.value() == '2':
-            return queryset.filter(Q(support__isnull=True) | Q(support=''))
+#         elif self.value() == '2':
+#             return queryset.filter(Q(support__isnull=True) | Q(support=''))
 
 class SalesmanFilter(SimpleListFilter):
     title = '第一负责人' 
@@ -609,7 +609,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                     ),
                 'hospital__hospitalname','salesman1','project',) #('-id',)#
     
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter,CustomerProjectTypeFilter]
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,CustomerProjectTypeFilter]
     search_fields = ['hospital__hospitalname','pmrresearchdetail__brand__brand','pmrresearchdetail__machinemodel']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),

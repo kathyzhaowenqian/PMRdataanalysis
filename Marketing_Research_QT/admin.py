@@ -1,11 +1,15 @@
 from django.contrib import admin
-
+from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _ 
+from django.utils import timezone
+from import_export import formats
 # Register your models here.
-from django.contrib import admin
+from django.shortcuts import render
 from Marketing_Research_QT.models import *
 from Marketing_Research_QT.models_delete import *
-
-from django.contrib import admin
+from import_export.formats import base_formats
+from import_export import resources
+from django.utils.encoding import smart_str
 # Register your models here.
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -154,34 +158,34 @@ class IfActualSalesFilter(SimpleListFilter):
             return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0))
 
 class IfSalesChannelFilter(SimpleListFilter):
-    title = '销售路径'
+    title = '销售路径/所需支持'
     parameter_name = 'ifsaleschannel'
 
     def lookups(self, request, model_admin):
-        return [(1, '已填写销售路径'), (2, '未填写销售路径')]
+        return [(1, '已填写销售路径或所需支持'), (2, '未填写')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-            return queryset.filter(Q(saleschannel__isnull=False) & ~Q(saleschannel=''))
+            return queryset.filter((Q(saleschannel__isnull=False) & ~Q(saleschannel=''))|(Q(support__isnull=False) & ~Q(support='')))
  
         elif self.value() == '2':
-            return queryset.filter(Q(saleschannel__isnull=True) | Q(saleschannel=''))
+            return queryset.filter((Q(saleschannel__isnull=True) | Q(saleschannel=''))&(Q(support__isnull=True) | Q(support='')))
 
-class IfSupportFilter(SimpleListFilter):
-    title = '所需支持'
-    parameter_name = 'ifsupport'
+# class IfSupportFilter(SimpleListFilter):
+#     title = '所需支持'
+#     parameter_name = 'ifsupport'
 
-    def lookups(self, request, model_admin):
-        return [(1, '已填写所需支持'), (2, '未填写所需支持')]
+#     def lookups(self, request, model_admin):
+#         return [(1, '已填写所需支持'), (2, '未填写所需支持')]
 
-    def queryset(self, request, queryset):
-        # pdb.set_trace()
-        if self.value() == '1':
-            return queryset.filter(Q(support__isnull=False) & ~Q(support=''))
+#     def queryset(self, request, queryset):
+#         # pdb.set_trace()
+#         if self.value() == '1':
+#             return queryset.filter(Q(support__isnull=False) & ~Q(support=''))
  
-        elif self.value() == '2':
-            return queryset.filter(Q(support__isnull=True) | Q(support=''))
+#         elif self.value() == '2':
+#             return queryset.filter(Q(support__isnull=True) | Q(support=''))
 
 
 class SalesmanFilter(SimpleListFilter):
@@ -557,9 +561,6 @@ class CompanyAdmin(GlobalAdmin):
 @admin.register(PMRResearchList3)
 class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
     # resource_class = PMRResearchListResource
-    # resource_class = PMRResearchDetailResource
-    # resource_class = PMRResearchListResource#, PMRResearchDetailResource]
-
     form=PMRResearchListForm
     inlines=[SalesTargetInline,PMRResearchDetailInline,DetailCalculateInline]
     empty_value_display = '--'
@@ -587,8 +588,8 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     ),
                 'hospital__hospitalname','salesman1','project',)
     # ordering = ('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',) #('-id',)#
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate3__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter,CustomerProjectTypeFilter]
-    search_fields = ['hospital__hospitalname','pmrresearchdetail3__brand__brand','pmrresearchdetail3__machinemodel']
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate3__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,CustomerProjectTypeFilter]
+    search_fields = ['hospital__hospitalname','pmrresearchdetail3__brand__brand','pmrresearchdetail3__machinemodel','pmrresearchdetail3__machineseries']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),
                               'classes': ('wide','extrapretty',),
@@ -599,6 +600,31 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                               'classes': ('wide',)}),                
                 )
     QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
+
+
+    # def has_export_permission(self, request):
+    #     if request.user.is_superuser:
+    #         return True
+    #     user_in_group_list = request.user.groups.values('name')
+    #     for user_in_group_dict in user_in_group_list:
+    #         if user_in_group_dict['name'] in ['pmrdirectsales','pmrmanager','QTmanager','WDmanager']:
+    #             return True
+    #         else:
+    #             return False
+    
+
+    # def get_export_formats(self):
+    #     return [base_formats.XLSX]
+    
+
+    # def get_export_queryset(self, request):
+    #     queryset = super().get_export_queryset(request)
+    #     if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
+    #         queryset = queryset
+    #     else: 
+    #         queryset = queryset.filter(Q(salesman1=request.user) | Q(salesman2=request.user))
+    #     return queryset
+
 
 
 
@@ -1955,6 +1981,29 @@ class PMRResearchDetailAdmin(GlobalAdmin): #ExportMixin
                 'researchlist__hospital__hospitalname','researchlist__salesman1','researchlist__project',)
     # ordering = ('-id',)
     QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
+
+    # def has_export_permission(self, request):
+    #     if request.user.is_superuser:
+    #         return True
+    #     user_in_group_list = request.user.groups.values('name')
+    #     for user_in_group_dict in user_in_group_list:
+    #         if user_in_group_dict['name'] in ['pmrdirectsales','pmrmanager','QTmanager','WDmanager']:
+    #             return True
+    #         else:
+    #             return False
+    
+
+    # def get_export_formats(self):
+    #     return [base_formats.XLSX]
+    
+    
+    # def get_export_queryset(self, request):
+    #     queryset = super().get_export_queryset(request)
+    #     if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
+    #         queryset = queryset
+    #     else: 
+    #         queryset = queryset.filter((Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__salesman1=request.user)&Q(researchlist__company_id=2))|(Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__salesman2=request.user)&Q(researchlist__company_id=2)))
+    #     return queryset
 
 
     def get_actions(self, request):
