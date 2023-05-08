@@ -129,6 +129,7 @@
 #     owntestspermonth = fields.Field(attribute='owntestspermonth', column_name='我司月测试数')
 #     saleschannel = fields.Field(attribute='saleschannel', column_name='销售路径')
 #     support = fields.Field(attribute='support', column_name='所需支持')
+#     progress = fields.Field(attribute='progress', column_name='进展')
 #     adminmemo = fields.Field(attribute='memo', column_name='备注')
 
 
@@ -274,7 +275,7 @@
 #         model = PMRResearchList3
 #         fields = ('company','district','hospitalclass','hospitalname','salesman1','salesman2',
 #                   'contactname','contactmobile','salesmode','testspermonth','owntestspermonth',
-#                   'saleschannel','support','adminmemo',
+#                   'saleschannel','support','progress','adminmemo',
 #                   'q1actualsales','q2target','q2completemonth','q2actualsales','q2finishrate',
 #                   'q3target','q3completemonth','q3actualsales','q3finishrate',
 #                   'q4target','q4completemonth','q4actualsales','q4finishrate',

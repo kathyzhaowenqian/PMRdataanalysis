@@ -222,6 +222,18 @@ class PMRResearchList2(models.Model):
           (('竞品', '竞品'),('空白市场', '空白市场'))
         )
     ]
+    progress_choices = (
+        ('待拜访', '待拜访'),
+        ('初期了解中', '初期了解中'),
+        ('有意向', '有意向'),
+        ('申报预算', '申报预算'),
+        ('审批中', '审批中'),
+        ('审批通过', '审批通过'),
+        ('待招标', '待招标'),
+        ('招标完成', '招标完成'),
+        ('仪器装机启用', '仪器装机启用'),
+        ('仪器试剂均开票','仪器试剂均开票'))
+    
     # id = models.BigAutoField(primary_key=True)
     company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
     hospital = models.ForeignKey('Hospital', models.CASCADE, db_column='hospital',to_field='id',verbose_name= '医院')
@@ -236,8 +248,10 @@ class PMRResearchList2(models.Model):
     owntestspermonth = models.PositiveIntegerField(verbose_name='我司月测试数',help_text=u"注意：此处测试数为人份数, 请填写我司业务的月均人份数，从而了解市场占有率",default = 0)
     contactname = models.CharField(verbose_name='主任姓名',max_length=255, blank=True, null=True)
     contactmobile = models.CharField(verbose_name='联系方式',max_length=255, blank=True, null=True)
-    saleschannel = models.TextField(verbose_name='销售路径及进展',max_length=255, blank=True, null=True)
+    saleschannel = models.TextField(verbose_name='销售路径和过程',max_length=255, blank=True, null=True)
     support = models.TextField(verbose_name='所需支持',max_length=500, blank=True, null=True)
+    progress = models.TextField(verbose_name='进展',max_length=255, blank=True, null=True,choices=progress_choices,help_text=u"仅针对23年目标新项目")
+
     adminmemo=models.TextField(verbose_name='备注',max_length=500, blank=True, null=True)
     operator = models.ForeignKey('UserInfo2', models.CASCADE, db_column='operator',to_field='id',related_name='operatorwd',verbose_name= '最后操作人')
     olddata = models.BooleanField(verbose_name='原始数据',max_length=255, default = False)

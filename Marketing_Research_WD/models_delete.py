@@ -211,6 +211,17 @@ class PMRResearchList2Delete(models.Model):
           (('竞品', '竞品'),('空白市场', '空白市场'))
         )
     ]
+    progress_choices = (
+        ('待拜访', '待拜访'),
+        ('初期了解中', '初期了解中'),
+        ('有意向', '有意向'),
+        ('申报预算', '申报预算'),
+        ('审批中', '审批中'),
+        ('审批通过', '审批通过'),
+        ('待招标', '待招标'),
+        ('招标完成', '招标完成'),
+        ('仪器装机启用', '仪器装机启用'),
+        ('仪器试剂均开票','仪器试剂均开票'))
     # id = models.BigAutoField(primary_key=True)
     company = models.ForeignKey('CompanyDelete', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
     hospital = models.ForeignKey('HospitalDelete', models.CASCADE, db_column='hospital',to_field='id',verbose_name= '医院')
@@ -224,8 +235,10 @@ class PMRResearchList2Delete(models.Model):
     owntestspermonth = models.PositiveIntegerField(verbose_name='我司业务月测试数',default = 0)
     contactname = models.CharField(verbose_name='主任姓名',max_length=255, blank=True, null=True)
     contactmobile = models.CharField(verbose_name='联系方式',max_length=255, blank=True, null=True)
-    saleschannel = models.TextField(verbose_name='销售路径',max_length=255, blank=True, null=True)
+    saleschannel = models.TextField(verbose_name='销售路径和过程',max_length=255, blank=True, null=True)
     support = models.TextField(verbose_name='所需支持',max_length=500, blank=True, null=True)
+    progress = models.TextField(verbose_name='进展',max_length=255, blank=True, null=True,choices=progress_choices,help_text=u"仅填报目标新项目的进展")
+
     adminmemo=models.TextField(verbose_name='备注',max_length=500, blank=True, null=True)
     operator = models.ForeignKey('UserInfo2Delete', models.CASCADE, db_column='operator',to_field='id',related_name='operatorwddelete',verbose_name= '最后操作人')
     olddata = models.BooleanField(verbose_name='原始数据',max_length=255, default = False)

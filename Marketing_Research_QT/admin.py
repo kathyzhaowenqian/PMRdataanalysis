@@ -158,19 +158,19 @@ class IfActualSalesFilter(SimpleListFilter):
             return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0))
 
 class IfSalesChannelFilter(SimpleListFilter):
-    title = '销售路径/所需支持'
+    title = '销售路径/所需支持/进展'
     parameter_name = 'ifsaleschannel'
 
     def lookups(self, request, model_admin):
-        return [(1, '已填写销售路径或所需支持'), (2, '未填写')]
+        return [(1, '已填写销售路径/所需支持/进展'), (2, '未填写')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-            return queryset.filter((Q(saleschannel__isnull=False) & ~Q(saleschannel=''))|(Q(support__isnull=False) & ~Q(support='')))
+            return queryset.filter((Q(saleschannel__isnull=False) & ~Q(saleschannel=''))|(Q(support__isnull=False) & ~Q(support=''))|(Q(progress__isnull=False) & ~Q(progress='')))
  
         elif self.value() == '2':
-            return queryset.filter((Q(saleschannel__isnull=True) | Q(saleschannel=''))&(Q(support__isnull=True) | Q(support='')))
+            return queryset.filter((Q(saleschannel__isnull=True) | Q(saleschannel=''))&(Q(support__isnull=True) | Q(support=''))&(Q(progress__isnull=True) | Q(progress='')))
 
 # class IfSupportFilter(SimpleListFilter):
 #     title = '所需支持'
@@ -596,7 +596,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                               'description': format_html(
                 '<span style="color:{};font-size:10.0pt;">{}</span>','blue','注意："第一负责人"只允许填登录用户自己的姓名')}),
 
-                 ('作战路径及需求', {'fields': ('saleschannel','support','adminmemo'),
+                 ('作战路径及需求', {'fields': ('saleschannel','support','progress','adminmemo'),
                               'classes': ('wide',)}),                
                 )
     QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
