@@ -5,8 +5,8 @@ from django.utils import timezone
 from import_export import formats
 # Register your models here.
 from django.shortcuts import render
-from Marketing_Research_QT.models import *
-from Marketing_Research_QT.models_delete import *
+from Marketing_Research_Community.models import *
+from Marketing_Research_Community.models_delete import *
 from import_export.formats import base_formats
 from import_export import resources
 from django.utils.encoding import smart_str
@@ -22,13 +22,12 @@ from django.utils.translation import gettext_lazy
 from django.core.exceptions import (
     FieldDoesNotExist, FieldError, PermissionDenied, ValidationError,
 )
-from Marketing_Research.tools.calculate_Quater_target import result_of_Quatar_display,calculate_quarter_start_end_day
+from Marketing_Research_Community.tools.calculate_Quater_target import result_of_Quatar_display,calculate_quarter_start_end_day
 from django.db.models import Avg,Sum,Count,Max,Min
 
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Case, When, Value, IntegerField
 from import_export.admin import ExportMixin
-from Marketing_Research_QT.resource import *
 from django.http import JsonResponse,HttpResponse
 
 
@@ -39,16 +38,10 @@ from django.http import JsonResponse,HttpResponse
 class ProjectFilter(SimpleListFilter):
     title = '项目' 
     parameter_name = 'project'
-
     def lookups(self, request, model_admin):
-
-        projects = Project.objects.filter(company_id=2)
+        projects = Project.objects.filter(company_id=6)
         return [(project.id, project.project) for project in projects]
-
-        # projects = set([c.project for c in model_admin.model.objects.all()])#为什么这个方法可以直接过滤？？？
-        # print([(c.id, c.project) for c in projects])
-        # return [(c.id, c.project) for c in projects]
-    
+   
     def queryset(self, request, queryset):
         if self.value():
         # 筛选条件有值时, 查询对应的 node 的文章
@@ -56,19 +49,14 @@ class ProjectFilter(SimpleListFilter):
         else:
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
+        
 
 class ProjectFilterforDetail(SimpleListFilter):
     title = '项目' 
     parameter_name = 'project'
-
     def lookups(self, request, model_admin):
-
-        projects = Project.objects.filter(company_id=2)
+        projects = Project.objects.filter(company_id=6)
         return [(project.id, project.project) for project in projects]
-
-        # projects = set([c.project for c in model_admin.model.objects.all()])#为什么这个方法可以直接过滤？？？
-        # print([(c.id, c.project) for c in projects])
-        # return [(c.id, c.project) for c in projects]
     
     def queryset(self, request, queryset):
         if self.value():
@@ -77,6 +65,8 @@ class ProjectFilterforDetail(SimpleListFilter):
         else:
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
+        
+
 
 class IfTargetCustomerFilter(SimpleListFilter):
     title = '是否填写目标'
@@ -88,16 +78,15 @@ class IfTargetCustomerFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-            return queryset.filter((Q(salestarget3__q1target__gt= 0)|Q(salestarget3__q2target__gt =0)|Q(salestarget3__q3target__gt =0)|Q(salestarget3__q4target__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter((Q(communitysalestarget__q1target__gt= 0)|Q(communitysalestarget__q2target__gt =0)|Q(communitysalestarget__q3target__gt =0)|Q(communitysalestarget__q4target__gt=0)) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         if self.value() == '2':
-            return queryset.filter(Q(salestarget3__q2target__gt= 0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(communitysalestarget__q2target__gt= 0) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         if self.value() == '3':
-            return queryset.filter(Q(salestarget3__q3target__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(communitysalestarget__q3target__gt =0) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         if self.value() == '4':
-            return queryset.filter(Q(salestarget3__q4target__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
-  
+            return queryset.filter(Q(communitysalestarget__q4target__gt =0) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         elif self.value() == '5':
-            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1target = 0)& Q(salestarget3__q2target =0) & Q(salestarget3__q3target =0)& Q(salestarget3__q4target=0))
+            return queryset.filter(Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') & Q(communitysalestarget__q1target = 0)& Q(communitysalestarget__q2target =0) & Q(communitysalestarget__q3target =0)& Q(communitysalestarget__q4target=0))
 
 
 
@@ -112,27 +101,27 @@ class CustomerProjectTypeFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':#老客户(去年已开票)
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth__gt = 0))
+            return queryset.filter(Q(communitydetailcalculate__totalsumpermonth__gt = 0))
  
         elif self.value() == '2':#丢失的老客户(22年已开票、23年至今未开票)
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth__gt = 0) &  Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales= 0) & Q(salestarget3__q2actualsales= 0) & Q(salestarget3__q3actualsales= 0) & Q(salestarget3__q4actualsales= 0)) 
+            return queryset.filter(Q(communitydetailcalculate__totalsumpermonth__gt = 0) &  Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') & Q(communitysalestarget__q1actualsales= 0) & Q(communitysalestarget__q2actualsales= 0) & Q(communitysalestarget__q3actualsales= 0) & Q(communitysalestarget__q4actualsales= 0)) 
 
         elif self.value() == '3': #Q1新客户(22年未开票、23Q1已开票)
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales__gt= 0)) )
+            return queryset.filter(Q(communitydetailcalculate__totalsumpermonth = 0) & ( Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') &  Q(communitysalestarget__q1actualsales__gt= 0)) )
         
         elif self.value() == '4': #Q2新客户(22-23Q1未开票、23Q2已开票
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales__gt= 0)) )
+            return queryset.filter(Q(communitydetailcalculate__totalsumpermonth = 0) & ( Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') &  Q(communitysalestarget__q1actualsales= 0) &  Q(communitysalestarget__q2actualsales__gt= 0)) )
         
         elif self.value() == '5': #Q3新客户(22-23Q2未开票、23Q3已开票)'
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales= 0) & Q(salestarget3__q3actualsales__gt= 0)) )
+            return queryset.filter(Q(communitydetailcalculate__totalsumpermonth = 0) & ( Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') &  Q(communitysalestarget__q1actualsales= 0) &  Q(communitysalestarget__q2actualsales= 0) & Q(communitysalestarget__q3actualsales__gt= 0)) )
         
         elif self.value() == '6': #Q4新客户(22-23Q3未开票、23Q4已开票)
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales= 0) &  Q(salestarget3__q3actualsales= 0) & Q(salestarget3__q4actualsales__gt= 0)) )
+            return queryset.filter(Q(communitydetailcalculate__totalsumpermonth = 0) & ( Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') &  Q(communitysalestarget__q1actualsales= 0) &  Q(communitysalestarget__q2actualsales= 0) &  Q(communitysalestarget__q3actualsales= 0) & Q(communitysalestarget__q4actualsales__gt= 0)) )
         
         elif self.value() == '7': #潜在客户  
-            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0) & Q(detailcalculate3__totalsumpermonth = 0) )
+            return queryset.filter(Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') & Q(communitysalestarget__q1actualsales = 0)& Q(communitysalestarget__q2actualsales =0) & Q(communitysalestarget__q3actualsales =0)& Q(communitysalestarget__q4actualsales=0) & Q(communitydetailcalculate__totalsumpermonth = 0) )
         elif self.value() == '8': #潜在客户 + 今年新客户， 22年未开票客户 
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0))
+            return queryset.filter(Q(communitydetailcalculate__totalsumpermonth = 0))
 
 
 
@@ -145,17 +134,19 @@ class IfActualSalesFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':#23年已开票
-            return queryset.filter((Q(salestarget3__q1actualsales__gt= 0)|Q(salestarget3__q2actualsales__gt =0)|Q(salestarget3__q3actualsales__gt =0)|Q(salestarget3__q4actualsales__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter((Q(communitysalestarget__q1actualsales__gt= 0)|Q(communitysalestarget__q2actualsales__gt =0)|Q(communitysalestarget__q3actualsales__gt =0)|Q(communitysalestarget__q4actualsales__gt=0)) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         if self.value() == '2': #Q1已开票
-            return queryset.filter(Q(salestarget3__q1actualsales__gt= 0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(communitysalestarget__q1actualsales__gt= 0) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         if self.value() == '3':#Q2已开票
-            return queryset.filter(Q(salestarget3__q2actualsales__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(communitysalestarget__q2actualsales__gt =0) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         if self.value() == '4':#Q3已开票
-            return queryset.filter(Q(salestarget3__q3actualsales__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(communitysalestarget__q3actualsales__gt =0) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         if self.value() == '5':#Q4已开票
-            return queryset.filter(Q(salestarget3__q4actualsales__gt=0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(communitysalestarget__q4actualsales__gt=0) & Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') )
         elif self.value() == '6':#23年未开票
-            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0))
+            return queryset.filter(Q(communitysalestarget__is_active=True) & Q(communitysalestarget__year='2023') & Q(communitysalestarget__q1actualsales = 0)& Q(communitysalestarget__q2actualsales =0) & Q(communitysalestarget__q3actualsales =0)& Q(communitysalestarget__q4actualsales=0))
+
+
 
 class IfSalesChannelFilter(SimpleListFilter):
     title = '销售路径/所需支持/进展'
@@ -172,21 +163,6 @@ class IfSalesChannelFilter(SimpleListFilter):
         elif self.value() == '2':
             return queryset.filter((Q(saleschannel__isnull=True) | Q(saleschannel=''))&(Q(support__isnull=True) | Q(support=''))&(Q(progress__isnull=True) | Q(progress='')))
 
-# class IfSupportFilter(SimpleListFilter):
-#     title = '所需支持'
-#     parameter_name = 'ifsupport'
-
-#     def lookups(self, request, model_admin):
-#         return [(1, '已填写所需支持'), (2, '未填写所需支持')]
-
-#     def queryset(self, request, queryset):
-#         # pdb.set_trace()
-#         if self.value() == '1':
-#             return queryset.filter(Q(support__isnull=False) & ~Q(support=''))
- 
-#         elif self.value() == '2':
-#             return queryset.filter(Q(support__isnull=True) | Q(support=''))
-
 
 class SalesmanFilter(SimpleListFilter):
     title = '第一负责人' 
@@ -194,7 +170,7 @@ class SalesmanFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy','hfj']))
+        salesmans = CommunityUserInfo.objects.filter(Q(username__in= ['ddl',]))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -205,6 +181,7 @@ class SalesmanFilter(SimpleListFilter):
         else:
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
+        
 
 class SalesmanFilter2(SimpleListFilter):
     title = '第二负责人' 
@@ -212,7 +189,7 @@ class SalesmanFilter2(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy','hfj']))
+        salesmans = CommunityUserInfo.objects.filter(Q(username__in= ['ddl',]))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -224,13 +201,14 @@ class SalesmanFilter2(SimpleListFilter):
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
         
+        
 class SalesmanFilterforDetail(SimpleListFilter):
     title = '负责人' 
     parameter_name = 'userinfo'
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy','hfj']))
+        salesmans = CommunityUserInfo.objects.filter(Q(username__in= ['ddl',]))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -271,18 +249,14 @@ def validate(value): # 验证数据
         raise forms.ValidationError(u'请输入正确手机号')
     
 
-class PMRResearchDetailInlineForm(forms.ModelForm):
+class CommunityResearchDetailInlineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # print('self.fields',self.fields['ownbusiness'])
-        # print(self.fields['brand'].queryset)
-        # self.fields['brand'].queryset =  Brand.objects.filter(is_active=True)
-        # print(self)
         #在没有autocomplete的前提下，只有在这个form里面修改才能保证过滤isactive
         self.fields['competitionrelation'].queryset =  CompetitionRelation.objects.filter(is_active=True)
  
     class Meta: 
-            model = PMRResearchDetail3
+            model = CommunityResearchDetail
             exclude = ['id']
             widgets = {
                 'machinemodel': forms.TextInput(attrs={'size':'15'}),
@@ -303,51 +277,37 @@ class PMRResearchDetailInlineForm(forms.ModelForm):
             }
 
 
-class PMRResearchListForm(forms.ModelForm):
+class CommunityResearchListForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-         #限制新增list表中这些外键的显示
-        # self.fields['company'].queryset =  Company.objects.filter(is_active=True,id=1)#限制此app中的调研表中的company只显示PMR
-        # self.fields['hospital'].queryset =  Hospital.objects.filter(is_active=True)
-        # self.fields['project'].queryset =  Project.objects.filter(is_active=True,company_id=1)#限制此app中的调研表中的project只显示PMR公司相关的project
-        #!!!!!!!!!!!!!!!要判断一下，如果是自己只能选自己,建立group
-        # self.fields['salesman1'].queryset =  UserInfo.objects.filter(Q(is_active=True) & ~Q(username= 'admin'))
-        # self.fields['salesman2'].queryset =  UserInfo.objects.filter(Q(is_active=True) & ~Q(username= 'admin'))
+
     contactmobile = forms.CharField(validators=[validate], widget=forms.TextInput(attrs={'placeholder': u'输入11位手机号'}),label='手机号',required=False)
     class Meta: 
-        model = PMRResearchList3
+        model = CommunityResearchList
         exclude = ['id']
    
 
 ###------------------INLINE------------------------------------------------------------------------------------------------------------
 
 class SalesmanPositionInline(admin.TabularInline):
-    model = SalesmanPosition3
+    model = CommunitySalesmanPosition
     fk_name = "user"
     extra = 0
     fields=['user','company','position'] 
     verbose_name = verbose_name_plural = ('员工职位列表')
-    # def get_queryset(self, request):
-    #     queryset = super().get_queryset(request).filter(is_active=True)
-    #     print(queryset,1)
-    #     return queryset
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         kwargs["queryset"] = Company.objects.filter(is_active=True)    
         return super(SalesmanPositionInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
 
-class SalesmanPositionInline3(admin.TabularInline):
-    model = SalesmanPosition3
+class CommunitySalesmanPositionInline(admin.TabularInline):
+    model = CommunitySalesmanPosition
     fk_name = "company"
     extra = 0
     fields=['user','company','position'] 
     verbose_name = verbose_name_plural = ('员工职位列表')
-    # def get_queryset(self, request):       
-    #     queryset = super().get_queryset(request).filter(company__is_active=True)
-    #     print(queryset,2)
-    #     return queryset
-    
+
 
 class ProjectInline(admin.TabularInline):
     model = Project
@@ -361,27 +321,28 @@ class ProjectInline(admin.TabularInline):
         return queryset
 
 
-class PMRResearchDetailInline(admin.TabularInline):
-    form=PMRResearchDetailInlineForm
-    model = PMRResearchDetail3
+class CommunityResearchDetailInline(admin.TabularInline):
+    form=CommunityResearchDetailInlineForm
+    model = CommunityResearchDetail
     fk_name = "researchlist"
     extra = 0
     fields=['detailedproject','ownbusiness','brand','machinemodel','machinenumber','installdate', 'endsupplier','competitionrelation','machineseries','testprice'] 
     # readonly_fields = ('sumpermonth',)
     autocomplete_fields=['detailedproject','brand']
     verbose_name = verbose_name_plural = ('市场调研仪器详情表')
-    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
+    Community_view_group_list = ['boss','Community','allviewonly','Communityonlyview']
+
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        print('我在PMRResearchDetailInline-get_queryset')
+        print('我在CommunityResearchDetailInline-get_queryset')
         if request.user.is_superuser :
-            print('我在PMRResearchDetailInline-get_queryset-筛选active的')
+            print('我在CommunityResearchDetailInline-get_queryset-筛选active的')
             return qs.filter(is_active=True)
         
         user_in_group_list = request.user.groups.values('name')
         for user_in_group_dict in user_in_group_list:
-            if user_in_group_dict['name'] in self.QT_view_group_list:
+            if user_in_group_dict['name'] in self.Community_view_group_list:
                 return qs.filter(is_active=True)
             
        #普通销售的话:
@@ -389,20 +350,19 @@ class PMRResearchDetailInline(admin.TabularInline):
 
 
 
-
     def has_add_permission(self,request,obj):
-        print('我在PMRResearchDetailInline has add permission:::obj',obj,request.user) 
+        print('我在CommunityResearchDetailInline has add permission:::obj',obj,request.user) 
         if obj==None:
             if request.POST.get('salesman1'):                
                 if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
                     return True
                 elif request.POST.get('salesman1')!= str(request.user.id):
-                    print('我在PMRResearchDetailInline has add permission:: :obj==None FALSE request.POST.get(salesman1)',request.POST.get('salesman1'),request.user)
+                    print('我在CommunityResearchDetailInline has add permission:: :obj==None FALSE request.POST.get(salesman1)',request.POST.get('salesman1'),request.user)
                     return False
                 else:
                     return True
             else:    
-                print('我在PMRResearchDetailInline has add permission:: obj==None True 没有request.POST.get(salesman1)')
+                print('我在CommunityResearchDetailInline has add permission:: obj==None True 没有request.POST.get(salesman1)')
                 return True
 
         else:    
@@ -414,15 +374,15 @@ class PMRResearchDetailInline(admin.TabularInline):
                 return False
 
     def has_change_permission(self,request, obj=None):
-        print('我在PMRResearchDetailInline has change permission:: obj',obj)
+        print('我在CommunityResearchDetailInline has change permission:: obj',obj)
         if obj==None:
-                print('我在PMRResearchDetailInline has change permission:::obj,request.POST.get(salesman1)',True,request.POST.get('salesman1'))
+                print('我在CommunityResearchDetailInline has change permission:::obj,request.POST.get(salesman1)',True,request.POST.get('salesman1'))
                 return True            
         elif obj.salesman1==request.user or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
-            print('我在PMRResearchDetailInline has change permission:::obj',True,obj.salesman1)
+            print('我在CommunityResearchDetailInline has change permission:::obj',True,obj.salesman1)
             return True
         else:
-            print('我在PMRResearchDetailInline has change permission:::obj',False)
+            print('我在CommunityResearchDetailInline has change permission:::obj',False)
             return False
 
     def has_delete_permission(self,request, obj=None):
@@ -433,13 +393,11 @@ class PMRResearchDetailInline(admin.TabularInline):
 
 
 class SalesTargetInline(admin.StackedInline):
-    model = SalesTarget3
+    model = CommunitySalesTarget
     fk_name = "researchlist"
     extra = 0
     readonly_fields = result_of_Quatar_display(settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS,settings.MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS)[1]
-
-    # readonly_fields = ('q1actualsales','q2actualsales','q3actualsales','q4actualsales','q1finishrate','q2finishrate','q3finishrate','q4finishrate')
-    # fieldsets =  ('year','q1target','q1completemonth','q2target','q2completemonth','q3target','q3completemonth','q4target','q4completemonth'),       
+  
     fields =  ('year',('q1target','q1completemonth','q1actualsales','q1finishrate'),
                       ('q2target','q2completemonth','q2actualsales','q2finishrate'),
                       ('q3target','q3completemonth','q3actualsales','q3finishrate'),
@@ -447,7 +405,7 @@ class SalesTargetInline(admin.StackedInline):
                                             )                              
     
     verbose_name = verbose_name_plural = ('作战计划和成果')
-    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
+    Community_view_group_list = ['boss','Community','allviewonly','Communityonlyview']
 
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
@@ -465,7 +423,7 @@ class SalesTargetInline(admin.StackedInline):
             
             user_in_group_list = request.user.groups.values('name')
             for user_in_group_dict in user_in_group_list:
-                if user_in_group_dict['name'] in self.QT_view_group_list:
+                if user_in_group_dict['name'] in self.Community_view_group_list:
                     return qs.filter(is_active=True,year='2023')
                 
             #普通销售的话:
@@ -478,7 +436,7 @@ class SalesTargetInline(admin.StackedInline):
               
             user_in_group_list = request.user.groups.values('name')
             for user_in_group_dict in user_in_group_list:
-                if user_in_group_dict['name'] in self.QT_view_group_list:
+                if user_in_group_dict['name'] in self.Community_view_group_list:
                     return qs.filter(is_active=True)
 
             #普通销售的话:
@@ -491,7 +449,7 @@ class SalesTargetInline(admin.StackedInline):
             return True
         user_in_group_list = request.user.groups.values('name')
         for user_in_group_dict in user_in_group_list:
-            if user_in_group_dict['name'] in self.QT_view_group_list:
+            if user_in_group_dict['name'] in self.Community_view_group_list:
                 return True
         else:
             return False
@@ -499,7 +457,7 @@ class SalesTargetInline(admin.StackedInline):
 
 
 class DetailCalculateInline(admin.StackedInline):
-    model = DetailCalculate3
+    model = CommunityDetailCalculate
     fk_name = "researchlist"
     extra = 0
     readonly_fields =  ('totalmachinenumber','ownmachinenumber','ownmachinepercent','newold','totalsumpermonth')#,'detailedprojectcombine','ownbusinesscombine','brandscombine','machinenumbercombine','machinemodelcombine','machineseriescombine','installdatescombine','competitionrelationcombine',)                    
@@ -518,8 +476,8 @@ class DetailCalculateInline(admin.StackedInline):
 
 ###------------------ADMIN-----------------------------------------------------------------------------------------------------------------------------------
 
-@admin.register(UserInfo3)  
-class User3Admin(UserAdmin):  
+@admin.register(CommunityUserInfo)  
+class CommunityUserAdmin(UserAdmin):  
         
     inlines=[SalesmanPositionInline]
     list_display = ('username','chinesename','first_name','last_name','email','is_staff','is_superuser','date_joined','last_login')
@@ -540,7 +498,7 @@ class User3Admin(UserAdmin):
 
 
 
-@admin.register(SalesmanPosition3)  
+@admin.register(CommunitySalesmanPosition)  
 class SalesmanPositionAdmin(GlobalAdmin):   
     exclude = ('id','createtime','updatetime')
 
@@ -552,17 +510,17 @@ class SalesmanPositionAdmin(GlobalAdmin):
 
 @admin.register(Company)  
 class CompanyAdmin(GlobalAdmin):   
-    inlines=[SalesmanPositionInline3,ProjectInline]
+    inlines=[CommunitySalesmanPositionInline,ProjectInline]
     exclude = ('id','createtime','updatetime','is_active')
 
  
 
 
-@admin.register(PMRResearchList3)
-class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
+@admin.register(CommunityResearchList)
+class CommunityResearchListAdmin(GlobalAdmin): #ExportMixin,
     # resource_class = PMRResearchListResource
-    form=PMRResearchListForm
-    inlines=[SalesTargetInline,PMRResearchDetailInline,DetailCalculateInline]
+    form=CommunityResearchListForm
+    inlines=[SalesTargetInline,CommunityResearchDetailInline,DetailCalculateInline]
     empty_value_display = '--'
     list_display_links =('hospital',)
     exclude = ('operator','is_active')
@@ -587,9 +545,10 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                         output_field=IntegerField(),
                     ),
                 'hospital__hospitalname','salesman1','project',)
+    
     # ordering = ('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',) #('-id',)#
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate3__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,CustomerProjectTypeFilter]
-    search_fields = ['hospital__hospitalname','pmrresearchdetail3__brand__brand','pmrresearchdetail3__machinemodel','pmrresearchdetail3__machineseries']
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'communitydetailcalculate__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,CustomerProjectTypeFilter]
+    search_fields = ['hospital__hospitalname','communityresearchdetail__brand__brand','communityresearchdetail__machinemodel','communityresearchdetail__machineseries']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),
                               'classes': ('wide','extrapretty',),
@@ -599,7 +558,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                  ('作战路径及需求', {'fields': ('saleschannel','support','progress','adminmemo'),
                               'classes': ('wide',)}),                
                 )
-    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
+    Community_view_group_list = ['boss','Community','allviewonly','Communityonlyview']
 
 
     # def has_export_permission(self, request):
@@ -631,25 +590,24 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
     # 新增或修改数据时，设置外键可选值，
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'company': 
-            kwargs["queryset"] = Company.objects.filter(is_active=True,id=2) 
+            kwargs["queryset"] = Company.objects.filter(is_active=True,id=6) 
         if db_field.name == 'hospital': 
             kwargs["queryset"] = Hospital.objects.filter(is_active=True) 
         if db_field.name == 'project':  
-            kwargs["queryset"] = Project.objects.filter(is_active=True,company_id=2) 
+            kwargs["queryset"] = Project.objects.filter(is_active=True,company_id=6) 
         if db_field.name == 'salesman1': 
             # kwargs['initial'] = #设置默认值
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy','hfj']))
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['ddl']))
         if db_field.name == 'salesman2':  
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy','hfj'])) 
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['ddl'])) 
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     
 
-#下面三个还没有修改
     def has_delete_permission(self, request,obj=None):
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] == 'pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
+            if request.user.groups.values()[0]['name'] == 'Communityonlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 return False
             
         if obj==None:
@@ -676,7 +634,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
     def has_change_permission(self,request, obj=None):
         print('我在PmrResearchListAdmin has change permission:: obj',obj)
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] =='pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
+            if request.user.groups.values()[0]['name'] =='Communityonlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 return False
         if obj==None:
             print('我在PmrResearchListAdmin has change permission obj==None,True ',request.POST.get('salesman1'))
@@ -698,25 +656,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             print('我在PmrResearchListAdmin has change permission else else else',False)
             return False
 
-    # def has_add_permission(self,request):#,obj=None):
-        
-    #     if request.user.groups.values():
-    #         if request.user.groups.values()[0]['name'] =='pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
-    #             return False
-    #     if request.POST.get('salesman1'):
-    #         if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
-    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 True SUPERUSER!!)',request.POST.get('salesman1'))
-    #             return True
-    #         if request.POST.get('salesman1')!=str(request.user.id):
-    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 false!!)',request.POST.get('salesman1'),request.user.id)
-    #             raise PermissionDenied('Forbidden ++++++++++++++++++++++')
-    #             #return False
-    #         else:
-    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 true!!)',request.POST.get('salesman1'))
-    #             return True
-    #     else:
-    #         print('我在PmrResearchListAdmin has add permission else else',True)
-    #         return True
+
 
     def has_add_permission(self,request):
         if  request.user.is_superuser:
@@ -736,7 +676,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
         else:
             print('没有分组admin')
         #先拿到objects列表
-        qs = super(PMRResearchListAdmin, self).get_queryset(request)
+        qs = super(CommunityResearchListAdmin, self).get_queryset(request)
         print('我在PMRResearchListAdmin-get_queryset')
 
         #要不要在此加入Q1-Q4变动的？？
@@ -745,19 +685,19 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
         if request.user.is_superuser :
             print('我在PMRResearchListAdmin-get_queryset-筛选active的')            
-            return qs.filter(is_active=True,company_id=2)
+            return qs.filter(is_active=True,company_id=6)
 
                 
         # <QuerySet [{'name': 'pmrdirectsales'}, {'name': 'QTmanager'}]>
         user_in_group_list = request.user.groups.values('name')
         print(user_in_group_list)
         for user_in_group_dict in user_in_group_list:
-            if user_in_group_dict['name'] in self.QT_view_group_list:
+            if user_in_group_dict['name'] in self.Community_view_group_list:
                  # print('我在模型里')
-                return qs.filter(is_active=True,company_id=2)
+                return qs.filter(is_active=True,company_id=6)
             
        #普通销售的话:
-        return qs.filter((Q(is_active=True)&Q(salesman1=request.user)&Q(company_id=2))|(Q(is_active=True)&Q(salesman2=request.user)&Q(company_id=2)))
+        return qs.filter((Q(is_active=True)&Q(salesman1=request.user)&Q(company_id=6))|(Q(is_active=True)&Q(salesman2=request.user)&Q(company_id=6)))
                       
 
 # ------delete_model内层的红色删除键------------------------------
@@ -765,15 +705,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
         print('我在LISTADMIN delete_model')
         if request.user.is_superuser or obj.salesman1==request.user or request.user.groups.values()[0]['name'] =='boss':             
             obj.is_active = False 
-            obj.pmrresearchdetail3_set.all().update(is_active=False)
-            obj.salestarget3_set.all().update(is_active=False)
-            obj.detailcalculate3.is_active=False
-            obj.detailcalculate3.save()
+            obj.communityresearchdetail_set.all().update(is_active=False)
+            obj.communitysalestarget_set.all().update(is_active=False)
+            obj.communitydetailcalculate.is_active=False
+            obj.communitydetailcalculate.save()
             obj.operator=request.user   
-
-            # msg = '成功删除了{}的{}项目'.format(obj.hospitalname,obj.project)
-            # self.message_user(request, msg,messages.SUCCESS) 
-
             obj.save()
 
     def delete_queryset(self,request, queryset):        
@@ -783,11 +719,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                 if request.user.is_superuser or delete_obj.salesman1==request.user or request.user.groups.values()[0]['name'] =='boss':     
                     delete_obj.is_active=False
                     print('list 已假删')
-                    delete_obj.pmrresearchdetail3_set.all().update(is_active=False)
-                    delete_obj.salestarget3_set.all().update(is_active=False)
-                    delete_obj.detailcalculate3.is_active=False
-                    print('delete_obj.detailcalculate3.is_active',delete_obj.detailcalculate3.is_active)
-                    delete_obj.detailcalculate3.save()
+                    delete_obj.communityresearchdetail_set.all().update(is_active=False)
+                    delete_obj.communitysalestarget_set.all().update(is_active=False)
+                    delete_obj.communitydetailcalculate.is_active=False
+                    print('delete_obj.communitydetailcalculate.is_active',delete_obj.communitydetailcalculate.is_active)
+                    delete_obj.communitydetailcalculate.save()
                     delete_obj.operator=request.user
                     delete_obj.save()
 
@@ -796,7 +732,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
     def save_model(self, request, obj, form, change):
         obj.operator = request.user
         obj.uniquestring = '公司:{}, 医院:{}, 项目:{}, 第一责任人:{}'.format(obj.company,obj.hospital,obj.project,obj.salesman1)
-        # machine_details=obj.pmrresearchdetail3_set.all()
+        # machine_details=obj.communityresearchdetail_set.all()
         # print('machine_details',machine_details)
         # for eachmachine in machine_details:
         #     print('save_model eachmachine::::::',eachmachine,eachmachine.installdate,form.cleaned_data.get('installdate'))
@@ -825,14 +761,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             machine_own_number=0
             machineserieslist_all=[]
             machineserieslist_own=[]
-            # total_sales_2022=0
-            # for each_formset in formsets: #全部的inline 各个表的inline      
-            #     print('each_formset cleaned_data',each_formset.cleaned_data)
-            # print('formsets[0]',formsets[0])
-            # print('formsets[1]',formsets[1])
-            # if len(formsets[0].cleaned_data) > 0:
-            #     for each_inline in formsets[0].cleaned_data:
-            #         if  each_inline.get('DELETE')==True:
+ 
 
             if len(formsets[1].cleaned_data) > 0:
                 #formsets[1]是仪器详情表，显示inline的行数，删除的行也计算在内
@@ -869,9 +798,9 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             else:
                 newold='新商机(不含我司仪器)'
             #如果有计算项（老数据修改），则以更新的方式
-            if DetailCalculate3.objects.filter(researchlist_id=form.instance.id):
-                print('能获取对应的detailcalculate::::',DetailCalculate3.objects.filter(researchlist_id=form.instance.id))
-                a=DetailCalculate3.objects.get(researchlist=form.instance)
+            if CommunityDetailCalculate.objects.filter(researchlist_id=form.instance.id):
+                print('能获取对应的detailcalculate::::',CommunityDetailCalculate.objects.filter(researchlist_id=form.instance.id))
+                a=CommunityDetailCalculate.objects.get(researchlist=form.instance)
                 # print(a)
                 a.totalmachinenumber=machine_total_number
                 a.ownmachinenumber=machine_own_number
@@ -881,9 +810,9 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                 a.save()
             else:
                 print('不能获取对应的detailcalculate')
-                DetailCalculate3.objects.create(researchlist=form.instance,totalmachinenumber=machine_total_number,ownmachinenumber=machine_own_number,ownmachinepercent=ownmachinepercent,newold=newold,is_active=True).save()
+                CommunityDetailCalculate.objects.create(researchlist=form.instance,totalmachinenumber=machine_total_number,ownmachinenumber=machine_own_number,ownmachinepercent=ownmachinepercent,newold=newold,is_active=True).save()
         
-            for eachdetail in PMRResearchDetail3.objects.filter(researchlist_id=form.instance.id):
+            for eachdetail in CommunityResearchDetail.objects.filter(researchlist_id=form.instance.id):
                 print('eachdetail',eachdetail)
                 if not eachdetail.installdate:
                     ret = '--'
@@ -895,9 +824,9 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                 eachdetail.expiration=ret
                 eachdetail.save()
 
-            if not SalesTarget3.objects.filter(researchlist_id=form.instance.id):
-                SalesTarget3.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
-                SalesTarget3.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
+            if not CommunitySalesTarget.objects.filter(researchlist_id=form.instance.id):
+                CommunitySalesTarget.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
+                CommunitySalesTarget.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
             else:
                 if len(formsets[0].cleaned_data) > 0:
                     # for each_inline in formsets[0].cleaned_data:
@@ -905,12 +834,12 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     #         SalesTarget3.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
                     #     if  each_inline.get('DELETE')==True and each_inline.get('year')=='2024':
                     #         SalesTarget3.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
-                    if not SalesTarget3.objects.filter(researchlist_id=form.instance.id,year='2023',is_active=True):
-                        SalesTarget3.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
-                    if not SalesTarget3.objects.filter(researchlist_id=form.instance.id,year='2024',is_active=True):
-                        SalesTarget3.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
+                    if not CommunitySalesTarget.objects.filter(researchlist_id=form.instance.id,year='2023',is_active=True):
+                        CommunitySalesTarget.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
+                    if not CommunitySalesTarget.objects.filter(researchlist_id=form.instance.id,year='2024',is_active=True):
+                        CommunitySalesTarget.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
 
-            samehospital=PMRResearchList3.objects.filter(Q(hospital_id=form.instance.hospital.id))
+            samehospital=CommunityResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id))
             for x in samehospital:
                 if not x.contactname:
                     x.contactname=form.cleaned_data.get('contactname')
@@ -921,91 +850,14 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     x.contactmobile=form.cleaned_data.get('contactmobile')
                 x.save()
             #更新同一个销售的不同公司的同一家医院，一更新就全部更新
-            samehospitalandsalesman=PMRResearchList3.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(salesman1_id=form.instance.salesman1.id))
+            samehospitalandsalesman=CommunityResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(salesman1_id=form.instance.salesman1.id))
             for y in samehospitalandsalesman:
                 if form.cleaned_data.get('contactname'):#如果本次填数据了就更新，没填就不动
                     y.contactname=form.cleaned_data.get('contactname')
                     if form.cleaned_data.get('contactmobile'):
                         y.contactmobile=form.cleaned_data.get('contactmobile')
                 y.save()
-            # print('打印某医院相关项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(project__project=form.instance.project.project))])
-            
-
-            #补充不同公司的同一家医院，CRP/SAA项目总测试数，在空的时候，才覆盖
-            if form.instance.project.project=='CRP/SAA' and form.cleaned_data.get('testspermonth'):
-                sameCRPSAA=PMRResearchList3.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(project__project='CRP/SAA') & Q(company_id=1) )
-                for z in sameCRPSAA:
-                    if not z.testspermonth:
-                        z.testspermonth=form.cleaned_data.get('testspermonth')
-                        z.save()
-
-            #更新同一个销售的不同公司的同一家医院，CRP/SAA项目，一更新总测试数，就联动更新
-            # print('form.instance.project.project',form.instance.project.project)
-            # print('form.cleaned_data.get(testspermont)',form.cleaned_data.get('testspermonth'))
-            if form.instance.project.project=='CRP/SAA' and form.cleaned_data.get('testspermonth'):
-                sameCRPSAA=PMRResearchList3.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(salesman1_id=form.instance.salesman1.id)& Q(project__project='CRP/SAA') & Q(company_id=1))
-                for z in sameCRPSAA:
-                    z.testspermonth=form.cleaned_data.get('testspermonth')
-                    z.save()
-
-
-            #CRP/SAA 普美瑞和其田的数据联动（仅针对同一个医院的同一个销售）
-            if form.instance.project.project=='CRP/SAA':
-                #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要更新至QT,除去国赛，因为国赛在其田里不准，在普美瑞中才准
-                ownmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist_id=form.instance.id) & ~Q(brand_id=9) & Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(is_active=True) & ~Q(machinenumber=0))
-               
-                #找出其田下面的，同一家医院同一个项目的同一个人的，所有仪器obj
-                PMRmachinedetailnotGUOSAI= PMRResearchDetail3.objects.filter(Q(researchlist__hospital__id=form.instance.hospital.id) & ~Q(brand_id=9) & Q(researchlist__project__project='CRP/SAA') &  Q(researchlist__salesman1_id=form.instance.salesman1.id) & Q(researchlist__company__id=1) )
-                print('PMRmachinedetailnotGUOSAI',PMRmachinedetailnotGUOSAI)
-                PMRresearchlist=PMRResearchList3.objects.filter(hospital__id=form.instance.hospital.id,project__project='CRP/SAA',salesman1_id=form.instance.salesman1.id,company__id=1)
-                print('PMRresearchlist',PMRresearchlist)
-
-                owneachactivedetailllist=[]
-                #如果PMR这边的CRPSAA有仪器数据
-                if ownmachinedetail:
-                    for owneachactivedetail in ownmachinedetail:
-                        owneachactivedetailldict={}
-                        owneachactivedetailldict['detailedproject_id']=owneachactivedetail.detailedproject.id if owneachactivedetail.detailedproject else None
-                        owneachactivedetailldict['ownbusiness']=owneachactivedetail.ownbusiness if owneachactivedetail.ownbusiness else False
-                        owneachactivedetailldict['brand_id']=owneachactivedetail.brand.id if owneachactivedetail.brand else None
-                        owneachactivedetailldict['machinemodel']=owneachactivedetail.machinemodel if owneachactivedetail.machinemodel else None
-                        owneachactivedetailldict['machinenumber']=owneachactivedetail.machinenumber if owneachactivedetail.machinenumber else None
-                        owneachactivedetailldict['installdate']=owneachactivedetail.installdate if owneachactivedetail.installdate else None
-                        owneachactivedetailldict['expiration']=owneachactivedetail.expiration if owneachactivedetail.expiration else None
-                        owneachactivedetailldict['endsupplier']=owneachactivedetail.endsupplier if owneachactivedetail.endsupplier else None
-                        owneachactivedetailldict['competitionrelation_id']=owneachactivedetail.competitionrelation.id if owneachactivedetail.competitionrelation else None
-                        owneachactivedetailldict['machineseries']=owneachactivedetail.machineseries if owneachactivedetail.machineseries else None
-                        owneachactivedetailldict['testprice']=owneachactivedetail.testprice if owneachactivedetail.testprice else None
-                        owneachactivedetailllist.append(owneachactivedetailldict)
-
-                     #查看下品牌，要把迈瑞的变成'是'，国赛的变成'否'，然后再复制给QT
-                    ownbrandlist= list(set(item['brand_id'] for item in owneachactivedetailllist))
-                    print('ownbrandlist',ownbrandlist)  
-
-                    if PMRresearchlist:
-                        PMR_researchlist_id=PMRresearchlist[0].id
-                        if PMRmachinedetailnotGUOSAI:
-                            #批量删除QTmachinedetail
-                            PMRmachinedetailnotGUOSAI.update(is_active=False)                              
-
-                        #在对应的QT那边新增PMR中的仪器
-                        for data in owneachactivedetailllist:#遍历PMR自己所有的仪器
-                            # if data['brand_id']== 9: #'国赛'
-                            #     data['ownbusiness']=True
-                            if data['brand_id']==14: #'迈瑞Mindray'
-                                data['ownbusiness']=False 
-                            if data['detailedproject_id']==12:
-                                data['detailedproject_id']=1 
-                            if data['detailedproject_id']==13:
-                                data['detailedproject_id']=2
-                            print('data',data)
-                            PMRResearchDetail3.objects.create(researchlist_id=PMR_researchlist_id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
-                
-                if not ownmachinedetail:
-                    #批量删除PMRmachinedetail
-                    if PMRmachinedetailnotGUOSAI:
-                        PMRmachinedetailnotGUOSAI.update(is_active=False)
-                        print('普美瑞公司中的该医院CRPSAA仪器全部删除，QT跟着全部删除')
+            # print('打印某医院相关项目的主任姓名',[obj.contactname for obj in PMRResearchList.objects.filter(Q(hospital_id=form.instance.hospital.id) & Q(project__project=form.instance.project.project))])        
 
 
 
@@ -1023,23 +875,23 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
    #这是通过saverelated点击保存时已经存入detailcalculate的数据
     @admin.display(description='仪器总数')
     def detailcalculate_totalmachinenumber(self, obj):
-        if obj.detailcalculate3.totalmachinenumber ==0:
+        if obj.communitydetailcalculate.totalmachinenumber ==0:
             return  '--'
         else:
-            return obj.detailcalculate3.totalmachinenumber
-    detailcalculate_totalmachinenumber.admin_order_field = '-detailcalculate3__totalmachinenumber'
+            return obj.communitydetailcalculate.totalmachinenumber
+    detailcalculate_totalmachinenumber.admin_order_field = '-communitydetailcalculate__totalmachinenumber'
     
     @admin.display(description='我司仪器占比')
     def detailcalculate_ownmachinenumberpercent(self, obj):
-        if obj.detailcalculate3.ownmachinepercent ==0:
+        if obj.communitydetailcalculate.ownmachinepercent ==0:
             return '--'
         else:
-            return '{:.1f}%'.format(obj.detailcalculate3.ownmachinepercent*100)
-    detailcalculate_ownmachinenumberpercent.admin_order_field = '-detailcalculate3__ownmachinepercent'
+            return '{:.1f}%'.format(obj.communitydetailcalculate.ownmachinepercent*100)
+    detailcalculate_ownmachinenumberpercent.admin_order_field = '-communitydetailcalculate__ownmachinepercent'
     
     @admin.display(description='业务类型')
     def detailcalculate_newold(self, obj):
-        return obj.detailcalculate3.newold
+        return obj.communitydetailcalculate.newold
 
     @admin.display(ordering="-hospital__district", description='地区') 
     def hospital_district(self, obj):
@@ -1065,11 +917,14 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
         elif obj.project.project=='血球':
             color_code='orange'    
 
-        elif obj.project.project=='流式':
+        elif obj.project.project=='小发光':
             color_code='green'   
 
-        elif obj.project.project=='生化免疫':
+        elif obj.project.project=='尿蛋白':
             color_code='blue'
+
+        elif obj.project.project=='糖化':
+            color_code='purple'
  
         else:
             color_code='black' 
@@ -1083,197 +938,197 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 #每季度目标额
     @admin.display(description='23/Q1目标')
     def salestarget_23_q1(self, obj):
-        if obj.salestarget3_set.filter(year='2023',is_active=True)[0].q1target == 0:
+        if obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q1target == 0:
             color_code='black'
             ret='--'
         else:
             color_code='green'
-            ret=obj.salestarget3_set.filter(year='2023',is_active=True)[0].q1target
+            ret=obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q1target
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    salestarget_23_q1.admin_order_field = '-salestarget3__q1target'
+    salestarget_23_q1.admin_order_field = '-communitysalestarget__q1target'
 
     @admin.display(description='23/Q2目标')
     def salestarget_23_q2(self, obj):
-        if obj.salestarget3_set.filter(year='2023',is_active=True)[0].q2target == 0:
+        if obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q2target == 0:
             color_code='black'
             ret='--'
         else:
             color_code='green'
-            ret=obj.salestarget3_set.filter(year='2023',is_active=True)[0].q2target
+            ret=obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q2target
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    salestarget_23_q2.admin_order_field = '-salestarget3__q2target'
+    salestarget_23_q2.admin_order_field = '-communitysalestarget__q2target'
   
     @admin.display(description='23/Q3目标')
     def salestarget_23_q3(self, obj):
-        if obj.salestarget3_set.filter(year='2023',is_active=True)[0].q3target == 0:
+        if obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q3target == 0:
             color_code='black'
             ret='--'
         else:
             color_code='green'
-            ret=obj.salestarget3_set.filter(year='2023',is_active=True)[0].q3target
+            ret=obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q3target
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    salestarget_23_q3.admin_order_field = '-salestarget3__q3target'
+    salestarget_23_q3.admin_order_field = '-communitysalestarget__q3target'
 
     @admin.display(description='23/Q4目标')
     def salestarget_23_q4(self, obj):
-        if obj.salestarget3_set.filter(year='2023',is_active=True)[0].q4target == 0:
+        if obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q4target == 0:
             color_code='black'
             ret='--'
         else:
             color_code='green'
-            ret=obj.salestarget3_set.filter(year='2023',is_active=True)[0].q4target
+            ret=obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q4target
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)    
-    salestarget_23_q4.admin_order_field = '-salestarget3__q4target'
+    salestarget_23_q4.admin_order_field = '-communitysalestarget__q4target'
 
     @admin.display(description='24/Q1目标')
     def salestarget_24_q1(self, obj):
-        if obj.salestarget3_set.filter(year='2024',is_active=True)[0].q1target == 0:
+        if obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q1target == 0:
             color_code='black'
             ret='--'
         else:
             color_code='green'
-            ret=obj.salestarget3_set.filter(year='2024',is_active=True)[0].q1target
+            ret=obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q1target
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    salestarget_24_q1.admin_order_field = '-salestarget3__q1target'
+    salestarget_24_q1.admin_order_field = '-communitysalestarget__q1target'
     
     @admin.display(description='24/Q2目标')
     def salestarget_24_q2(self, obj):
-        if obj.salestarget3_set.filter(year='2024',is_active=True)[0].q2target == 0:
+        if obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q2target == 0:
             color_code='black'
             ret='--'
         else:
             color_code='green'
-            ret=obj.salestarget3_set.filter(year='2024',is_active=True)[0].q2target
+            ret=obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q2target
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    salestarget_24_q2.admin_order_field = '-salestarget3__q2target'
+    salestarget_24_q2.admin_order_field = '-communitysalestarget__q2target'
     
     @admin.display(description='24/Q3目标')
     def salestarget_24_q3(self, obj):
-        if obj.salestarget3_set.filter(year='2024',is_active=True)[0].q3target == 0:
+        if obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q3target == 0:
             color_code='black'
             ret='--'
         else:
             color_code='green'
-            ret=obj.salestarget3_set.filter(year='2024',is_active=True)[0].q3target
+            ret=obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q3target
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    salestarget_24_q3.admin_order_field = '-salestarget3__q3target'
+    salestarget_24_q3.admin_order_field = '-communitysalestarget__q3target'
 
     @admin.display(description='24/Q4目标')
     def salestarget_24_q4(self, obj):
-        if obj.salestarget3_set.filter(year='2024',is_active=True)[0].q4target == 0:
+        if obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q4target == 0:
             color_code='black'
             ret='--'
         else:
             color_code='green'
-            ret=obj.salestarget3_set.filter(year='2024',is_active=True)[0].q4target
+            ret=obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q4target
         return format_html(
                 '<span style="color:{};">{}</span>',
                 color_code,ret)
-    salestarget_24_q4.admin_order_field = '-salestarget3__q4target'
+    salestarget_24_q4.admin_order_field = '-communitysalestarget__q4target'
 
 
 #目标完成月
     @admin.display(description='23/Q1目标月')
     def completemonth_23_q1(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q1completemonth
-    completemonth_23_q1.admin_order_field = 'salestarget3__q1completemonth'
+        return obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q1completemonth
+    completemonth_23_q1.admin_order_field = 'communitysalestarget__q1completemonth'
 
     @admin.display(description='23/Q2目标月')
     def completemonth_23_q2(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q2completemonth
-    completemonth_23_q2.admin_order_field = 'salestarget3__q2completemonth'
+        return obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q2completemonth
+    completemonth_23_q2.admin_order_field = 'communitysalestarget__q2completemonth'
     
     @admin.display(description='23/Q3目标月')
     def completemonth_23_q3(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q3completemonth
-    completemonth_23_q3.admin_order_field = 'salestarget3__q3completemonth'
+        return obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q3completemonth
+    completemonth_23_q3.admin_order_field = 'communitysalestarget__q3completemonth'
 
     @admin.display(description='23/Q4目标月')
     def completemonth_23_q4(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q4completemonth
-    completemonth_23_q4.admin_order_field = 'salestarget3__q4completemonth'    
+        return obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q4completemonth
+    completemonth_23_q4.admin_order_field = 'communitysalestarget__q4completemonth'    
     
     @admin.display(description='24/Q1目标月')
     def completemonth_24_q1(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q1completemonth
-    completemonth_24_q1.admin_order_field = 'salestarget3__q1completemonth'
+        return obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q1completemonth
+    completemonth_24_q1.admin_order_field = 'communitysalestarget__q1completemonth'
 
     @admin.display(description='24/Q2目标月')
     def completemonth_24_q2(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q2completemonth
-    completemonth_24_q2.admin_order_field = 'salestarget3__q2completemonth'
+        return obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q2completemonth
+    completemonth_24_q2.admin_order_field = 'communitysalestarget__q2completemonth'
     
     @admin.display(description='24/Q3目标月')
     def completemonth_24_q3(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q3completemonth
-    completemonth_24_q3.admin_order_field = 'salestarget3__q3completemonth'
+        return obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q3completemonth
+    completemonth_24_q3.admin_order_field = 'communitysalestarget__q3completemonth'
 
     @admin.display(description='24/Q4目标月')
     def completemonth_24_q4(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q4completemonth
-    completemonth_24_q4.admin_order_field = 'salestarget3__q4completemonth'
+        return obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q4completemonth
+    completemonth_24_q4.admin_order_field = 'communitysalestarget__q4completemonth'
 
 
 #每季度实际完成额
     @admin.display(description='23/Q1实际')
     def actualsales_23_q1(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q1actualsales
-    actualsales_23_q1.admin_order_field = '-salestarget3__q1actualsales'
+        return obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q1actualsales
+    actualsales_23_q1.admin_order_field = '-communitysalestarget__q1actualsales'
 
     @admin.display(description='23/Q2实际')
     def actualsales_23_q2(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q2actualsales
-    actualsales_23_q2.admin_order_field = '-salestarget3__q2actualsales'
+        return obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q2actualsales
+    actualsales_23_q2.admin_order_field = '-communitysalestarget__q2actualsales'
     
     @admin.display(description='23/Q3实际')
     def actualsales_23_q3(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q3actualsales
-    actualsales_23_q3.admin_order_field = '-salestarget3__q3actualsales'
+        return obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q3actualsales
+    actualsales_23_q3.admin_order_field = '-communitysalestarget__q3actualsales'
 
     @admin.display(description='23/Q4实际')
     def actualsales_23_q4(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q4actualsales
-    actualsales_23_q4.admin_order_field = '-salestarget3__q4actualsales'
+        return obj.communitysalestarget_set.filter(year='2023',is_active=True)[0].q4actualsales
+    actualsales_23_q4.admin_order_field = '-communitysalestarget__q4actualsales'
     
     @admin.display(description='24/Q1实际')
     def actualsales_24_q1(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q1actualsales
-    actualsales_24_q1.admin_order_field = '-salestarget3__q1actualsales'
+        return obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q1actualsales
+    actualsales_24_q1.admin_order_field = '-communitysalestarget__q1actualsales'
 
     @admin.display(description='24/Q2实际')
     def actualsales_24_q2(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q2actualsales
-    actualsales_24_q2.admin_order_field = '-salestarget3__q2actualsales'
+        return obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q2actualsales
+    actualsales_24_q2.admin_order_field = '-communitysalestarget__q2actualsales'
     
     @admin.display(description='24/Q3实际')
     def actualsales_24_q3(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q3actualsales
-    actualsales_24_q3.admin_order_field = '-salestarget3__q3actualsales'
+        return obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q3actualsales
+    actualsales_24_q3.admin_order_field = '-communitysalestarget__q3actualsales'
 
     @admin.display(description='24/Q4实际')
     def actualsales_24_q4(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q4actualsales
-    actualsales_24_q4.admin_order_field = '-salestarget3__q4actualsales'
+        return obj.communitysalestarget_set.filter(year='2024',is_active=True)[0].q4actualsales
+    actualsales_24_q4.admin_order_field = '-communitysalestarget__q4actualsales'
 
 
 #每季度实际完成率
     @admin.display(description='23/Q1完成率')
     def finishrate_23_q1(self, obj):
-        sales_target = obj.salestarget3_set.filter(year='2023',is_active=True)[0]
+        sales_target = obj.communitysalestarget_set.filter(year='2023',is_active=True)[0]
         if sales_target.q1target and sales_target.q1target != 0:#如果target不是0
             finishrate = sales_target.q1actualsales / sales_target.q1target
             sales_target.q1finishrate = finishrate
@@ -1285,11 +1140,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             sales_target.q1finishrate = finishrate
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
-    finishrate_23_q1.admin_order_field = '-salestarget3__q1finishrate'
+    finishrate_23_q1.admin_order_field = '-communitysalestarget__q1finishrate'
 
     @admin.display(description='23/Q2完成率')
     def finishrate_23_q2(self, obj):
-        sales_target = obj.salestarget3_set.filter(year='2023',is_active=True)[0]
+        sales_target = obj.communitysalestarget_set.filter(year='2023',is_active=True)[0]
         if sales_target.q2target and sales_target.q2target != 0:#如果target不是0
             finishrate = sales_target.q2actualsales / sales_target.q2target
             sales_target.q2finishrate = finishrate
@@ -1301,12 +1156,12 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             sales_target.q2finishrate = finishrate
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
-    finishrate_23_q2.admin_order_field = '-salestarget3__q2finishrate'
+    finishrate_23_q2.admin_order_field = '-communitysalestarget__q2finishrate'
 
     
     @admin.display(description='23/Q3完成率')
     def finishrate_23_q3(self, obj):
-        sales_target = obj.salestarget3_set.filter(year='2023',is_active=True)[0]
+        sales_target = obj.communitysalestarget_set.filter(year='2023',is_active=True)[0]
         if sales_target.q3target and sales_target.q3target != 0:#如果target不是0
             finishrate = sales_target.q3actualsales / sales_target.q3target
             sales_target.q3finishrate = finishrate
@@ -1318,11 +1173,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             sales_target.q3finishrate = finishrate
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
-    finishrate_23_q3.admin_order_field = '-salestarget3__q3finishrate'
+    finishrate_23_q3.admin_order_field = '-communitysalestarget__q3finishrate'
 
     @admin.display(description='23/Q4完成率')
     def finishrate_23_q4(self, obj):
-        sales_target = obj.salestarget3_set.filter(year='2023',is_active=True)[0]
+        sales_target = obj.communitysalestarget_set.filter(year='2023',is_active=True)[0]
         if sales_target.q4target and sales_target.q4target != 0:#如果target不是0
             finishrate = sales_target.q4actualsales / sales_target.q4target
             sales_target.q4finishrate = finishrate
@@ -1334,11 +1189,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             sales_target.q4finishrate = finishrate
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
-    finishrate_23_q4.admin_order_field = '-salestarget3__q4finishrate'
+    finishrate_23_q4.admin_order_field = '-communitysalestarget__q4finishrate'
     
     @admin.display(description='24/Q1完成率')
     def finishrate_24_q1(self, obj):
-        sales_target = obj.salestarget3_set.filter(year='2024',is_active=True)[0]
+        sales_target = obj.communitysalestarget_set.filter(year='2024',is_active=True)[0]
         if sales_target.q1target and sales_target.q1target != 0:#如果target不是0
             finishrate = sales_target.q1actualsales / sales_target.q1target
             sales_target.q1finishrate = finishrate
@@ -1350,11 +1205,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             sales_target.q1finishrate = finishrate
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
-    finishrate_24_q1.admin_order_field = '-salestarget3__q1finishrate'
+    finishrate_24_q1.admin_order_field = '-communitysalestarget__q1finishrate'
 
     @admin.display(description='24/Q2完成率')
     def finishrate_24_q2(self, obj):
-        sales_target = obj.salestarget3_set.filter(year='2024',is_active=True)[0]
+        sales_target = obj.communitysalestarget_set.filter(year='2024',is_active=True)[0]
         if sales_target.q2target and sales_target.q2target != 0:#如果target不是0
             finishrate = sales_target.q2actualsales / sales_target.q2target
             sales_target.q2finishrate = finishrate
@@ -1366,11 +1221,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             sales_target.q2finishrate = finishrate
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
-    finishrate_24_q2.admin_order_field = '-salestarget3__q2finishrate'
+    finishrate_24_q2.admin_order_field = '-communitysalestarget__q2finishrate'
     
     @admin.display(description='24/Q3完成率')
     def finishrate_24_q3(self, obj):
-        sales_target = obj.salestarget3_set.filter(year='2024',is_active=True)[0]
+        sales_target = obj.communitysalestarget_set.filter(year='2024',is_active=True)[0]
         if sales_target.q3target and sales_target.q3target != 0:#如果target不是0
             finishrate = sales_target.q3actualsales / sales_target.q3target
             sales_target.q3finishrate = finishrate
@@ -1382,11 +1237,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             sales_target.q3finishrate = finishrate
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
-    finishrate_24_q3.admin_order_field = '-salestarget3__q3finishrate'
+    finishrate_24_q3.admin_order_field = '-communitysalestarget__q3finishrate'
     
     @admin.display(description='24/Q4完成率')
     def finishrate_24_q4(self, obj):
-        sales_target = obj.salestarget3_set.filter(year='2024',is_active=True)[0]
+        sales_target = obj.communitysalestarget_set.filter(year='2024',is_active=True)[0]
         if sales_target.q4target and sales_target.q4target != 0:#如果target不是0
             finishrate = sales_target.q4actualsales / sales_target.q4target
             sales_target.q4finishrate = finishrate
@@ -1398,16 +1253,16 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             sales_target.q4finishrate = finishrate
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
-    finishrate_24_q4.admin_order_field = '-salestarget3__q4finishrate'
+    finishrate_24_q4.admin_order_field = '-communitysalestarget__q4finishrate'
 
     #通过display计算的仪器值，不做任何保存！！！
     @admin.display(description='test仪器总数')
     def detail_qtysum(self, obj):        
-        qty= obj.pmrresearchdetail3_set.filter(is_active=True).aggregate(sumsum=Sum("machinenumber"))   
+        qty= obj.communityresearchdetail_set.filter(is_active=True).aggregate(sumsum=Sum("machinenumber"))   
         # print('qty',qty)
-        totalseries_qty= obj.pmrresearchdetail3_set.filter(is_active=True,machineseries__isnull=False).aggregate(countseries=Count("machineseries"))  
+        totalseries_qty= obj.communityresearchdetail_set.filter(is_active=True,machineseries__isnull=False).aggregate(countseries=Count("machineseries"))  
         # print('totalseries_qty[countseries]',totalseries_qty['countseries'])
-        distinctseries_qty=obj.pmrresearchdetail3_set.filter(is_active=True,machineseries__isnull=False).values('machineseries').distinct().count()
+        distinctseries_qty=obj.communityresearchdetail_set.filter(is_active=True,machineseries__isnull=False).values('machineseries').distinct().count()
         # print('distinctseries_qty',distinctseries_qty)        
         totalqty=qty['sumsum']-totalseries_qty['countseries']+distinctseries_qty
         # print('totalqty',totalqty)
@@ -1419,11 +1274,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
     #通过display计算的仪器值，不做任何保存！！！
     @admin.display(description='test我司仪器数')
     def detail_own_qtysum(self, obj):        
-        qtyown= obj.pmrresearchdetail3_set.filter(Q(is_active=True) & Q(ownbusiness=True)).aggregate(sumsum=Sum("machinenumber"))
+        qtyown= obj.communityresearchdetail_set.filter(Q(is_active=True) & Q(ownbusiness=True)).aggregate(sumsum=Sum("machinenumber"))
         # print('qtyown',qtyown)
-        totalseries_own_qty= obj.pmrresearchdetail3_set.filter(is_active=True,machineseries__isnull=False,ownbusiness=True).aggregate(countseries=Count("machineseries"))  
+        totalseries_own_qty= obj.communityresearchdetail_set.filter(is_active=True,machineseries__isnull=False,ownbusiness=True).aggregate(countseries=Count("machineseries"))  
         # print('totalseries_own_qty',totalseries_own_qty)
-        distinctseries_own_qty=obj.pmrresearchdetail3_set.filter(is_active=True,machineseries__isnull=False,ownbusiness=True).values('machineseries').distinct().count()
+        distinctseries_own_qty=obj.communityresearchdetail_set.filter(is_active=True,machineseries__isnull=False,ownbusiness=True).values('machineseries').distinct().count()
         # print('distinctseries_own_qty',distinctseries_own_qty)
         if not qtyown['sumsum']:
             qtyown['sumsum']=0
@@ -1436,7 +1291,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
     @admin.display(description='项目细分') 
     def detail_detailedproject(self, obj):        
-        detailedprojects= obj.pmrresearchdetail3_set.filter(is_active=True)
+        detailedprojects= obj.communityresearchdetail_set.filter(is_active=True)
         if not detailedprojects:
             ret = '--'
         elif len(detailedprojects)>1:
@@ -1450,7 +1305,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
     @admin.display(description='是否我司业务') 
     def detail_ownbusiness(self, obj):        
-        ownbusinesses= obj.pmrresearchdetail3_set.filter(is_active=True)
+        ownbusinesses= obj.communityresearchdetail_set.filter(is_active=True)
         if not ownbusinesses:
             ret = '--'
         elif len(ownbusinesses)>1:
@@ -1469,7 +1324,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
     @admin.display(description='仪器型号') 
     def detail_machinemodel(self, obj):        
-        machinemodels= obj.pmrresearchdetail3_set.filter(is_active=True)
+        machinemodels= obj.communityresearchdetail_set.filter(is_active=True)
         # print('ownbusinesses',ownbusinesses)
         if not machinemodels:
             ret = '--'
@@ -1484,7 +1339,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
     @admin.display(description='仪器序列号') 
     def detail_machineseries(self, obj):        
-        machineserieses= obj.pmrresearchdetail3_set.filter(is_active=True)
+        machineserieses= obj.communityresearchdetail_set.filter(is_active=True)
         if not machineserieses:
             ret = '--'
         elif len(machineserieses)>1:
@@ -1499,7 +1354,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
     @admin.display(description='竞品关系点') 
     def detail_competitor(self, obj):        
-        competitors= obj.pmrresearchdetail3_set.filter(is_active=True)
+        competitors= obj.communityresearchdetail_set.filter(is_active=True)
         # print('ownbusinesses',ownbusinesses)
         if not competitors:
             ret = '--'
@@ -1514,7 +1369,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
     @admin.display(description='仪器品牌') 
     def detail_brands(self, obj):        
-        brands= obj.pmrresearchdetail3_set.filter(is_active=True)
+        brands= obj.communityresearchdetail_set.filter(is_active=True)
         # print('ownbusinesses',ownbusinesses)
         if not brands:
             ret = '--'
@@ -1531,7 +1386,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
     @admin.display(description='仪器装机日期') 
     def detail_installdate(self, obj):        
-        installdates= obj.pmrresearchdetail3_set.filter(is_active=True)
+        installdates= obj.communityresearchdetail_set.filter(is_active=True)
         # print('ownbusinesses',ownbusinesses)
         if not installdates:
             ret = '--'
@@ -1552,16 +1407,16 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
     def calculate(self, request, queryset):
         for i in queryset:
             #更新是新客户还是老客户
-            if i.pmrresearchdetail3_set.filter(Q(is_active=True)&Q(ownbusiness=True) & ~Q(machinenumber='0')) :
-                i.detailcalculate3.newold='已有业务(含我司仪器)'
+            if i.communityresearchdetail_set.filter(Q(is_active=True)&Q(ownbusiness=True) & ~Q(machinenumber='0')) :
+                i.communitydetailcalculate.newold='已有业务(含我司仪器)'
             else:
-                i.detailcalculate3.newold='新商机(不含我司仪器)'
+                i.communitydetailcalculate.newold='新商机(不含我司仪器)'
             
             #更新仪器总数量
-            qty= i.pmrresearchdetail3_set.filter(is_active=True).aggregate(sumsum=Sum("machinenumber"))   
+            qty= i.communityresearchdetail_set.filter(is_active=True).aggregate(sumsum=Sum("machinenumber"))   
             # print('我在action中的仪器总数',qty)
-            totalseries_qty= i.pmrresearchdetail3_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & ~Q(machinenumber=0)).aggregate(countseries=Count("machineseries"))  
-            distinctseries_qty=i.pmrresearchdetail3_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & ~Q(machinenumber=0)).values('machineseries').distinct().count()
+            totalseries_qty= i.communityresearchdetail_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & ~Q(machinenumber=0)).aggregate(countseries=Count("machineseries"))  
+            distinctseries_qty=i.communityresearchdetail_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & ~Q(machinenumber=0)).values('machineseries').distinct().count()
             machinetotalnumber=qty['sumsum']
             machinetotalseries_qty=totalseries_qty['countseries']    
             # print('machinetotalnumber,machinetotalseries_qty,distinctseries_qty',machinetotalnumber,machinetotalseries_qty,distinctseries_qty)        
@@ -1575,12 +1430,12 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     machinenumberret= totalqty        
                 else:
                     machinenumberret = machinetotalnumber
-            i.detailcalculate3.totalmachinenumber=machinenumberret
+            i.communitydetailcalculate.totalmachinenumber=machinenumberret
 
             #更新我司仪器数    
-            qtyown= i.pmrresearchdetail3_set.filter(Q(is_active=True) & Q(ownbusiness=True)).aggregate(sumsum=Sum("machinenumber"))
-            totalseries_own_qty= i.pmrresearchdetail3_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & Q(ownbusiness=True) & ~Q(machinenumber=0)).aggregate(countseries=Count("machineseries"))  
-            distinctseries_own_qty=i.pmrresearchdetail3_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & Q(ownbusiness=True) & ~Q(machinenumber=0)).values('machineseries').distinct().count()
+            qtyown= i.communityresearchdetail_set.filter(Q(is_active=True) & Q(ownbusiness=True)).aggregate(sumsum=Sum("machinenumber"))
+            totalseries_own_qty= i.communityresearchdetail_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & Q(ownbusiness=True) & ~Q(machinenumber=0)).aggregate(countseries=Count("machineseries"))  
+            distinctseries_own_qty=i.communityresearchdetail_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & Q(ownbusiness=True) & ~Q(machinenumber=0)).values('machineseries').distinct().count()
             machinetotalnumberown=qtyown['sumsum']
             machinetotalseries_qtyown=totalseries_own_qty['countseries']
             if not qtyown:
@@ -1593,7 +1448,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     ownmachinenumberret=totalownqty            
                 else:
                     ownmachinenumberret = machinetotalnumberown
-            i.detailcalculate3.ownmachinenumber=ownmachinenumberret
+            i.communitydetailcalculate.ownmachinenumber=ownmachinenumberret
 
             #更新我司仪器占比     
             if not qtyown or ownmachinenumberret==0 or ownmachinenumberret=='--' :
@@ -1602,20 +1457,13 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                 ret=0
             else:
                 ret=ownmachinenumberret/machinenumberret
-            i.detailcalculate3.ownmachinepercent=ret
+            i.communitydetailcalculate.ownmachinepercent=ret
 
-#考虑直接在calculatedetail中匹配？？！！！
-            # #更新22年的月均销售额
-            # sumpermonth_total= i.pmrresearchdetail3_set.filter(is_active=True).aggregate(sumsum=Sum("sumpermonth"))
-            # if not sumpermonth_total['sumsum']:
-            #     ret = 0
-            # else:
-            #     ret = sumpermonth_total['sumsum']
-            # i.detailcalculate.totalsumpermonth=ret
+
 
 
              #更新是否我司业务集合在detailcalculate表中
-            ownbusinesses= i.pmrresearchdetail3_set.filter(is_active=True)
+            ownbusinesses= i.communityresearchdetail_set.filter(is_active=True)
             if not ownbusinesses:
                 ret = '--'
             elif len(ownbusinesses)>1:
@@ -1629,10 +1477,10 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     ret=ret.replace('False','否')  
                 else:
                     ret='--'
-            i.detailcalculate3.ownbusinesscombine=ret
+            i.communitydetailcalculate.ownbusinesscombine=ret
 
             #更新项目细分集合在detailcalculate表中
-            detailedprojects= i.pmrresearchdetail3_set.filter(is_active=True)
+            detailedprojects= i.communityresearchdetail_set.filter(is_active=True)
             if not detailedprojects:
                 ret = '--'
                 
@@ -1654,11 +1502,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                         ret='None'
                 else:
                     ret='--'
-            i.detailcalculate3.detailedprojectcombine=ret
+            i.communitydetailcalculate.detailedprojectcombine=ret
 
 
             #更新品牌集合在detailcalculate表中
-            brands= i.pmrresearchdetail3_set.filter(is_active=True)
+            brands= i.communityresearchdetail_set.filter(is_active=True)
             if not brands:
                 ret = '--'
             elif len(brands)>1:
@@ -1679,10 +1527,10 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                         ret='None'
                 else:
                     ret='--'
-            i.detailcalculate3.brandscombine=ret
+            i.communitydetailcalculate.brandscombine=ret
 
             #更新仪器型号集合在detailcalculate表中
-            machinemodels= i.pmrresearchdetail3_set.filter(is_active=True)
+            machinemodels= i.communityresearchdetail_set.filter(is_active=True)
             if not machinemodels:
                 ret = '--'
             elif len(machinemodels)>1:
@@ -1692,10 +1540,10 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     ret=str(machinemodels[0].machinemodel)
                 else:
                     ret='--'
-            i.detailcalculate3.machinemodelcombine=ret
+            i.communitydetailcalculate.machinemodelcombine=ret
 
             #更新仪器数量集合在detailcalculate表中
-            machinenumbers= i.pmrresearchdetail3_set.filter(is_active=True)
+            machinenumbers= i.communityresearchdetail_set.filter(is_active=True)
             if not machinenumbers:
                 ret = '--'
             elif len(machinenumbers)>1:
@@ -1705,10 +1553,10 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     ret=str(machinenumbers[0].machinenumber)
                 else:
                     ret='--'
-            i.detailcalculate3.machinenumbercombine=ret
+            i.communitydetailcalculate.machinenumbercombine=ret
 
             #更新仪器序列号集合在detailcalculate表中
-            machineserieses= i.pmrresearchdetail3_set.filter(is_active=True)
+            machineserieses= i.communityresearchdetail_set.filter(is_active=True)
             if not machineserieses:
                 ret = '--'
             elif len(machineserieses)>1:
@@ -1718,11 +1566,11 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     ret=str(machineserieses[0].machineseries)
                 else:
                     ret='--'
-            i.detailcalculate3.machineseriescombine=ret
+            i.communitydetailcalculate.machineseriescombine=ret
 
 
             #更新装机时间集合在detailcalculate表中
-            installdates= i.pmrresearchdetail3_set.filter(is_active=True)
+            installdates= i.communityresearchdetail_set.filter(is_active=True)
             if not installdates:
                 ret = '--'
             elif len(installdates)>1:
@@ -1733,10 +1581,10 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     ret=str(installdates[0].installdate)
                 else:
                     ret='--'
-            i.detailcalculate3.installdatescombine=ret
+            i.communitydetailcalculate.installdatescombine=ret
 
             #更新竞品关系点集合在detailcalculate表中
-            competitors= i.pmrresearchdetail3_set.filter(is_active=True)
+            competitors= i.communityresearchdetail_set.filter(is_active=True)
             if not competitors:
                 ret = '--'
             elif len(competitors)>1:
@@ -1757,12 +1605,12 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                         ret='None'
                 else:
                     ret='--'
-            i.detailcalculate3.competitionrelationcombine=ret
+            i.communitydetailcalculate.competitionrelationcombine=ret
 
-            i.detailcalculate3.save()
+            i.communitydetailcalculate.save()
 
             #更新装机时间在detail表中
-            qs_fk=i.pmrresearchdetail3_set.all()
+            qs_fk=i.communityresearchdetail_set.all()
             for j in qs_fk:
                 if not j.installdate:
                     ret = '--'
@@ -1776,7 +1624,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             i.save()           
 
             #补充不同公司的同一家医院的主任姓名和电话，在空的时候或者姓名相同的时候，才覆盖
-            samehospital=PMRResearchList3.objects.filter(Q(hospital_id=i.hospital.id))
+            samehospital=CommunityResearchList.objects.filter(Q(hospital_id=i.hospital.id))
             for x in samehospital:
                 if not x.contactname:
                     x.contactname=i.contactname
@@ -1788,159 +1636,14 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                 x.save()
 
 
-            #不同公司的同一家医院，CRP/SAA项目，补充总测试数
-            if i.project.project=='CRP/SAA' and i.testspermonth:
-                sameCRPSAA=PMRResearchList3.objects.filter(Q(hospital_id=i.hospital.id) & Q(project__project='CRP/SAA') & Q(company_id=1) )
-                for z in sameCRPSAA:
-                    if not z.testspermonth:
-                        z.testspermonth=i.testspermonth
-                        z.save()
+            # #不同公司的同一家医院，CRP/SAA项目，补充总测试数
+            # if i.project.project=='CRP/SAA' and i.testspermonth:
+            #     sameCRPSAA=CommunityResearchList.objects.filter(Q(hospital_id=i.hospital.id) & Q(project__project='CRP/SAA') & Q(company_id=6) )
+            #     for z in sameCRPSAA:
+            #         if not z.testspermonth:
+            #             z.testspermonth=i.testspermonth
+            #             z.save()
             i.save()
-            '''
-            #如果项目大类是CRPSAA，则普美瑞和其田有重复的地方，在普美瑞中，国赛是自有业务、迈瑞是竞品，在其田中迈瑞是自有业务、国赛是竞品。
-            # 需要将普美瑞中填的完整的国赛导入其田当作竞品，把其田中填的完整的迈瑞导入普美瑞中当作竞品
-            if i.project.project=='CRP/SAA':
-                #找出目前obj下面的仪器信息，active的、所有仪器，需要和其田的CRP/SAA比较，需要把其田的迈瑞的和其他竞品的都拿过来
-                ownmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist_id=i.id) & Q(is_active=True) & ~Q(machinenumber=0) & ~Q(brand__brand='未知') & (Q(detailedproject_id=12) | Q(detailedproject_id=13)))
-                #找出其田下面的，同一家医院同一个项目的同一个人的，所有仪器obj
-                PMRmachinedetail= PMRResearchDetail3.objects.filter(Q(researchlist__hospital__id=i.hospital.id) & Q(researchlist__project__project='CRP/SAA') & Q(is_active=True) & ~Q(brand__brand='未知') &  ~Q(machinenumber=0) & Q(researchlist__company__id=1) & (Q(detailedproject_id=1) | Q(detailedproject_id=2)))
-                print('PMRmachinedetail',PMRmachinedetail)
-
-                PMRresearchlist=PMRResearchList3.objects.filter(hospital__id=i.hospital.id,project__project='CRP/SAA', company__id=1)
-                print('PMRresearchlist',PMRresearchlist)
-
-                owneachactivedetailllist=[]
-                #如果PMR这边的CRPSAA有仪器数据
-                if ownmachinedetail:
-                    for owneachactivedetail in ownmachinedetail:
-                        owneachactivedetailldict={}
-                        owneachactivedetailldict['detailedproject_id']=owneachactivedetail.detailedproject.id if owneachactivedetail.detailedproject else None
-                        owneachactivedetailldict['ownbusiness']=owneachactivedetail.ownbusiness if owneachactivedetail.ownbusiness else False
-                        owneachactivedetailldict['brand_id']=owneachactivedetail.brand.id if owneachactivedetail.brand else None
-                        owneachactivedetailldict['machinemodel']=owneachactivedetail.machinemodel if owneachactivedetail.machinemodel else None
-                        owneachactivedetailldict['machinenumber']=owneachactivedetail.machinenumber if owneachactivedetail.machinenumber else None
-                        owneachactivedetailldict['installdate']=owneachactivedetail.installdate if owneachactivedetail.installdate else None
-                        owneachactivedetailldict['expiration']=owneachactivedetail.expiration if owneachactivedetail.expiration else None
-                        owneachactivedetailldict['endsupplier']=owneachactivedetail.endsupplier if owneachactivedetail.endsupplier else None
-                        owneachactivedetailldict['competitionrelation_id']=owneachactivedetail.competitionrelation.id if owneachactivedetail.competitionrelation else None
-                        owneachactivedetailldict['machineseries']=owneachactivedetail.machineseries if owneachactivedetail.machineseries else None
-                        owneachactivedetailldict['testprice']=owneachactivedetail.testprice if owneachactivedetail.testprice else None
-                        owneachactivedetailllist.append(owneachactivedetailldict)
-
-                    ownbrandlist= list(set(item['brand_id'] for item in owneachactivedetailllist))
-                    print('ownbrandlist',ownbrandlist)
-
-                    if PMRresearchlist:#先判断对方是否有这个医院项目
-                        PMR_researchlist_id=PMRresearchlist[0].id
-                        print('对应的其田的CRP/SAA的id',PMR_researchlist_id)  
-                        PMRbrandlist=[] 
-                        PMReachactivedetailllist=[]
-                        if PMRmachinedetail:#然后判断对方有没有仪器数据
-                            for PMReachactivedetail in PMRmachinedetail:
-                                PMReachactivedetailldict={}
-                                PMReachactivedetailldict['detailedproject_id']=PMReachactivedetail.detailedproject.id if PMReachactivedetail.detailedproject else None
-                                PMReachactivedetailldict['ownbusiness']=PMReachactivedetail.ownbusiness if PMReachactivedetail.ownbusiness else False
-                                PMReachactivedetailldict['brand_id']=PMReachactivedetail.brand.id if PMReachactivedetail.brand else None
-                                PMReachactivedetailldict['machinemodel']=PMReachactivedetail.machinemodel if PMReachactivedetail.machinemodel else None
-                                PMReachactivedetailldict['machinenumber']=PMReachactivedetail.machinenumber if PMReachactivedetail.machinenumber else None
-                                PMReachactivedetailldict['installdate']=PMReachactivedetail.installdate if PMReachactivedetail.installdate else None
-                                PMReachactivedetailldict['expiration']=PMReachactivedetail.expiration if PMReachactivedetail.expiration else None
-                                PMReachactivedetailldict['endsupplier']=PMReachactivedetail.endsupplier if PMReachactivedetail.endsupplier else None
-                                PMReachactivedetailldict['competitionrelation_id']=PMReachactivedetail.competitionrelation.id if PMReachactivedetail.competitionrelation else None
-                                PMReachactivedetailldict['machineseries']=PMReachactivedetail.machineseries if PMReachactivedetail.machineseries else None
-                                PMReachactivedetailldict['testprice']=PMReachactivedetail.testprice if PMReachactivedetail.testprice else None
-                                PMReachactivedetailllist.append(PMReachactivedetailldict)
-
-                            PMRbrandlist= list(set(item['brand_id'] for item in PMReachactivedetailllist))
-                            print('PMRbrandlist',PMRbrandlist)
-
-                            PMRmorebrandlist = [item for item in PMRbrandlist if item not in ownbrandlist]
-                            print('PMRmorebrandlist',PMRmorebrandlist)
-                            OWNmorebrandlist = [item for item in ownbrandlist if item not in PMRbrandlist]
-                            print('OWNmorebrandlist',OWNmorebrandlist)
-                            # SAMEbrandlist = [item for item in ownbrandlist if item in PMRbrandlist]
-                            # print('SAMEbrandlist',SAMEbrandlist)
-
-                            #如果PMR有额外品牌，则在此obj中新增仪器
-                            if PMRmorebrandlist:
-                                for data in PMReachactivedetailllist:#遍历PMR那边对应的所有仪器                              
-                                    if data['brand_id'] in PMRmorebrandlist and data['brand_id']!=14 : #PMR中的14是迈瑞，但是迈瑞在QT中才是准的，所以去除
-                                        #如果该仪器在PMR有而QT没有，需要在QT这里添加进去
-                                        if data['brand_id']== 9: #国赛于QT来说是竞品，要变成False
-                                            data['ownbusiness']=False    
-                                        if data['detailedproject_id']==1:
-                                            data['detailedproject_id']=12  
-                                        if data['detailedproject_id']==2:
-                                            data['detailedproject_id']=13  
-                                        print('添加到PMR里面的data',data)
-                                        PMRResearchDetail3.objects.create(researchlist_id=i.id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
-                            
-                            #如果QT有额外品牌，则在对应的PMR那边新增仪器
-                            if OWNmorebrandlist:
-                                for data in owneachactivedetailllist:#遍历QT自己所有的仪器
-                                    if data['brand_id'] in OWNmorebrandlist and  data['brand_id']!=9 : #QT中的9是国赛，但是国赛在PMR中才是准的，所以去除
-                                        #若该仪器在QT有而PMR没有的品牌列表中，需要到PMR那边去添加该仪器
-                                        if data['brand_id']== 14:
-                                            data['ownbusiness']=False
-                                        if data['detailedproject_id']==12:
-                                            data['detailedproject_id']=1 
-                                        if data['detailedproject_id']==13:
-                                            data['detailedproject_id']=2
-                                        print('添加到PMR里面的data',data)
-                                        PMRResearchDetail3.objects.create(researchlist_id=PMR_researchlist_id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
-                        
-                        #如果对方没有数据，则直接添加到对方
-                        if not PMRmachinedetail:
-                            for data in owneachactivedetailllist:#遍历QT自己所有的仪器
-                                if data['brand_id']==14 : 
-                                    data['ownbusiness']=False
-                                if data['brand_id']== 9:
-                                    data['ownbusiness']=True
-                                if data['detailedproject_id']==12:
-                                    data['detailedproject_id']=1
-                                if data['detailedproject_id']==13:
-                                    data['detailedproject_id']=2
-                                print('添加到PMR里面的data',data)
-                                PMRResearchDetail3.objects.create(researchlist_id=PMR_researchlist_id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
-                 
-
-
-                if not ownmachinedetail:
-                    if PMRresearchlist:#先判断对方是否有这个医院项目
-                        PMR_researchlist_id=PMRresearchlist[0].id
-                        print('对应的其田的CRP/SAA的id',PMR_researchlist_id)   
-                        PMReachactivedetailllist=[]
-                        if PMRmachinedetail:#然后判断对方有没有仪器数据
-                            for PMReachactivedetail in PMRmachinedetail:
-                                PMReachactivedetailldict={}
-                                PMReachactivedetailldict['detailedproject_id']=PMReachactivedetail.detailedproject.id if PMReachactivedetail.detailedproject else None
-                                PMReachactivedetailldict['ownbusiness']=PMReachactivedetail.ownbusiness if PMReachactivedetail.ownbusiness else False
-                                PMReachactivedetailldict['brand_id']=PMReachactivedetail.brand.id if PMReachactivedetail.brand else None
-                                PMReachactivedetailldict['machinemodel']=PMReachactivedetail.machinemodel if PMReachactivedetail.machinemodel else None
-                                PMReachactivedetailldict['machinenumber']=PMReachactivedetail.machinenumber if PMReachactivedetail.machinenumber else None
-                                PMReachactivedetailldict['installdate']=PMReachactivedetail.installdate if PMReachactivedetail.installdate else None
-                                PMReachactivedetailldict['expiration']=PMReachactivedetail.expiration if PMReachactivedetail.expiration else None
-                                PMReachactivedetailldict['endsupplier']=PMReachactivedetail.endsupplier if PMReachactivedetail.endsupplier else None
-                                PMReachactivedetailldict['competitionrelation_id']=PMReachactivedetail.competitionrelation.id if PMReachactivedetail.competitionrelation else None
-                                PMReachactivedetailldict['machineseries']=PMReachactivedetail.machineseries if PMReachactivedetail.machineseries else None
-                                PMReachactivedetailldict['testprice']=PMReachactivedetail.testprice if PMReachactivedetail.testprice else None
-                                PMReachactivedetailllist.append(PMReachactivedetailldict)
-
-
-                            for data in PMReachactivedetailllist:#遍历QT那边对应的所有仪器                              
-                                if data['brand_id']==9 : 
-                                    data['ownbusiness']=False 
-                                if data['brand_id']== 14: 
-                                    data['ownbusiness']=True    
-                                if data['detailedproject_id']==1:
-                                    data['detailedproject_id']=12  
-                                if data['detailedproject_id']==2:
-                                    data['detailedproject_id']=13  
-                                print('添加到PMR里面的data',data)
-                                PMRResearchDetail3.objects.create(researchlist_id=i.id,is_active=True, ownbusiness=data['ownbusiness'], machinenumber=data['machinenumber'], detailedproject_id=data['detailedproject_id'],brand_id=data['brand_id'],machinemodel=data['machinemodel'],installdate=data['installdate'],endsupplier=data['endsupplier'],competitionrelation_id=data['competitionrelation_id'],machineseries=data['machineseries'],testprice=data['testprice'],expiration=data['expiration']).save()                    
-                i.save()       
-
-                '''
 
 
 
@@ -1954,8 +1657,8 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
 
 
-@admin.register(PMRResearchDetail3)
-class PMRResearchDetailAdmin(GlobalAdmin): #ExportMixin
+@admin.register(CommunityResearchDetail)
+class CommunityResearchDetailAdmin(GlobalAdmin): #ExportMixin
     # resource_class = PMRResearchDetailResource
 
     exclude = ('id','createtime','updatetime')
@@ -1966,7 +1669,7 @@ class PMRResearchDetailAdmin(GlobalAdmin): #ExportMixin
     list_display_links =('list_hospitalname',)
     empty_value_display = '--'
     list_per_page = 15
-    list_display = ('list_district','list_hospitalclass','list_hospitalname','list_salesman1','list_project', 
+    list_display = ('list_district','list_hospitalname','list_salesman1','list_project', 
                     'renamed_detailedproject','ownbusiness','brand','machinemodel','renamed_machineseries','machinenumber','installdate','colored_expiration','testprice','endsupplier','colored_competitionrelation')
     autocomplete_fields=['researchlist','brand']
     # fields=('researchlist__project__project','detailedproject','ownbusiness','band','machinemodel')
@@ -1980,34 +1683,11 @@ class PMRResearchDetailAdmin(GlobalAdmin): #ExportMixin
                     ),
                 'researchlist__hospital__hospitalname','researchlist__salesman1','researchlist__project',)
     # ordering = ('-id',)
-    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
-
-    # def has_export_permission(self, request):
-    #     if request.user.is_superuser:
-    #         return True
-    #     user_in_group_list = request.user.groups.values('name')
-    #     for user_in_group_dict in user_in_group_list:
-    #         if user_in_group_dict['name'] in ['pmrdirectsales','pmrmanager','QTmanager','WDmanager']:
-    #             return True
-    #         else:
-    #             return False
-    
-
-    # def get_export_formats(self):
-    #     return [base_formats.XLSX]
-    
-    
-    # def get_export_queryset(self, request):
-    #     queryset = super().get_export_queryset(request)
-    #     if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
-    #         queryset = queryset
-    #     else: 
-    #         queryset = queryset.filter((Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__salesman1=request.user)&Q(researchlist__company_id=2))|(Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__salesman2=request.user)&Q(researchlist__company_id=2)))
-    #     return queryset
+    Community_view_group_list = ['boss','Community','allviewonly','Communityonlyview']
 
 
     def get_actions(self, request):
-        actions = super(PMRResearchDetailAdmin, self).get_actions(request)
+        actions = super(CommunityResearchDetailAdmin, self).get_actions(request)
         if not request.user.is_superuser:
             del actions['delete_selected']
         return actions
@@ -2018,23 +1698,23 @@ class PMRResearchDetailAdmin(GlobalAdmin): #ExportMixin
     #------get_queryset-----------查询-------------------
     def get_queryset(self, request):
         """函数作用：使当前登录的用户只能看到自己负责的服务器"""
-        qs = super(PMRResearchDetailAdmin, self).get_queryset(request)
+        qs = super(CommunityResearchDetailAdmin, self).get_queryset(request)
         print('我在PMRResearchDetailAdmin-get_queryset')
         #通过外键连list中的负责人名称
         if request.user.is_superuser :
-            return qs.filter(Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__company_id=2))
+            return qs.filter(Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__company_id=6))
         
                 
         # <QuerySet [{'name': 'pmrdirectsales'}, {'name': 'QTmanager'}]>
         user_in_group_list = request.user.groups.values('name')
         print(user_in_group_list)
         for user_in_group_dict in user_in_group_list:
-            if user_in_group_dict['name'] in self.QT_view_group_list:
+            if user_in_group_dict['name'] in self.Community_view_group_list:
                  # print('我在模型里')
-                return qs.filter(Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__company_id=2))            
+                return qs.filter(Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__company_id=6))            
         
         #detail active ,list active 同时人员是自己
-        return qs.filter((Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__salesman1=request.user)&Q(researchlist__company_id=2))|(Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__salesman2=request.user)&Q(researchlist__company_id=2)))
+        return qs.filter((Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__salesman1=request.user)&Q(researchlist__company_id=6))|(Q(is_active=True) & Q(researchlist__is_active=True)&Q(researchlist__salesman2=request.user)&Q(researchlist__company_id=6)))
 
         
 
@@ -2062,33 +1742,12 @@ class PMRResearchDetailAdmin(GlobalAdmin): #ExportMixin
             obj.researchlist.operator=request.user
             obj.save()
 
-    # #需要核对
-    # def delete_queryset(self,request, queryset):        
-    #     print('我在delete_queryset')
-    #     for delete_obj in queryset:     
-    #         print('delete_queryset delete_obj',delete_obj,delete_obj.researchlist.salesman1)                    
-    #         if request.user.is_superuser or delete_obj.researchlist.salesman1==request.user or request.user.groups.values()[0]['name'] =='boss':     
-    #             delete_obj.is_active=False
-    #             print('delete_queryset detail 已假删')
-    #             delete_obj.operator=request.user
-    #             delete_obj.save()
-
-
-
-    # # 外键只显示active的(但是会被autocomplete覆盖，所以要在外键对应的“一”表的admin中重写getsearchresult)   
-    # def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
-    #     context['adminform'].form.fields['researchlist'].queryset = PMRResearchList.objects.filter(is_active=True)
-    #     context['adminform'].form.fields['detailedproject'].queryset = ProjectDetail.objects.filter(is_active=True)
-    #     context['adminform'].form.fields['brand'].queryset = Brand.objects.filter(is_active=True)
-    #     context['adminform'].form.fields['competitionrelation'].queryset = CompetitionRelation.objects.filter(is_active=True)
-    #     return super(PMRResearchDetailAdmin, self).render_change_form(request, context, add, change, form_url, obj)
-
 #一下变化，在list的inline中有体现，
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'researchlist': 
-            kwargs["queryset"] = PMRResearchList3.objects.filter(is_active=True) 
+            kwargs["queryset"] = CommunityResearchList.objects.filter(is_active=True) 
         if db_field.name == 'detailedproject': 
-            kwargs["queryset"] = ProjectDetail3.objects.filter(is_active=True) 
+            kwargs["queryset"] = CommunityProjectDetail.objects.filter(is_active=True) 
         if db_field.name == 'brand':  
             kwargs["queryset"] = Brand.objects.filter(is_active=True) 
         if db_field.name == 'competitionrelation': 
@@ -2137,11 +1796,14 @@ class PMRResearchDetailAdmin(GlobalAdmin): #ExportMixin
         elif obj.researchlist.project.project=='血球':
             color_code='orange'    
 
-        elif obj.researchlist.project.project=='流式':
+        elif obj.researchlist.project.project=='小发光':
             color_code='green'   
 
-        elif obj.researchlist.project.project=='生化免疫':
+        elif obj.researchlist.project.project=='尿蛋白':
             color_code='blue'
+ 
+        elif obj.researchlist.project.project=='糖化':
+            color_code='purple'
 
         else:
             color_code='black' 
@@ -2200,23 +1862,13 @@ class ProjectAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime','is_active')
     search_fields=['project']
     list_display = ('project','company')
-    #只显示未被假删除的项目
-    # def get_queryset(self, request):
-    #     qs = super().get_queryset(request).filter(is_active=True)
-    #     if request.user.is_superuser:
-    #         return qs   
-        
-    # 外键company只显示active的   定死普美瑞
-    # def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
-    #     context['adminform'].form.fields['company'].queryset = Company.objects.filter(is_active=True, id=1)
-    #     return super(ProjectAdmin, self).render_change_form(request, context, add, change, form_url, obj)
     
     #使得pmrresearchlist中的的autocompletefield被下面的代码过滤，过滤PMR的project
     def get_search_results(self, request, queryset, search_term):
         queryset,use_distinct = super().get_search_results(request, queryset, search_term)
         if 'autocomplete' in request.path:
             print('我在ProjectAdmin-get_search_results-autocomplete')
-            queryset=queryset.filter(is_active=True,company_id=2)
+            queryset=queryset.filter(is_active=True,company_id=6)
         return queryset,use_distinct 
 
 
@@ -2232,16 +1884,6 @@ class HospitalAdmin(GlobalAdmin):
             queryset=queryset.filter(is_active=True).order_by('id')
         return queryset,use_distinct 
     
-    # def get_queryset(self, request):
-    #     qs = super().get_queryset(request).filter(is_active=True)
-    #     if request.user.is_superuser:
-    #         return qs           
-
-    # def delete_queryset(self,request, queryset):
-    #     # print('CompanyAdmin-delete_queryset',queryset)
-    #     for i in queryset:
-    #         i.project_set.all().update(is_active=False)
-    #     queryset.update(is_active=False)
 
 @admin.register(Brand)  
 class BrandAdmin(GlobalAdmin):   
@@ -2255,7 +1897,7 @@ class BrandAdmin(GlobalAdmin):
         return queryset,use_distinct 
     
 
-@admin.register(ProjectDetail3)  
+@admin.register(CommunityProjectDetail)  
 class ProjectDetailAdmin(GlobalAdmin):   
     search_fields=['detailedproject']
     exclude = ('id','createtime','updatetime','is_active')
@@ -2263,7 +1905,7 @@ class ProjectDetailAdmin(GlobalAdmin):
     def get_search_results(self, request, queryset, search_term):
         queryset,use_distinct = super().get_search_results(request, queryset, search_term)
         if 'autocomplete' in request.path:
-            queryset=queryset.filter(is_active=True,company_id=2).order_by('id')
+            queryset=queryset.filter(is_active=True,company_id=6).order_by('id')
         return queryset,use_distinct 
     
    
@@ -2274,7 +1916,7 @@ class CompetitionRelationAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime','is_active')
 
 
-@admin.register(SalesTarget3)  
+@admin.register(CommunitySalesTarget)  
 class SalesTargetAdmin(GlobalAdmin):   
     # resource_class = SalesTargetResource
 
@@ -2285,8 +1927,8 @@ class SalesTargetAdmin(GlobalAdmin):
 
 
 
-@admin.register(PMRResearchList3Delete)
-class PMRResearchList3DeleteAdmin(admin.ModelAdmin):
+@admin.register(CommunityResearchListDelete)
+class CommunityResearchListDeleteAdmin(admin.ModelAdmin):
     # form=PMRResearchListForm
     # inlines=[SalesTargetInline,PMRResearchDetailInline,DetailCalculateInline]
     empty_value_display = '--'
@@ -2294,22 +1936,22 @@ class PMRResearchList3DeleteAdmin(admin.ModelAdmin):
     exclude = ('operator','is_active','olddata')
     readonly_fields=('company','hospital','project','salesman1','salesman2','testspermonth','contactname','contactmobile','salesmode','saleschannel','support','adminmemo')
     search_fields=['uniquestring']
-    QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
+    Community_view_group_list = ['boss','Community','allviewonly','Communityonlyview']
 
     def get_queryset(self, request):
-        qs = super(PMRResearchList3DeleteAdmin,self).get_queryset(request)
+        qs = super(CommunityResearchListDeleteAdmin,self).get_queryset(request)
   
         if request.user.is_superuser :
             print('我在PMRResearchListAdmin-get_queryset-筛选active的')        
-            return qs.filter(is_active=False,company_id=2)
+            return qs.filter(is_active=False,company_id=6)
         
         user_in_group_list = request.user.groups.values('name')
         for user_in_group_dict in user_in_group_list:
-            if user_in_group_dict['name'] in self.QT_view_group_list:
-                return qs.filter(is_active=False,company_id=2)      
+            if user_in_group_dict['name'] in self.Community_view_group_list:
+                return qs.filter(is_active=False,company_id=6)      
 
        #普通销售的话:
-        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=2)))#|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=2)))
+        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=6)))
     
 
     def has_delete_permission(self, request,obj=None):
@@ -2322,11 +1964,11 @@ class PMRResearchList3DeleteAdmin(admin.ModelAdmin):
         return False
 
     def get_actions(self, request):
-        actions = super(PMRResearchList3DeleteAdmin, self).get_actions(request)
+        actions = super(CommunityResearchListDeleteAdmin, self).get_actions(request)
 
         #配置恢复权限
         if request.user.groups.values():
-            if request.user.groups.values()[0]['name'] == 'pmronlyview' or request.user.groups.values()[0]['name'] =='JC' or request.user.groups.values()[0]['name'] == 'allviewonly':
+            if request.user.groups.values()[0]['name'] == 'Communityonlyview' or request.user.groups.values()[0]['name'] =='JC' or request.user.groups.values()[0]['name'] == 'allviewonly':
                 del actions['restore']      
             else:  
                 return actions
@@ -2340,12 +1982,12 @@ class PMRResearchList3DeleteAdmin(admin.ModelAdmin):
         print(queryset)
         print('我在restore')      
         for i in queryset:
-            print(i.pmrresearchdetail3delete_set.all())
-            i.pmrresearchdetail3delete_set.all().update(is_active=True)
-            i.salestarget3delete_set.all().update(is_active=True)
-            i.detailcalculate3delete.is_active=True
+            print(i.communityresearchdetaildelete_set.all())
+            i.communityresearchdetaildelete_set.all().update(is_active=True)
+            i.communitysalestargetdelete_set.all().update(is_active=True)
+            i.communitydetailcalculatedelete.is_active=True
 
-            i.detailcalculate3delete.save()  
+            i.communitydetailcalculatedelete.save()  
             i.operator=request.user
             print('恢复') 
             i.save()           

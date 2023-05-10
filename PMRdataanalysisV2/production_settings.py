@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'PMR_U8_011',
     'PMR_U8_012',
     'import_export',
+    'Marketing_Research_Community',
+    'PUZHONGXIN',
 ]
 
 MIDDLEWARE = [
@@ -164,71 +166,10 @@ SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
 
 SIMPLEUI_CONFIG = {
     'system_keep': True,
-    'menu_display': ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','用友-普美瑞-U8-001','用友-盈帅-U8-009','用友-国赛美瑞-U8-010','用友-其田-U8-011','用友-卫顿-U8-012','认证授权'],  
+     # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
+    'menu_display': ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','百来社区医院调研表','集成调研表','用友-U8-同步','认证授权'],  
     'dynamic': True,    # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
     'menus': [
-
-        #一级菜单：PMR_U8_001
-        {
-            'name': '用友-普美瑞-U8-001',
-            'icon': 'fab fa-github',
-            'models': [
-                {
-                'name': '发货单',
-                'url': '/admin/PMR_U8_001/consignments/'
-                }, 
-         
-            ]
-        
-        },
-        #一级菜单：PMR_U8_009
-        {
-            'name': '用友-盈帅-U8-009',
-            'icon': 'fab fa-github',
-            'models': [
-                {
-                'name': '发货单',
-                'url': '/admin/PMR_U8_009/consignments/'
-                }, 
-         
-            ]
-        
-        },
-        #一级菜单：PMR_U8_010
-        {
-            'name': '用友-国赛美瑞-U8-010',
-            'icon': 'fab fa-github',
-            'models': [
-                {
-                'name': '发货单',
-                'url': '/admin/PMR_U8_010/consignments/'
-                },          
-            ]        
-        },  
-        #一级菜单：PMR_U8_011
-        {
-            'name': '用友-其田-U8-011',
-            'icon': 'fab fa-github',
-            'models': [
-                {
-                'name': '发货单',
-                'url': '/admin/PMR_U8_011/consignments/'
-                },          
-            ]        
-        },  
-        #一级菜单：PMR_U8_012
-        {
-            'name': '用友-卫顿-U8-012',
-            'icon': 'fab fa-github',
-            'models': [
-                {
-                'name': '发货单',
-                'url': '/admin/PMR_U8_012/consignments/'
-                },          
-            ]        
-        },                  
-
-
 
         #一级菜单：普美瑞直销调研表
         {
@@ -317,7 +258,8 @@ SIMPLEUI_CONFIG = {
                 },                       
             ]        
         },
-        #一级菜单：其田直销调研表
+        
+        #一级菜单：国赛美瑞直销调研表
         {
             'name': '国赛美瑞调研表',
             'icon': 'fa-solid fa-star',
@@ -340,6 +282,32 @@ SIMPLEUI_CONFIG = {
                 },                        
              ]        
         },
+
+        #一级菜单：百来调研表
+        {
+            'name': '百来社区医院调研表',
+            'icon': 'fa-solid fa-star',
+            'models': [
+                {
+                # 第二级菜单                
+                'name': '调研表列表(在此填报)',
+                'url': '/admin/Marketing_Research_Community/communityresearchlist/',
+                'icon': 'fa-solid fa-pen'
+                }, 
+                {
+                'name': '调研表仪器详情表',
+                'icon': 'fa-solid fa-list',
+                'url': '/admin/Marketing_Research_Community/communityresearchdetail/'
+                },
+                {
+                'name': '已删除的数据',
+                'icon': 'fa-solid fa-list',
+                'url': '/admin/Marketing_Research_Community/communityresearchlistdelete/'
+                },                        
+             ]        
+        },
+
+
         #一级菜单：集成调研表
         {
             'name': '集成调研表',
@@ -354,6 +322,96 @@ SIMPLEUI_CONFIG = {
                                  
             ]        
         },
+        
+        # #一级菜单：集成战略地图和作战计划
+        # {
+        #     'name': '集成战略地图和作战计划',
+        #     'icon': 'fa-solid fa-star',
+        #     'models': [
+        #         #二级菜单：普中心
+        #         {
+        #             'name': '普中心',
+        #             'icon': 'fab fa-github',
+        #             'models': [
+        #                 #三级菜单：PMR_U8_001                       
+        #                     {
+        #                     'name': '普中心战略地图',
+        #                     'url': '/admin/PUZHONGXIN/pzxspdlist/'
+        #                     }, 
+                       
+        #             ]                
+        #         } ,
+                                 
+        #     ]        
+        # },
+
+        #一级菜单：用友-U8-同步
+        {
+            'name': '用友-U8-同步',
+            'icon': 'fab fa-github',
+            'models': [
+
+                #二级菜单：PMR_U8_001
+                {
+                    'name': '用友-普美瑞-U8-001',
+                    'icon': 'fab fa-github',
+                    'models': [
+                        {
+                        'name': '发货单',
+                        'url': '/admin/PMR_U8_001/consignments/'
+                        }, 
+                    ]                
+                } ,
+
+                #二级菜单：PMR_U8_009
+                {
+                    'name': '用友-盈帅-U8-009',
+                    'icon': 'fab fa-github',
+                    'models': [
+                        {
+                        'name': '发货单',
+                        'url': '/admin/PMR_U8_009/consignments/'
+                        }, 
+                    ]                
+                } ,
+
+                #二级菜单：PMR_U8_010
+                {
+                    'name': '用友-国赛美瑞-U8-010',
+                    'icon': 'fab fa-github',
+                    'models': [
+                        {
+                        'name': '发货单',
+                        'url': '/admin/PMR_U8_010/consignments/'
+                        },          
+                    ]        
+                },  
+                #二级菜单：PMR_U8_011
+                {
+                    'name': '用友-其田-U8-011',
+                    'icon': 'fab fa-github',
+                    'models': [
+                        {
+                        'name': '发货单',
+                        'url': '/admin/PMR_U8_011/consignments/'
+                        },          
+                    ]        
+                },  
+                #二级菜单：PMR_U8_012
+                {
+                    'name': '用友-卫顿-U8-012',
+                    'icon': 'fab fa-github',
+                    'models': [
+                        {
+                        'name': '发货单',
+                        'url': '/admin/PMR_U8_012/consignments/'
+                        },          
+                    ]        
+                },  
+
+            ]        
+        },
+            
         #一级菜单：人员
         {
             'name': '认证授权',
@@ -373,8 +431,10 @@ SIMPLEUI_CONFIG = {
             ]        
         },
 
-    ]
-}
+        ]
+    }
+
+
 
 STATIC_ROOT = '/djangostatic'
 

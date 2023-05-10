@@ -25,9 +25,9 @@ def result_of_Quatar_display(advanced_days,delayed_days):
     # 
 
 
-    today = date(2023, 4, 11)
-    # today = datetime.now().date()
-    this_year =2023#datetime.now().year
+    # today = date(2023, 4, 11)
+    today = datetime.now().date()
+    this_year =datetime.now().year
 
     #PMRresearchlist的list显示：
     list_display = ('hospital_district','hospital_hospitalclass','hospital','colored_project', 'salesman1_chinesename',                   
@@ -123,7 +123,7 @@ def result_of_Quatar_display(advanced_days,delayed_days):
 
 
 
-    speicial_case_date = date(2023,5,7)
+    speicial_case_date = date(2023,5,30)
     if today <= speicial_case_date:
         return ( # list_display
                     ('hospital_district','hospital_hospitalclass','hospital','colored_project',#'salesman1_chinesename', #'salesman2_chinesename',                    
