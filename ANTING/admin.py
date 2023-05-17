@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib import admin
-from PUZHONGXIN.models import *
+from ANTING.models import *
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy
 from django.db.models import Q
@@ -28,8 +28,8 @@ class GlobalAdmin(admin.ModelAdmin):
 
 
 
-@admin.register(PZXUserInfo)  
-class PZXUserAdmin(UserAdmin):  
+@admin.register(ATUserInfo)  
+class ATUserAdmin(UserAdmin):  
     list_display = ('username','chinesename','first_name','last_name','email','is_staff','is_superuser','date_joined','last_login')
     # exclude = ('id','createtime','updatetime','is_active')
  
@@ -51,8 +51,8 @@ class CompanyAdmin(GlobalAdmin):
 
 
 
-@admin.register(PZXSPDList)
-class PZXSPDListAdmin(GlobalAdmin):
+@admin.register(ATSPDList)
+class ATSPDListAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime','is_active','operator')
     search_fields=['supplier','brand']
     # list_filter = ['hospital__district','hospital__hospitalclass','jcornot']
@@ -62,21 +62,20 @@ class PZXSPDListAdmin(GlobalAdmin):
     list_display = ('salesman_chinesename','supplier','brand','department','product','machinemodel','listotal_formatted','salestotal_formatted','display_salestotalpercent','purchasetotal_formatted','display_gppercent','relation',
                     )
     ordering = ('id',)
-    view_group_list = ['boss','PZX','allviewonly','JConlyview']
-
+    view_group_list = ['boss','AT','allviewonly','JConlyview']
     # 新增或修改数据时，设置外键可选值，
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'company': 
-            kwargs["queryset"] = Company.objects.filter(is_active=True,id=7) 
+            kwargs["queryset"] = Company.objects.filter(is_active=True,id=9) 
         if db_field.name == 'salesman': 
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['jy']))
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['zxl']))
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 # ------delete_model内层的红色删除键------------------------------
     def delete_model(self, request, obj):
-        print('PZX delete_model')
+        print('AT delete_model')
         if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or obj.salesman==request.user:             
             obj.is_active = False 
             obj.operator=request.user   
@@ -101,12 +100,13 @@ class PZXSPDListAdmin(GlobalAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser :
-            return qs.filter(is_active=True,company_id=7)
+            return qs.filter(is_active=True,company_id=9)
 
         user_in_group_list = request.user.groups.values('name')
         for user_in_group_dict in user_in_group_list:
             if user_in_group_dict['name'] in self.view_group_list:
-                return qs.filter(is_active=True,company_id=7)
+                return qs.filter(is_active=True,company_id=9)
+
 
     @admin.display(ordering="salesman__chinesename",description='责任人')
     def salesman_chinesename(self, obj):
