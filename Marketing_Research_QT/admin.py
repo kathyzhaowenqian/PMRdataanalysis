@@ -567,7 +567,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
     list_display_links =('hospital',)
     exclude = ('operator','is_active')
     search_fields=['uniquestring']
-    list_per_page = 15
+    list_per_page = 12
     list_display = result_of_Quatar_display(settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS,settings.MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS)[0]#+('detail_qtysum','detail_own_qtysum','detail_ownbusiness','detail_brands','detail_machinemodel','detail_machineseries','detail_installdate','detail_competitor',)
     # ('hospital_district','hospital_hospitalclass','hospital','colored_project','salesman1_chinesename','salesman2_chinesename',
     #                 'detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent','detailcalculate_newold',

@@ -253,7 +253,7 @@ class PMRResearchList(models.Model):
     saleschannel = models.TextField(verbose_name='销售路径和过程',max_length=255, blank=True, null=True)
     support = models.TextField(verbose_name='所需支持',max_length=500, blank=True, null=True)
 
-    progress = models.TextField(verbose_name='进展',max_length=255, blank=True, null=True,choices=progress_choices,help_text=u"仅针对23年目标新项目")
+    progress = models.TextField(verbose_name='进展情况',max_length=255, blank=True, null=True,choices=progress_choices,help_text=u"仅针对23年目标新项目")
 
     adminmemo=models.TextField(verbose_name='备注',max_length=500, blank=True, null=True)
     operator = models.ForeignKey('UserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operator',verbose_name= '最后操作人')

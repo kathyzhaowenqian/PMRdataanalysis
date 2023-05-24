@@ -250,7 +250,7 @@ class PMRResearchList2(models.Model):
     contactmobile = models.CharField(verbose_name='联系方式',max_length=255, blank=True, null=True)
     saleschannel = models.TextField(verbose_name='销售路径和过程',max_length=255, blank=True, null=True)
     support = models.TextField(verbose_name='所需支持',max_length=500, blank=True, null=True)
-    progress = models.TextField(verbose_name='进展',max_length=255, blank=True, null=True,choices=progress_choices,help_text=u"仅针对23年目标新项目")
+    progress = models.TextField(verbose_name='进展情况',max_length=255, blank=True, null=True,choices=progress_choices,help_text=u"仅针对23年目标新项目")
 
     adminmemo=models.TextField(verbose_name='备注',max_length=500, blank=True, null=True)
     operator = models.ForeignKey('UserInfo2', models.CASCADE, db_column='operator',to_field='id',related_name='operatorwd',verbose_name= '最后操作人')
