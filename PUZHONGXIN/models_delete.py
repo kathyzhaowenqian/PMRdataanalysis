@@ -15,10 +15,11 @@ from multiselectfield import MultiSelectField
 from Marketing_Research.models import UserInfo
 from django.contrib.postgres.fields import ArrayField
 from django.db.models import JSONField
-def get_compmany_default_value():
-    return Company.objects.get(id=7).company
 
-class PZXUserInfo(UserInfo):   
+def get_compmany_default_value():
+    return CompanyDELETE.objects.get(id=7).company
+
+class PZXUserInfoDELETE(UserInfo):   
     
     class Meta:
         proxy =True
@@ -35,10 +36,10 @@ class PZXUserInfo(UserInfo):
             # 如果用户名为空则返回不能为空的对象
             return self.username
 
-class PZXSalesmanPosition(models.Model):
+class PZXSalesmanPositionDELETE(models.Model):
     # id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey('PZXUserInfo', models.CASCADE, db_column='user',to_field='id') #settings.AUTH_USER_MODEL
-    company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
+    user = models.ForeignKey('PZXUserInfoDELETE', models.CASCADE, db_column='user',to_field='id') #settings.AUTH_USER_MODEL
+    company = models.ForeignKey('CompanyDELETE', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
     position = models.CharField(verbose_name='岗位',max_length=255, blank=True, null=True)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
@@ -49,7 +50,7 @@ class PZXSalesmanPosition(models.Model):
         db_table = 'marketing_research_v2\".\"SalesmanPosition'
         verbose_name_plural = '员工职位列表'
 
-class Company(models.Model):
+class CompanyDELETE(models.Model):
     # id = models.BigAutoField(primary_key=True)
     company = models.CharField(verbose_name='公司',max_length=255, blank=True, null=True,)
     createtime = models.DateTimeField(auto_now_add=True)
@@ -70,10 +71,10 @@ class Company(models.Model):
         self.is_active = False
         self.save()
 
-class PZXSPDList(models.Model):
+class PZXSPDListDELETE(models.Model):
     # id = models.BigAutoField(primary_key=True)
-    company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
-    salesman = models.ForeignKey('PZXUserInfo', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanpzx',verbose_name= '负责人')
+    company = models.ForeignKey('CompanyDELETE', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
+    salesman = models.ForeignKey('PZXUserInfoDELETE', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanpzxdelete',verbose_name= '负责人')
 
     supplier = models.CharField(verbose_name='供应商',max_length=255, blank=True, null=True)
     brand = models.CharField(verbose_name='品牌',max_length=255, blank=True, null=True)
@@ -87,13 +88,14 @@ class PZXSPDList(models.Model):
     gppercent = models.DecimalField(verbose_name='毛利率',max_digits=25, decimal_places=6, blank=True, null=True)
     relation = models.CharField(verbose_name='关系点',max_length=255, blank=True, null=True)
 
-    operator = models.ForeignKey('PZXUserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operatorpzx',verbose_name= '最后操作人')   
+    operator = models.ForeignKey('PZXUserInfoDELETE', models.CASCADE, db_column='operator',to_field='id',related_name='operatorpzxdelete',verbose_name= '最后操作人')   
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDList'
         verbose_name_plural = 'SPD战略地图'
     
@@ -102,7 +104,7 @@ class PZXSPDList(models.Model):
 
 
 #============================================================
-class PZXOverall(models.Model):
+class PZXOverallDELETE(models.Model):
     whygrowth_choices=[       
         ('新开项目', '新开项目'),
         ('供应商重新谈判', '供应商重新谈判'),
@@ -123,10 +125,10 @@ class PZXOverall(models.Model):
     #     ('10', '10'),
     #     ('11', '11'),
     #     ('12','12'))
-    company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
-    salesman = models.ForeignKey('PZXUserInfo', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanpzxoverall',verbose_name= '负责人',default=25)
-    department = models.CharField(verbose_name='科室',max_length=255, blank=False, null=False)
-    semidepartment=models.CharField(verbose_name='使用科室',max_length=255, blank=False, null=False)
+    company = models.ForeignKey('CompanyDELETE', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
+    salesman = models.ForeignKey('PZXUserInfoDELETE', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanpzxoveralldelete',verbose_name= '负责人',default=25)
+    department = models.CharField(verbose_name='科室',max_length=255, blank=True, null=True)
+    semidepartment=models.CharField(verbose_name='使用科室',max_length=255, blank=True, null=True)
     project = models.CharField(verbose_name='项目大类',help_text=u"项目大类必填",max_length=255, blank=False, null=False)
 
     purchasesum=models.DecimalField(verbose_name='项目1-6月采购额', max_digits=25, decimal_places=2,default=0)
@@ -146,7 +148,7 @@ class PZXOverall(models.Model):
     relation=models.CharField(verbose_name='关系点',max_length=255, blank=True, null=True)
     actionplan=models.CharField(verbose_name='行动计划',max_length=255, blank=True, null=True)
 
-    whygrowth = MultiSelectField(verbose_name='增量来源',help_text=u"（按住Ctrl键可多选, 选择后, 请在下方填写每一个增量来源的详情）",max_length=255,choices=whygrowth_choices)
+    whygrowth = MultiSelectField(verbose_name='增量来源',help_text=u"（按住Ctrl键可多选, 选择后, 请在下方填写每一个增量来源的详情）",max_length=25,choices=whygrowth_choices)
     progress = models.CharField(verbose_name='进度',max_length=255, blank=True, null=True)
     support = models.CharField(verbose_name='所需支持',max_length=255, blank=True, null=True)
 
@@ -158,20 +160,25 @@ class PZXOverall(models.Model):
     thisyeargpgrowth = models.DecimalField(verbose_name='23年毛利额增量预估总计/元',max_digits=25, decimal_places=2, default=0)
     thisyeargpgrowthdetail = models.CharField(verbose_name='23年毛利额增量预估',max_length=255, blank=True, null=True) #用|隔开的
    
-    operator = models.ForeignKey('PZXUserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operatorpzxoverall',verbose_name= '最后操作人')   
+    operator = models.ForeignKey('PZXUserInfoDELETE', models.CASCADE, db_column='operator',to_field='id',related_name='operatorpzxoveralldelete',verbose_name= '最后操作人')   
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDPlanOverall'
         verbose_name_plural = '作战计划'
     
     def __str__(self):
-        return self.project
+        return ('{}__{}__{}__{}'.format(self.department,self.semidepartment,self.project,self.supplier))
+    
+
+
+
 
 #新项目---------------------
-class PZXNewProjectStatus(models.Model):
+class PZXNewProjectStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -196,13 +203,13 @@ class PZXNewProjectStatus(models.Model):
         ('招标完成', '招标完成'),
         ('仪器装机启用', '仪器装机启用'),
         ('仪器试剂均开票','仪器试剂均开票'))
-    overallid = models.ForeignKey('PZXOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
-    whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='新开项目')
+    overallid = models.ForeignKey('PZXOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='新项目')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
     
     completemonth=models.PositiveIntegerField(verbose_name='预计落地月份(默认12月,请修改)',choices=completemonth_choices,default=12)
-    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default=0)
+    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, default=0)
     thisyeargpgrowth = models.DecimalField(verbose_name='23年毛利额增量预估/元',max_digits=25, decimal_places=2, blank=True, null=True)
     
     monthgpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算月毛利额增量', max_digits=25, decimal_places=2, blank=True, null=True)
@@ -218,7 +225,6 @@ class PZXNewProjectStatus(models.Model):
     memo = models.TextField(verbose_name='备注',max_length=255, blank=True, null=True)
     advicedirector = models.CharField(verbose_name='倪日磊意见',max_length=255, blank=True, null=True)
     adviceboss = models.CharField(verbose_name='陈海敏意见',max_length=255, blank=True, null=True)
-    statushistory=JSONField(verbose_name='历史status',blank=True, null=True)
 
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
@@ -226,6 +232,7 @@ class PZXNewProjectStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDNewProjectStatus'
         verbose_name_plural = '新开项目状态'
     
@@ -237,11 +244,11 @@ class PZXNewProjectStatus(models.Model):
         self.save()
   
 
-class PZXNewProjectDetail(models.Model):
+class PZXNewProjectDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('PZXNewProjectStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('PZXNewProjectStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='新项目明细')
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
@@ -261,7 +268,7 @@ class PZXNewProjectDetail(models.Model):
      
     lisfee = models.DecimalField(verbose_name='LIS收费价(必填)',max_digits=25, decimal_places=2,validators=[MinValueValidator(0.01)],default = 0)
     lispercent = models.DecimalField(verbose_name='LIS结算比例(必填,≤1)',max_digits=25, decimal_places=3,validators=[MinValueValidator(0.01),MaxValueValidator(1)],default = 0)
-    lissettleprice = models.DecimalField(verbose_name='LIS结算价',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
+    lissettleprice = models.DecimalField(verbose_name='LIS结算价',help_text=u"开票价，LIS收费单价 X LIS结算%",max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0)])
     costperunit = models.DecimalField(verbose_name='采购价/单位(报价)',max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default = 0)
     purchaseqty = models.DecimalField(verbose_name='半年度采购数量/单位',max_digits=25, decimal_places=1, blank=True, null=True,validators=[MinValueValidator(0)])
     costppl = models.DecimalField(verbose_name='采购价/人份',help_text=u"采购价每单位 / 每单位人份数",max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0)])
@@ -287,6 +294,7 @@ class PZXNewProjectDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDNewProjectDetail'
         verbose_name_plural = '新开项目明细'
     
@@ -300,7 +308,7 @@ class PZXNewProjectDetail(models.Model):
 
 #供应商重新谈判----------------------
 
-class PZXNegotiationStatus(models.Model):
+class PZXNegotiationStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -319,13 +327,13 @@ class PZXNegotiationStatus(models.Model):
         ('已谈判等回复', '已谈判等回复'),
         ('新价格已确认', '新价格已确认'),
       )
-    overallid = models.ForeignKey('PZXOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
-    whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='供应商重新谈判')
+    overallid = models.ForeignKey('PZXOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='价格谈判')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
    
     completemonth=models.PositiveIntegerField(verbose_name='预计落地月份(默认12月,请修改)',choices=completemonth_choices,default=12)
-    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2,validators=[MinValueValidator(0.01)], default=0)
+    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, default=0)
     thisyeargpgrowth = models.DecimalField(verbose_name='23年毛利额增量预估/元',max_digits=25, decimal_places=2, blank=True, null=True)
     monthgpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算月毛利额增量', max_digits=25, decimal_places=2, blank=True, null=True)
     thisyeargpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算23年毛利额增量',max_digits=25, decimal_places=2, blank=True, null=True)
@@ -339,7 +347,6 @@ class PZXNegotiationStatus(models.Model):
     memo = models.TextField(verbose_name='备注',max_length=255, blank=True, null=True)
     advicedirector = models.CharField(verbose_name='倪日磊意见',max_length=255, blank=True, null=True)
     adviceboss = models.CharField(verbose_name='陈海敏意见',max_length=255, blank=True, null=True)
-    statushistory=JSONField(verbose_name='历史status',blank=True, null=True)
 
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
@@ -347,6 +354,7 @@ class PZXNegotiationStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDNegotiationStatus'
         verbose_name_plural = '供应商重新谈判状态'
     
@@ -358,11 +366,11 @@ class PZXNegotiationStatus(models.Model):
         self.save()
 
 
-class PZXNegotiationDetail(models.Model):
+class PZXNegotiationDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('PZXNegotiationStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('PZXNegotiationStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='价格谈判明细')
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True) ###
@@ -371,7 +379,7 @@ class PZXNegotiationDetail(models.Model):
     newsupplier = models.CharField(verbose_name='新供应商 ',max_length=255, blank=True, null=True)
     beforeorafterbrandchange = models.CharField(verbose_name='品牌是置换前还是置换后',max_length=255, blank=True, null=True,choices=brand_choices)
 
-    productid =  models.ForeignKey('PZXMenu', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
+    productid =  models.ForeignKey('PZXMenuDELETE', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
     code = models.CharField(verbose_name='产品编码U8 ',max_length=255, blank=True, null=True)##
     product = models.CharField(verbose_name='产品名称U8',help_text=u"请按系统名称填报",max_length=255, blank=True, null=True)###
     spec = models.CharField(verbose_name='规格',max_length=255, blank=True, null=True)###
@@ -385,7 +393,7 @@ class PZXNegotiationDetail(models.Model):
 
     lisfee = models.DecimalField(verbose_name='LIS收费价(必填)',max_digits=25, decimal_places=2,validators=[MinValueValidator(0.01)],default = 0)
     lispercent = models.DecimalField(verbose_name='LIS结算比例(必填,≤1)',max_digits=25, decimal_places=3,validators=[MinValueValidator(0.00),MaxValueValidator(1)],default = 0)
-    lissettleprice = models.DecimalField(verbose_name='LIS结算价(必填)',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
+    lissettleprice = models.DecimalField(verbose_name='LIS结算价',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
     costperunit = models.DecimalField(verbose_name='采购价/单位(报价)',max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default = 0) ###
     purchaseqty = models.DecimalField(verbose_name='半年度采购数量/单位',max_digits=25, decimal_places=1,validators=[MinValueValidator(0.1)],default = 0)
     costppl = models.DecimalField(verbose_name='采购价/人份',help_text=u"采购价每单位 / 每单位人份数",max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0)])
@@ -416,6 +424,7 @@ class PZXNegotiationDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDNegotiationDetail'
         verbose_name_plural = '供应商重新谈判明细'
     
@@ -429,7 +438,7 @@ class PZXNegotiationDetail(models.Model):
 
 #渠道变更------------------
 
-class PZXChangeChannelStatus(models.Model):
+class PZXChangeChannelStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -448,13 +457,13 @@ class PZXChangeChannelStatus(models.Model):
         ('已谈判等回复', '已谈判等回复'),
         ('新渠道价格已确认', '新渠道价格已确认'),
       )
-    overallid = models.ForeignKey('PZXOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    overallid = models.ForeignKey('PZXOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='渠道变更')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
    
     completemonth=models.PositiveIntegerField(verbose_name='预计落地月份(默认12月,请修改)',choices=completemonth_choices,default=12)
-    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default=0)
+    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, default=0)
     thisyeargpgrowth = models.DecimalField(verbose_name='23年毛利额增量预估/元',max_digits=25, decimal_places=2, blank=True, null=True)
     monthgpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算月毛利额增量', max_digits=25, decimal_places=2, blank=True, null=True)
     thisyeargpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算23年毛利额增量',max_digits=25, decimal_places=2, blank=True, null=True)
@@ -469,7 +478,6 @@ class PZXChangeChannelStatus(models.Model):
     memo = models.TextField(verbose_name='备注',max_length=255, blank=True, null=True)
     advicedirector = models.CharField(verbose_name='倪日磊意见',max_length=255, blank=True, null=True)
     adviceboss = models.CharField(verbose_name='陈海敏意见',max_length=255, blank=True, null=True)
-    statushistory=JSONField(verbose_name='历史status',blank=True, null=True)
 
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
@@ -477,6 +485,7 @@ class PZXChangeChannelStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDChangeChannelStatus'
         verbose_name_plural = '渠道变更状态'
     
@@ -488,11 +497,11 @@ class PZXChangeChannelStatus(models.Model):
         self.save()
 
 
-class PZXChangeChannelDetail(models.Model):
+class PZXChangeChannelDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('PZXChangeChannelStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('PZXChangeChannelStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='渠道变更明细')
 
     originalsupplier = models.CharField(verbose_name='原供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
@@ -503,7 +512,7 @@ class PZXChangeChannelDetail(models.Model):
     product = models.CharField(verbose_name='产品名称U8',help_text=u"请按系统名称填报",max_length=255, blank=True, null=True)
     spec = models.CharField(verbose_name='规格',max_length=255, blank=True, null=True)
     unit = models.CharField(verbose_name='单位',max_length=255, blank=True, null=True)
-    productid =  models.ForeignKey('PZXMenu', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
+    productid =  models.ForeignKey('PZXMenuDELETE', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
 
     pplperunit = models.PositiveIntegerField(verbose_name='每单位人份数(必填)',help_text=u"举例：单位是盒，规格是60T/盒，则该处填60。液体类产品请大家仔细斟酌后填报",validators=[MinValueValidator(1)],default = 0)
     recentsales = models.DecimalField(verbose_name='半年度开票额 ',help_text=u"半年度采购数量/单位 X 每单位人份数 X LIS收费单价 X LIS结算%", max_digits=25, decimal_places=2, blank=True, null=True)
@@ -513,7 +522,7 @@ class PZXChangeChannelDetail(models.Model):
 
     lisfee = models.DecimalField(verbose_name='LIS收费价(必填)',max_digits=25, decimal_places=2,validators=[MinValueValidator(0.01)],default = 0)
     lispercent = models.DecimalField(verbose_name='LIS结算比例(必填,≤1)',max_digits=25, decimal_places=3,validators=[MinValueValidator(0.01),MaxValueValidator(1)],default = 0)
-    lissettleprice = models.DecimalField(verbose_name='LIS结算价(必填)',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
+    lissettleprice = models.DecimalField(verbose_name='LIS结算价',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
     costperunit = models.DecimalField(verbose_name='原供应商采购价/单位',max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default = 0)
 
     purchaseqty = models.DecimalField(verbose_name='半年度采购数量/单位',max_digits=25, decimal_places=1,validators=[MinValueValidator(0.1)],default = 0)
@@ -541,6 +550,7 @@ class PZXChangeChannelDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDChangeChannelDetail'
         verbose_name_plural = '渠道变更明细'
     
@@ -554,7 +564,7 @@ class PZXChangeChannelDetail(models.Model):
 
 #品牌替换-------------------
 
-class PZXChangeBrandStatus(models.Model):
+class PZXChangeBrandStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -573,13 +583,13 @@ class PZXChangeBrandStatus(models.Model):
         ('已谈判等回复', '已谈判等回复'),
         ('新价格已确认', '新价格已确认'),
       )
-    overallid = models.ForeignKey('PZXOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    overallid = models.ForeignKey('PZXOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='品牌替换')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
    
     completemonth=models.PositiveIntegerField(verbose_name='预计落地月份(默认12月,请修改)',choices=completemonth_choices,default=12)
-    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default=0)
+    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, default=0)
     thisyeargpgrowth = models.DecimalField(verbose_name='23年毛利额增量预估/元',max_digits=25, decimal_places=2, blank=True, null=True)
     monthgpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算月毛利额增量', max_digits=25, decimal_places=2, blank=True, null=True)
     thisyeargpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算23年毛利额增量',max_digits=25, decimal_places=2, blank=True, null=True)
@@ -594,7 +604,6 @@ class PZXChangeBrandStatus(models.Model):
     memo = models.TextField(verbose_name='备注',max_length=255, blank=True, null=True)
     advicedirector = models.CharField(verbose_name='倪日磊意见',max_length=255, blank=True, null=True)
     adviceboss = models.CharField(verbose_name='陈海敏意见',max_length=255, blank=True, null=True)
-    statushistory=JSONField(verbose_name='历史status',blank=True, null=True)
 
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
@@ -602,6 +611,7 @@ class PZXChangeBrandStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDChangeBrandStatus'
         verbose_name_plural = '品牌替换状态'
     
@@ -613,13 +623,13 @@ class PZXChangeBrandStatus(models.Model):
         self.save()
 
 #品牌替换前
-class PZXBeforeChangeBrandDetail(models.Model):
+class PZXBeforeChangeBrandDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('PZXChangeBrandStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('PZXChangeBrandStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='品牌替换前')
-    productid =  models.ForeignKey('PZXMenu', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
+    productid =  models.ForeignKey('PZXMenuDELETE', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
     originalbrand = models.CharField(verbose_name='品牌',help_text=u"请按系统中品牌名称填报",max_length=255, blank=True, null=True)
@@ -638,7 +648,7 @@ class PZXBeforeChangeBrandDetail(models.Model):
 
     lisfee = models.DecimalField(verbose_name='LIS收费价(必填)',max_digits=25, decimal_places=2,validators=[MinValueValidator(0.01)],default = 0)
     lispercent = models.DecimalField(verbose_name='LIS结算比例(必填,≤1)',max_digits=25, decimal_places=3,validators=[MinValueValidator(0.01),MaxValueValidator(1)],default = 0)
-    lissettleprice = models.DecimalField(verbose_name='LIS结算价(必填)',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
+    lissettleprice = models.DecimalField(verbose_name='LIS结算价',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
     costperunit = models.DecimalField(verbose_name='采购价/单位(报价)',max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default = 0)
     purchaseqty = models.DecimalField(verbose_name='半年度采购数量/单位',max_digits=25, decimal_places=1,validators=[MinValueValidator(0.1)],default = 0)
     costppl = models.DecimalField(verbose_name='采购价/人份',help_text=u"采购价每单位 / 每单位人份数",max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0)])
@@ -665,6 +675,7 @@ class PZXBeforeChangeBrandDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDBeforeChangeBrandDetail'
         verbose_name_plural = '品牌替换前明细'
     
@@ -677,11 +688,11 @@ class PZXBeforeChangeBrandDetail(models.Model):
 
 
 #品牌替换后
-class PZXAfterChangeBrandDetail(models.Model):
+class PZXAfterChangeBrandDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('PZXChangeBrandStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('PZXChangeBrandStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='品牌替换后')
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
@@ -701,7 +712,7 @@ class PZXAfterChangeBrandDetail(models.Model):
 
     lisfee = models.DecimalField(verbose_name='LIS收费价(必填)',max_digits=25, decimal_places=2,validators=[MinValueValidator(0.01)],default = 0)
     lispercent = models.DecimalField(verbose_name='LIS结算比例(必填,≤1)',max_digits=25, decimal_places=3,validators=[MinValueValidator(0.01),MaxValueValidator(1)],default = 0)
-    lissettleprice = models.DecimalField(verbose_name='LIS结算价(必填)',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
+    lissettleprice = models.DecimalField(verbose_name='LIS结算价',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
     costperunit = models.DecimalField(verbose_name='采购价/单位(报价)',max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default = 0)
     purchaseqty = models.DecimalField(verbose_name='半年度采购数量/单位',max_digits=25, decimal_places=1,validators=[MinValueValidator(0.1)],default = 0)
     costppl = models.DecimalField(verbose_name='采购价/人份',help_text=u"采购价每单位 / 每单位人份数",max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0)])
@@ -727,6 +738,7 @@ class PZXAfterChangeBrandDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDAfterChangeBrandDetail'
         verbose_name_plural = '品牌替换后明细'
     
@@ -740,7 +752,7 @@ class PZXAfterChangeBrandDetail(models.Model):
 
 #套餐绑定------------
 
-class PZXSetStatus(models.Model):
+class PZXSetStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -759,13 +771,13 @@ class PZXSetStatus(models.Model):
         ('已谈判等回复', '已谈判等回复'),
         ('新价格已确认', '新价格已确认'),
       )
-    overallid = models.ForeignKey('PZXOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    overallid = models.ForeignKey('PZXOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='套餐绑定')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
    
     completemonth=models.PositiveIntegerField(verbose_name='预计落地月份(默认12月,请修改)',choices=completemonth_choices,default=12)
-    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default=0)
+    monthgpgrowth = models.DecimalField(verbose_name='月毛利额增量预估/元',  max_digits=25, decimal_places=2, default=0)
     thisyeargpgrowth = models.DecimalField(verbose_name='23年毛利额增量预估/元',max_digits=25, decimal_places=2, blank=True, null=True)
     monthgpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算月毛利额增量', max_digits=25, decimal_places=2, blank=True, null=True)
     thisyeargpgrowthbydetail = models.DecimalField(verbose_name='根据下方明细计算23年毛利额增量',max_digits=25, decimal_places=2, blank=True, null=True)
@@ -780,7 +792,6 @@ class PZXSetStatus(models.Model):
     memo = models.TextField(verbose_name='备注',max_length=255, blank=True, null=True)
     advicedirector = models.CharField(verbose_name='倪日磊意见',max_length=255, blank=True, null=True)
     adviceboss = models.CharField(verbose_name='陈海敏意见',max_length=255, blank=True, null=True)
-    statushistory=JSONField(verbose_name='历史status',blank=True, null=True)
 
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
@@ -788,6 +799,7 @@ class PZXSetStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDSetStatus'
         verbose_name_plural = '套餐绑定状态'
     
@@ -799,11 +811,11 @@ class PZXSetStatus(models.Model):
         self.save()
 
 
-class PZXSetDetail(models.Model):
+class PZXSetDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('PZXSetStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('PZXSetStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='套餐绑定明细')
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
@@ -823,7 +835,7 @@ class PZXSetDetail(models.Model):
 
     lisfee = models.DecimalField(verbose_name='LIS收费价(必填)',max_digits=25, decimal_places=2,validators=[MinValueValidator(0.01)],default = 0)
     lispercent = models.DecimalField(verbose_name='LIS结算比例(必填,≤1)',max_digits=25, decimal_places=3,validators=[MinValueValidator(0.01),MaxValueValidator(1)],default = 0)
-    lissettleprice = models.DecimalField(verbose_name='LIS结算价(必填)',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
+    lissettleprice = models.DecimalField(verbose_name='LIS结算价',max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0.01)],default = 0)
     costperunit = models.DecimalField(verbose_name='采购价/单位(报价)',max_digits=25, decimal_places=2, validators=[MinValueValidator(0.01)],default = 0)
     purchaseqty = models.DecimalField(verbose_name='半年度采购数量/单位',max_digits=25, decimal_places=1,validators=[MinValueValidator(0.1)],default = 0)
     costppl = models.DecimalField(verbose_name='采购价/人份',help_text=u"采购价每单位 / 每单位人份数",max_digits=25, decimal_places=2, blank=True, null=True,validators=[MinValueValidator(0)])
@@ -849,6 +861,7 @@ class PZXSetDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDSetDetail'
         verbose_name_plural = '套餐绑定明细'
     
@@ -862,8 +875,8 @@ class PZXSetDetail(models.Model):
 
 
 #=====================================
-class PZXCalculate(models.Model):
-    overallid = models.OneToOneField('PZXOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+class PZXCalculateDELETE(models.Model):
+    overallid = models.OneToOneField('PZXOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     estnewgpgrowth = models.DecimalField(verbose_name='新开项目：预估月毛利额增量总计',max_digits=25, decimal_places=2, default=0)
     estnegogpgrowth = models.DecimalField(verbose_name='供应商重新谈判：预估月毛利额增量总计',max_digits=25, decimal_places=2,  default=0)
     estchannelgpgrowth = models.DecimalField(verbose_name='渠道变更：预估月毛利额增量总计',max_digits=25, decimal_places=2,  default=0)
@@ -888,14 +901,15 @@ class PZXCalculate(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDCalculate'
         verbose_name_plural = '作战计划计算表'
     
  
 #========
 #普中心大菜单给供应商重新谈判的筛选用的
-class PZXMenu(models.Model):
-    overallid = models.ForeignKey('PZXOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '主表id',default=0)
+class PZXMenuDELETE(models.Model):
+    overallid = models.ForeignKey('PZXOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '主表id',default=1)
 
     customer = models.CharField(verbose_name='客户',max_length=255, default='普中心')
     department = models.CharField(verbose_name='科室',max_length=255, blank=True, null=True)
@@ -926,6 +940,7 @@ class PZXMenu(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDPZXMenu'
         verbose_name_plural = '普中心大菜单作筛选'
     def __str__(self):
@@ -935,8 +950,8 @@ class PZXMenu(models.Model):
 
 
 #普中心大菜单给inline展示用的
-class PZXMenuforinline(models.Model):
-    overallid = models.ForeignKey('PZXOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '主表id',default=1)
+class PZXMenuforinlineDELETE(models.Model):
+    overallid = models.ForeignKey('PZXOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '主表id',default=1)
 
     customer = models.CharField(verbose_name='客户',max_length=255, default='普中心')
     department = models.CharField(verbose_name='科室',max_length=255, blank=True, null=True)
@@ -968,46 +983,8 @@ class PZXMenuforinline(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"SPDPZXMenuforinline'
         verbose_name_plural = '普中心大菜单作展示'
 
 
-
-# #projectvalues 项目大类的金额表  
-# class ProjectValue(models.Model):
-#     projectvalueid=models.OneToOneField('PZXOverall', models.CASCADE, db_column='projectvalueid',to_field='projectvalueid',verbose_name= '项目大类相关金额')
-
-#     purchasesum = models.DecimalField(verbose_name='采购金额',max_digits=25, decimal_places=4,default = 0)
-#     purchasesumpercent = models.DecimalField(verbose_name='该项目占总采购额占比',max_digits=25, decimal_places=4,default = 0)
-
-#     theoreticalvalue = models.DecimalField(verbose_name='理论销售金额',max_digits=25, decimal_places=4,default = 0)
-#     theoreticalgp = models.DecimalField(verbose_name='理论毛利润',max_digits=25, decimal_places=4,default = 0)
-#     theoreticalgppercent = models.DecimalField(verbose_name='理论毛利率',max_digits=25, decimal_places=4,default = 0)
-
-#     createtime = models.DateTimeField(auto_now_add=True)
-#     updatetime = models.DateTimeField(auto_now=True)
-#     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
-
-#     class Meta:
-#         db_table = 'marketing_research_v2\".\"SPDPZXProjectValue'
-#         verbose_name_plural = '普中心项目大类金额'
-
-
-# #suppliervalues 项目大类下的供应商的金额表   
-# class SupplierValue(models.Model):
-#     suppliervalueid=models.OneToOneField('PZXOverall', models.CASCADE, db_column='suppliervalueid',to_field='id',verbose_name= '供应商相关金额')
-
-#     purchasesum = models.DecimalField(verbose_name='采购金额',max_digits=25, decimal_places=4,default = 0)
-#     purchasesumpercentinproject = models.DecimalField(verbose_name='项目中各供应商采购额占比',max_digits=25, decimal_places=4,default = 0)
-
-#     theoreticalvalue = models.DecimalField(verbose_name='理论销售金额',max_digits=25, decimal_places=4,default = 0)
-#     theoreticalgp = models.DecimalField(verbose_name='理论毛利润',max_digits=25, decimal_places=4,default = 0)
-#     theoreticalgppercent = models.DecimalField(verbose_name='理论毛利率',max_digits=25, decimal_places=4,default = 0)
-
-#     createtime = models.DateTimeField(auto_now_add=True)
-#     updatetime = models.DateTimeField(auto_now=True)
-#     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
-
-#     class Meta:
-#         db_table = 'marketing_research_v2\".\"SPDPZXSupplierValue'
-#         verbose_name_plural = '普中心项目大类-供应商金额'

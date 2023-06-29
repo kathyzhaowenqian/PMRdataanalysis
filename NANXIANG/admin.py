@@ -13,12 +13,12 @@ class GlobalAdmin(admin.ModelAdmin):
     def delete_queryset(self,request, queryset):
         print('im in global delete_queryset')
         queryset.update(is_active=False)
-        queryset.update(operator=request.user)
+        # queryset.update(operator=request.user)
 
     def delete_model(self, request, obj):
         print('im in global delete_model')
         obj.is_active = False 
-        obj.operator=request.user
+        # obj.operator=request.user
         obj.save()
 
     def get_queryset(self, request):

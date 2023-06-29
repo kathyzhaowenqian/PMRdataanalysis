@@ -55,13 +55,14 @@ INSTALLED_APPS = [
     'SIWUWU',
     'ANTING',
     'NANXIANG',
+    'nested_admin',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -107,6 +108,19 @@ DATABASES = {
     },
 }
 
+CACHES = {
+		"default": {
+ 					"BACKEND": "django_redis.cache.RedisCache",
+ 					"LOCATION": "redis://{}:{}/2".format(os.environ.get('REDIS_INTERNAL_HOST'),os.environ.get('REDIS_INTERNAL_PORT')),		#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!数字代表使用redis哪个数据库
+ 								"OPTIONS": 
+            				  {
+								 "CLIENT_CLASS": "django_redis.client.DefaultClient",
+ 								  "PASSWORD": os.environ.get('REDIS_PASSWORD'),
+                                }
+					}
+}
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -145,7 +159,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['Marketing_Research/static/',]
+STATICFILES_DIRS = ['/Marketing_Research/static/','/PUZHONGXIN/static/']
 
 
 
@@ -170,7 +184,7 @@ SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
 SIMPLEUI_CONFIG = {
     'system_keep': True,
      # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
-    'menu_display': ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','百来社区医院调研表','集成调研表','集成战略地图和作战计划','用友-U8-同步','认证授权'],  
+    'menu_display': ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','百来社区医院调研表','集成调研表','集成战略地图/作战计划','用友-U8-同步','认证授权'],  
     'dynamic': True,    # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
     'menus': [
 
@@ -326,9 +340,9 @@ SIMPLEUI_CONFIG = {
             ]        
         },
         
-        #一级菜单：集成战略地图和作战计划
+        #一级菜单：集成战略地图/作战计划
         {
-            'name': '集成战略地图和作战计划',
+            'name': '集成战略地图/作战计划',
             'icon': 'fa-solid fa-star',
             'models': [
                 #二级菜单：普中心
@@ -340,7 +354,48 @@ SIMPLEUI_CONFIG = {
                             {
                             'name': '普中心战略地图',
                             'url': '/admin/PUZHONGXIN/pzxspdlist/'
-                            },                       
+                            },      
+                        #三级菜单：普中心作战计划                      
+                            {
+                            'name': '普中心作战计划(在此填报)',
+                            'url': '/admin/PUZHONGXIN/pzxoverall/'
+                            },           
+                        #三级菜单：普中心甘特图                     
+                            {
+                            'name': '普中心进度甘特图',
+                            'url': '/PUZHONGXIN/gantt'
+                            },  
+                        #三级菜单：普中心新开项目明细                     
+                            {
+                            'name': '普中心新开项目明细',
+                            'url': '/admin/PUZHONGXIN/pzxnewprojectdetail/'
+                            },         
+                            #三级菜单：普中心供应商重新谈判明细                     
+                            {
+                            'name': '普中心供应商重新谈判明细',
+                            'url': '/admin/PUZHONGXIN/pzxnegotiationdetail/'
+                            },        
+                            #三级菜单：普中心渠道变更明细                     
+                            {
+                            'name': '普中心渠道变更明细',
+                            'url': '/admin/PUZHONGXIN/pzxchangechanneldetail/'
+                            },    
+                            #三级菜单：普中心品牌替换后明细                     
+                            {
+                            'name': '普中心品牌替换后明细',
+                            'url': '/admin/PUZHONGXIN/pzxafterchangebranddetail/'
+                            },   
+                            #三级菜单：普中心套餐绑定明细                     
+                            {
+                            'name': '普中心套餐绑定明细',
+                            'url': '/admin/PUZHONGXIN/pzxsetdetail/'
+                            },   
+                            #三级菜单：普中心作战计划已删除的数据  
+                            {
+                            'name': '普中心作战计划已删除的数据',
+                            'icon': 'fa-solid fa-list',
+                            'url': '/admin/PUZHONGXIN/pzxoveralldelete/'
+                            },
                     ]                
                 } ,
                 

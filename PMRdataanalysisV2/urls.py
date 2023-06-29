@@ -21,9 +21,11 @@ mainsite_view=RedirectView.as_view(url='admin/',permanent=True)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # path('_nested_admin/', include('nested_admin.urls')),
     path('', mainsite_view),
     path('Marketing_Research/',include('Marketing_Research.urls')),
     path('Marketing_Research_QT/',include('Marketing_Research_QT.urls')),
     path('Marketing_Research_WD/',include('Marketing_Research_WD.urls')),
+    path('PUZHONGXIN/',include('PUZHONGXIN.urls')),
     path('favicon.ico', favicon_view)
 ]
