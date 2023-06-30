@@ -352,7 +352,7 @@ SIMPLEUI_CONFIG = {
                     'models': [
                         #三级菜单：普中心战略地图                      
                             {
-                            'name': '普中心战略地图',
+                            'name': '普中心战略地图(销售的excel)',
                             'url': '/admin/PUZHONGXIN/pzxspdlist/'
                             },      
                         #三级菜单：普中心作战计划                      

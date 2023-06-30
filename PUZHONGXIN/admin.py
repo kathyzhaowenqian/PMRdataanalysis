@@ -778,6 +778,24 @@ class PZXNewProjectDetailInline(nested_admin.NestedTabularInline):
        #普通销售的话:
         return qs.filter(is_active=True)
 
+    def has_add_permission(self,request,obj):
+        print('PZXNewProjectDetailInline has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXNewProjectDetailInline has add permission:::,obj.salesman1 else',False)
+            return False
+
+    def has_change_permission(self,request, obj=None):
+        print('PZXNewProjectDetailInline has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXNewProjectDetailInline has change permission:::obj',False)
+            return False
+        
 #新开项目状态的内嵌inline
 class PZXNewProjectStatusInline(nested_admin.NestedStackedInline):
     form=PZXNewProjectStatusInlineForm
@@ -845,7 +863,23 @@ class PZXNewProjectStatusInline(nested_admin.NestedStackedInline):
        #普通销售的话:
         return qs.filter(is_active=True)
         # return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)))
-    
+    def has_add_permission(self,request,obj):
+        print('PZXNewProjectStatusInline has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXNewProjectStatusInline has add permission:::,obj.salesman1 else',False)
+            return False
+
+    def has_change_permission(self,request, obj=None):
+        print('PZXNewProjectStatusInline has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXNewProjectStatusInline has change permission:::obj',False)
+            return False
 
 #----------------------------------------------------------------
 #供应商重新谈判明细的内嵌inline
@@ -922,7 +956,23 @@ class PZXNegotiationDetailInline(nested_admin.NestedTabularInline):
        #普通销售的话:
         return qs.filter(is_active=True)
         # return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)))
+    def has_add_permission(self,request,obj):
+        print('PZXNegotiationDetailInline has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXNegotiationDetailInline has add permission:::,obj.salesman1 else',False)
+            return False
 
+    def has_change_permission(self,request, obj=None):
+        print('PZXNegotiationDetailInline has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXNegotiationDetailInline has change permission:::obj',False)
+            return False
 
 #供应商重新谈判状态的内嵌inline
 class PZXNegotiationStatusInline(nested_admin.NestedStackedInline):
@@ -991,7 +1041,23 @@ class PZXNegotiationStatusInline(nested_admin.NestedStackedInline):
         return qs.filter(is_active=True)
         # return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)))
 
+    def has_add_permission(self,request,obj):
+        print('PZXNegotiationStatusInline has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXNegotiationStatusInline has add permission:::,obj.salesman1 else',False)
+            return False
 
+    def has_change_permission(self,request, obj=None):
+        print('PZXNegotiationStatusInline has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXNegotiationStatusInline has change permission:::obj',False)
+            return False
 #----------------------------------------------------------------
 #渠道变更明细的内嵌inline
 class PZXChangeChannelDetailInline(nested_admin.NestedTabularInline):
@@ -1071,6 +1137,24 @@ class PZXChangeChannelDetailInline(nested_admin.NestedTabularInline):
        #普通销售的话:
         return qs.filter(is_active=True)
 
+    def has_add_permission(self,request,obj):
+        print('PZXChangeChannelDetailInline has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXChangeChannelDetailInline has add permission:::,obj.salesman1 else',False)
+            return False
+
+    def has_change_permission(self,request, obj=None):
+        print('PZXChangeChannelDetailInline has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXChangeChannelDetailInline has change permission:::obj',False)
+            return False
+
 #渠道变更状态的内嵌inline
 class PZXChangeChannelStatusInline(nested_admin.NestedStackedInline):
     form=PZXChangeChannelStatusInlineForm
@@ -1136,6 +1220,23 @@ class PZXChangeChannelStatusInline(nested_admin.NestedStackedInline):
        #普通销售的话:
         return qs.filter(is_active=True)
 
+    def has_add_permission(self,request,obj):
+        print('PZXChangeChannelStatusInline has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXChangeChannelStatusInline has add permission:::,obj.salesman1 else',False)
+            return False
+
+    def has_change_permission(self,request, obj=None):
+        print('PZXChangeChannelStatusInline has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXChangeChannelStatusInline has change permission:::obj',False)
+            return False
 #-----------------------------------------------------------------
 #品牌替换前明细的内嵌inline
 class PZXBeforeChangeBrandDetailInline(nested_admin.NestedTabularInline):
@@ -1225,6 +1326,26 @@ class PZXBeforeChangeBrandDetailInline(nested_admin.NestedTabularInline):
        #普通销售的话:
         return qs.filter(is_active=True)
 
+    def has_add_permission(self,request,obj):
+        print('PZXBeforeChangeBrandDetailInline has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXBeforeChangeBrandDetailInline has add permission:::,obj.salesman1 else',False)
+            return False
+
+    def has_change_permission(self,request, obj=None):
+        print('PZXBeforeChangeBrandDetailInline has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXBeforeChangeBrandDetailInline has change permission:::obj',False)
+            return False
+
+
+
 #品牌替换后明细的内嵌inline
 class PZXAfterChangeBrandDetailInline(nested_admin.NestedTabularInline):
     form=PZXAfterChangeBrandDetailInlineForm
@@ -1277,6 +1398,25 @@ class PZXAfterChangeBrandDetailInline(nested_admin.NestedTabularInline):
                 return qs.filter(is_active=True)
        #普通销售的话:
         return qs.filter(is_active=True)
+    
+    def has_add_permission(self,request,obj):
+        print('PZXAfterChangeBrandDetailInline has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXAfterChangeBrandDetailInline has add permission:::,obj.salesman1 else',False)
+            return False
+
+    def has_change_permission(self,request, obj=None):
+        print('PZXAfterChangeBrandDetailInline has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('PZXAfterChangeBrandDetailInline has change permission:::obj',False)
+            return False
+
 
 #品牌替换状态的内嵌inline
 class PZXChangeBrandStatusInline(nested_admin.NestedStackedInline):
@@ -1397,6 +1537,27 @@ class PZXSetDetailInline(nested_admin.NestedTabularInline):
        #普通销售的话:
         return qs.filter(is_active=True)
 
+    def has_add_permission(self,request,obj):
+        print('我在setinelin has add permission:::obj',obj,request.user) 
+        if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('我在setinline has add permission:::,obj.salesman1 else',False)
+            return False
+
+    def has_change_permission(self,request, obj=None):
+        print('我在setinlinee has change permission:: obj',obj)
+        if obj==None:
+            return True            
+        elif  request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss'  or request.user.groups.values()[0]['name'] =='PZX':
+            return True
+        else:
+            print('setinline has change permission:::obj',False)
+            return False
+
+
+
+
 #套餐绑定状态的内嵌inline
 class PZXSetStatusInline(nested_admin.NestedStackedInline):
     form=PZXSetStatusInlineForm
@@ -1464,7 +1625,40 @@ class PZXSetStatusInline(nested_admin.NestedStackedInline):
         return qs.filter(is_active=True)
         # return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)))
     
+    def has_add_permission(self,request,obj):
+        print('我在setinelin has add permission:::obj',obj,request.user) 
+        if obj==None:
+            if request.POST.get('salesman'):                
+                if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
+                    return True
+                elif request.POST.get('salesman')!= str(request.user.id):
+                    print('我在P我在setinelin has add permission:: :obj==None FALSE request.POST.get(salesman)',request.POST.get('salesman'),request.user)
+                    return False
+                else:
+                    return True
+            else:    
+                print('我在setinelin has add permission:: obj==None True 没有request.POST.get(salesman)')
+                return True
 
+        else:    
+            if request.user.is_superuser or obj.salesman==request.user  or request.POST.get('salesman')==str(request.user.id) or request.user.groups.values()[0]['name'] =='boss':
+                print('我在setinline has add permission:::,obj.salesman1 if ',True)
+                return True
+            else:
+                print('我在setinline has add permission:::,obj.salesman1 else',False)
+                return False
+
+    def has_change_permission(self,request, obj=None):
+        print('我在setinlinee has change permission:: obj',obj)
+        if obj==None:
+                print('setinline has change permission:::obj,request.POST.get(salesman)',True,request.POST.get('salesman'))
+                return True            
+        elif obj.salesman==request.user or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
+            print('setinline has change permission:::obj',True,obj.salesman)
+            return True
+        else:
+            print('setinline has change permission:::obj',False)
+            return False
 #----------------------------------------------------------------
 #作战计划计算表
 class PZXCalculateInline(nested_admin.NestedStackedInline):
@@ -1674,6 +1868,9 @@ class PZXOverallAdmin(nested_admin.NestedModelAdmin):
             if  PZXSetDetail.objects.filter(progressid__overallid__id=obj.id,is_active=True):
                 PZXSetDetail.objects.filter(progressid__overallid__id=obj.id,is_active=True).update(is_active=False)
 
+            # if PZXMenu.objects.filter(overallid__id=obj.id,is_active=True):
+            #     obj.pzxmenu_set.all().update(is_active=False)
+   
             if  PZXCalculate.objects.filter(overallid__id=obj.id,is_active=True):   
                 obj.pzxcalculate.is_active=False
                 obj.pzxcalculate.save()
@@ -3028,7 +3225,12 @@ class PZXNewProjectDetailAdmin(nested_admin.NestedModelAdmin):
             obj.progressid.overallid.operator=request.user
             obj.save()
 
-
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if actions.get('delete_selected'):
+                del actions['delete_selected']
+        return actions
 
     @admin.display(ordering="progressid__progress",description='项目进度')
     def progressid__progress(self, obj):
@@ -3136,7 +3338,7 @@ class PZXNegotiationStatusAdmin(nested_admin.NestedModelAdmin):
 #供应商重新谈判明细
 @admin.register(PZXNegotiationDetail)
 class PZXNegotiationDetailAdmin(nested_admin.NestedModelAdmin):
-    exclude = ('id','createtime','updatetime')
+    exclude = ('id','createtime','updatetime','skuhistory')
     list_display_links=('progressid__overallid__project',)
 
     list_display = ('progressid__overallid__semidepartment','progressid__overallid__project','progressid__progress','productid__supplier','productid__brand',#newsupplier，beforeorafterbrandchange
@@ -3156,7 +3358,13 @@ class PZXNegotiationDetailAdmin(nested_admin.NestedModelAdmin):
         if db_field.name == 'productid': 
             kwargs["queryset"] = PZXMenu.objects.filter(is_active=True) 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
+    
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if actions.get('delete_selected'):
+                del actions['delete_selected']
+        return actions
 
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
@@ -3321,7 +3529,7 @@ class PZXNegotiationDetailAdmin(nested_admin.NestedModelAdmin):
 #渠道变更明细
 @admin.register(PZXChangeChannelDetail)
 class PZXChangeChannelDetailAdmin(nested_admin.NestedModelAdmin):
-    exclude = ('id','createtime','updatetime')
+    exclude = ('id','createtime','updatetime','skuhistory')
     list_display_links=('progressid__overallid__project',)
 
     list_display = ('progressid__overallid__semidepartment','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand','newsupplier',#，beforeorafterbrandchange
@@ -3341,6 +3549,13 @@ class PZXChangeChannelDetailAdmin(nested_admin.NestedModelAdmin):
         if db_field.name == 'productid': 
             kwargs["queryset"] = PZXMenu.objects.filter(is_active=True) 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if actions.get('delete_selected'):
+                del actions['delete_selected']
+        return actions
     
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
@@ -3379,7 +3594,7 @@ class PZXChangeChannelDetailAdmin(nested_admin.NestedModelAdmin):
 #品牌替换前明细
 @admin.register(PZXBeforeChangeBrandDetail)
 class PZXBeforeChangeBrandAdmin(nested_admin.NestedModelAdmin):
-    exclude = ('id','createtime','updatetime')
+    exclude = ('id','createtime','updatetime','skuhistory')
     list_display_links=('progressid__overallid__project',)
 
     list_display = ('progressid__overallid__semidepartment','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand',#，beforeorafterbrandchange
@@ -3478,6 +3693,12 @@ class PZXAfterChangeBrandDetailAdmin(nested_admin.NestedModelAdmin):
             obj.progressid.overallid.operator=request.user
             obj.save()
 
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if actions.get('delete_selected'):
+                del actions['delete_selected']
+        return actions
 
 
     @admin.display(ordering="progressid__progress",description='品牌替换进度')
@@ -3596,7 +3817,12 @@ class PZXSetDetailAdmin(nested_admin.NestedModelAdmin):
             obj.progressid.overallid.operator=request.user
             obj.save()
 
-
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if actions.get('delete_selected'):
+                del actions['delete_selected']
+        return actions
 
     @admin.display(ordering="progressid__progress",description='进度')
     def progressid__progress(self, obj):
