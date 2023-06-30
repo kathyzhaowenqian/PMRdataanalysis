@@ -47,7 +47,7 @@ class PZXgantt(View):
     def post(self,request):
         
         username = request.user.username
-        NegotiationStatus_queryset = PZXNegotiationStatus.objects.values('statushistory')
+        NegotiationStatus_queryset = PZXNegotiationStatus.objects.values('statushistory').filter(is_active=True)
         Negotiationdatas = [item['statushistory'] for item in NegotiationStatus_queryset]
         Negotiationsource=[]
         for i in Negotiationdatas:

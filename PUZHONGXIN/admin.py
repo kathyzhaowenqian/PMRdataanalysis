@@ -2990,7 +2990,7 @@ class PZXNewProjectStatusAdmin(nested_admin.NestedModelAdmin):
 class PZXNewProjectDetailAdmin(nested_admin.NestedModelAdmin):
     exclude = ('id','createtime','updatetime')
     list_display_links=('progressid__overallid__project',)
-    list_display = ('progressid__overallid__department','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand',#newsupplier，beforeorafterbrandchange
+    list_display = ('progressid__overallid__semidepartment','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand',#newsupplier，beforeorafterbrandchange
                     'code','product','spec', 
                     'unit','pplperunit_display',#'recentsales','recentcost','recentgp','recentgpofsupplier',
                     'lisfee_display','lispercent_display','lissettleprice','costperunit_display','costppl',#'purchaseqty',
@@ -3037,6 +3037,10 @@ class PZXNewProjectDetailAdmin(nested_admin.NestedModelAdmin):
     @admin.display(ordering="progressid__overallid__department",description='科室')
     def progressid__overallid__department(self, obj):
         return obj.progressid.overallid.department    
+    
+    @admin.display(ordering="progressid__overallid__semidepartment",description='使用科室')
+    def progressid__overallid__semidepartment(self, obj):
+        return obj.progressid.overallid.semidepartment   
     
     @admin.display(ordering="progressid__overallid__project",description='项目大类')
     def progressid__overallid__project(self, obj):
@@ -3320,7 +3324,7 @@ class PZXChangeChannelDetailAdmin(nested_admin.NestedModelAdmin):
     exclude = ('id','createtime','updatetime')
     list_display_links=('progressid__overallid__project',)
 
-    list_display = ('progressid__overallid__department','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand','newsupplier',#，beforeorafterbrandchange
+    list_display = ('progressid__overallid__semidepartment','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand','newsupplier',#，beforeorafterbrandchange
                     'code','product','spec', 
                     'unit','pplperunit','recentsales','recentcost','recentgp','recentgpofsupplier',
                     'lisfee','lispercent','lissettleprice','costperunit','costppl','purchaseqty',
@@ -3361,6 +3365,10 @@ class PZXChangeChannelDetailAdmin(nested_admin.NestedModelAdmin):
     def progressid__overallid__department(self, obj):
         return obj.progressid.overallid.department    
     
+    @admin.display(ordering="progressid__overallid__semidepartment",description='使用科室')
+    def progressid__overallid__semidepartment(self, obj):
+        return obj.progressid.overallid.semidepartment 
+    
     @admin.display(ordering="progressid__overallid__project",description='项目大类')
     def progressid__overallid__project(self, obj):
         return obj.progressid.overallid.project
@@ -3374,7 +3382,7 @@ class PZXBeforeChangeBrandAdmin(nested_admin.NestedModelAdmin):
     exclude = ('id','createtime','updatetime')
     list_display_links=('progressid__overallid__project',)
 
-    list_display = ('progressid__overallid__department','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand',#，beforeorafterbrandchange
+    list_display = ('progressid__overallid__semidepartment','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand',#，beforeorafterbrandchange
                     'code','product','spec', 
                     'unit','pplperunit','recentsales','recentcost','recentgp','recentgpofsupplier',
                     'lisfee','lispercent','lissettleprice','costperunit','costppl','purchaseqty',
@@ -3414,6 +3422,11 @@ class PZXBeforeChangeBrandAdmin(nested_admin.NestedModelAdmin):
     @admin.display(ordering="progressid__overallid__department",description='科室')
     def progressid__overallid__department(self, obj):
         return obj.progressid.overallid.department    
+    
+
+    @admin.display(ordering="progressid__overallid__semidepartment",description='使用科室')
+    def progressid__overallid__semidepartment(self, obj):
+        return obj.progressid.overallid.semidepartment  
     
     @admin.display(ordering="progressid__overallid__project",description='项目大类')
     def progressid__overallid__project(self, obj):
@@ -3545,7 +3558,7 @@ class PZXAfterChangeBrandDetailAdmin(nested_admin.NestedModelAdmin):
 class PZXSetDetailAdmin(nested_admin.NestedModelAdmin):
     exclude = ('id','createtime','updatetime')
     list_display_links=('progressid__overallid__project',)
-    list_display = ('progressid__overallid__department','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand',#newsupplier，beforeorafterbrandchange
+    list_display = ('progressid__overallid__semidepartment','progressid__overallid__project','progressid__progress','originalsupplier','originalbrand',#newsupplier，beforeorafterbrandchange
                     'code','product','spec', 
                     'unit','pplperunit_display',#'recentsales','recentcost','recentgp','recentgpofsupplier',
                     'lisfee_display','lispercent_display','lissettleprice','costperunit_display','costppl',#'purchaseqty',
@@ -3592,6 +3605,9 @@ class PZXSetDetailAdmin(nested_admin.NestedModelAdmin):
     @admin.display(ordering="progressid__overallid__department",description='科室')
     def progressid__overallid__department(self, obj):
         return obj.progressid.overallid.department    
+    @admin.display(ordering="progressid__overallid__semidepartment",description='使用科室')
+    def progressid__overallid__semidepartment(self, obj):
+        return obj.progressid.overallid.semidepartment    
     
     @admin.display(ordering="progressid__overallid__project",description='项目大类')
     def progressid__overallid__project(self, obj):
@@ -3757,19 +3773,41 @@ class PZXOverallDELETEAdmin(admin.ModelAdmin):
         print(queryset)
         print('我在restore')      
         for i in queryset:
-            print(i.pzxnewprojectstatusdelete_set.all())
+            # print(i.pzxnewprojectstatusdelete_set.all())
             i.pzxnewprojectstatusdelete_set.all().update(is_active=True)
             for j in i.pzxnewprojectstatusdelete_set.all():
-                print(j)
-                j.pzxnewprojectdetaildelete_set.all().update(is_active=True)
+                if hasattr(j, 'pzxnewprojectdetaildelete_set'):
+                    j.pzxnewprojectdetaildelete_set.all().update(is_active=True)
 
             i.pzxnegotiationstatusdelete_set.all().update(is_active=True)
             for j in i.pzxnegotiationstatusdelete_set.all():
-                print(j)
-                j.pzxnegotiationdetaildelete_set.all().update(is_active=True)
+                # print('~~~~~!',j)
+                # print('all',j.pzxnegotiationdetaildelete_set.all())
+                if hasattr(j, 'pzxnegotiationdetaildelete_set'):
+                    # print("~~~~~hasattrpzxnegotiationdetaildelete", j.pzxnegotiationdetaildelete_set.all())
+                    j.pzxnegotiationdetaildelete_set.all().update(is_active=True)
 
-            i.pzxcalculatedelete.is_active=True
-            i.pzxcalculatedelete.save()  
+            i.pzxchangechannelstatusdelete_set.all().update(is_active=True)
+            for j in i.pzxchangechannelstatusdelete_set.all():
+                # print('~~~~~~',j)
+                if hasattr(j, 'pzxchangechanneldetaildelete_set'):
+                    # print("~~~~~", j.pzxchangechanneldetaildelete_set.all())
+                    j.pzxchangechanneldetaildelete_set.all().update(is_active=True)
+
+            i.pzxchangebrandstatusdelete_set.all().update(is_active=True)
+            
+            for j in i.pzxchangebrandstatusdelete_set.all():
+                if hasattr(j, 'pzxchangebranddetaildelete_set'):
+                    j.pzxchangebranddetaildelete_set.all().update(is_active=True)
+
+            i.pzxsetstatusdelete_set.all().update(is_active=True)
+            for j in i.pzxsetstatusdelete_set.all():
+                if hasattr(j, 'pzxsetdetaildelete_set'):
+                    j.pzxsetdetaildelete_set.all().update(is_active=True)
+
+            if hasattr(i, 'pzxcalculatedelete'):
+                i.pzxcalculatedelete.is_active=True
+                i.pzxcalculatedelete.save()  
             print('恢复') 
             i.operator=request.user
             i.save()           
