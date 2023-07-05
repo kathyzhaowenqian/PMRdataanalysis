@@ -135,7 +135,7 @@ class PZXOverall(models.Model):
     theoreticalgp=models.DecimalField(verbose_name='项目理论毛利润', max_digits=25, decimal_places=2,default=0)
     theoreticalgppercent=models.DecimalField(verbose_name='项目理论毛利率', max_digits=25, decimal_places=4,default=0)
 
-    supplier = models.CharField(verbose_name='供应商',max_length=255, blank=True, null=True)
+    supplier = models.CharField(verbose_name='供应商',max_length=255, blank=False, null=False)
     supplierpurchasesum=models.DecimalField(verbose_name='供应商1-6月采购额', max_digits=25, decimal_places=2,default=0)
     purchasesumpercentinproject=models.DecimalField(verbose_name='项目中各供应商采购额占比', max_digits=25, decimal_places=4,default=0)
     suppliertheoreticalvalue=models.DecimalField(verbose_name='供应商理论销售额', max_digits=25, decimal_places=2,default=0)

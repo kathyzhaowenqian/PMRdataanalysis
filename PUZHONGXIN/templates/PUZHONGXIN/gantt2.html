@@ -59,7 +59,7 @@
                 // 返回成功的 ajax 请求
                 
                 result = JSON.parse(resp)
-                // console.log(result['code'])
+                console.log(result['data'])
             }
             // error: function (resp) {
             // 	// 返回成功的 ajax 请求
@@ -72,13 +72,13 @@
             return result			
         }
 
-        // console.log(getdata()['data']['Negotiationsource'])
-        Negotiationsource=getdata()['data']['Negotiationsource']
+        
+        datasource=getdata()['data']['datasource']
         "use strict";
-
+        
         //初始化gantt
         $(".gantt").gantt({
-            source: Negotiationsource,
+            source: datasource,
             // [
             //  {
             //         name: "task  8",

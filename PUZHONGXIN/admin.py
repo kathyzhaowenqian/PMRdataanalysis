@@ -1752,7 +1752,7 @@ class PZXOverallAdmin(nested_admin.NestedModelAdmin):
                     'completemonth','monthgpgrowthdetail','thisyeargpgrowthdetail')#'display_monthgpgrowth',,'display_thisyeargpgrowth')
     ordering = ('-purchasesum','-supplierpurchasesum')
     readonly_fields =  ('thisyeargpgrowth','progress','support','monthgpgrowth', 'completemonth',
-                        'supplier','monthgpgrowthdetail','thisyeargpgrowthdetail','actionplan','relation',
+                        'monthgpgrowthdetail','thisyeargpgrowthdetail','actionplan','relation',
                         'field_purchasesum','field_purchasesumpercent','field_theoreticalvalue','field_theoreticalgp','field_theoreticalgppercent',
                         'field_supplierpurchasesum','field_purchasesumpercentinproject','field_suppliertheoreticalvalue',
                         'field_suppliertheoreticalgp','field_suppliertheoreticalgppercent',
