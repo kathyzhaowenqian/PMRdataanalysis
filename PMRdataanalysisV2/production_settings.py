@@ -184,7 +184,7 @@ SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
 SIMPLEUI_CONFIG = {
     'system_keep': True,
      # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
-    'menu_display': ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','百来社区医院调研表','集成调研表','集成战略地图/作战计划','用友-U8-同步','认证授权'],  
+    'menu_display':  ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','用友-U8-同步','认证授权'],    
     'dynamic': True,    # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
     'menus': [
 
@@ -287,6 +287,11 @@ SIMPLEUI_CONFIG = {
                 'url': '/admin/Marketing_Research_ZS/gsmrresearchlist/',
                 'icon': 'fa-solid fa-pen'
                 }, 
+                #甘特图                     
+                {
+                'name': '招商进度甘特图',
+                'url': '/Marketing_Research_ZS/gantt'
+                },  
                 {
                 'name': '调研表仪器详情表',
                 'icon': 'fa-solid fa-list',
@@ -300,50 +305,33 @@ SIMPLEUI_CONFIG = {
              ]        
         },
 
-        #一级菜单：百来调研表
-        {
-            'name': '百来社区医院调研表',
-            'icon': 'fa-solid fa-star',
-            'models': [
-                {
-                # 第二级菜单                
-                'name': '调研表列表(在此填报)',
-                'url': '/admin/Marketing_Research_Community/communityresearchlist/',
-                'icon': 'fa-solid fa-pen'
-                }, 
-                {
-                'name': '调研表仪器详情表',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research_Community/communityresearchdetail/'
-                },
-                {
-                'name': '已删除的数据',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research_Community/communityresearchlistdelete/'
-                },                        
-             ]        
-        },
+        # #一级菜单：百来调研表
+        # {
+        #     'name': '百来社区医院调研表',
+        #     'icon': 'fa-solid fa-star',
+        #     'models': [
+        #         {
+        #         # 第二级菜单                
+        #         'name': '调研表列表(在此填报)',
+        #         'url': '/admin/Marketing_Research_Community/communityresearchlist/',
+        #         'icon': 'fa-solid fa-pen'
+        #         }, 
+        #         {
+        #         'name': '调研表仪器详情表',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research_Community/communityresearchdetail/'
+        #         },
+        #         {
+        #         'name': '已删除的数据',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research_Community/communityresearchlistdelete/'
+        #         },                        
+        #      ]        
+        # },
 
-
-        #一级菜单：集成调研表
+        #一级菜单：集成战略地图/作战计划
         {
             'name': '集成调研表',
-            'icon': 'fa-solid fa-star',
-            'models': [
-                {
-                # 第二级菜单                
-                'name': '调研表列表(在此填报)',
-                'url': '/admin/Marketing_Research_JC/jcresearchlist/',
-                'icon': 'fa-solid fa-pen'
-                }, 
-                                 
-            ]        
-        },
-        
-        #
-        # 一级菜单：集成战略地图/作战计划
-        {
-            'name': '集成战略地图/作战计划',
             'icon': 'fa-solid fa-star',
             'models': [
                 #二级菜单：普中心
@@ -360,12 +348,12 @@ SIMPLEUI_CONFIG = {
                             {
                             'name': '普中心作战计划(在此填报)',
                             'url': '/admin/PUZHONGXIN/pzxoverall/'
-                            },           
+                            },       
                         #三级菜单：普中心甘特图                     
                             {
                             'name': '普中心进度甘特图',
                             'url': '/PUZHONGXIN/gantt'
-                            },  
+                            },         
                         #三级菜单：普中心新开项目明细                     
                             {
                             'name': '普中心新开项目明细',
@@ -441,10 +429,19 @@ SIMPLEUI_CONFIG = {
                             'url': '/admin/NANXIANG/nxspdlist/'
                             },                        
                     ]                
-                } ,                                 
+                } ,         
+                {
+                # 第二级菜单                
+                'name': '潜在医院调研表',
+                'url': '/admin/Marketing_Research_JC/jcresearchlist/',
+                'icon': 'fa-solid fa-pen'
+                }, 
+
+
             ]        
         },
 
+        
         #一级菜单：用友-U8-同步
         {
             'name': '用友-U8-同步',

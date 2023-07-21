@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser,BaseUserManager
 from django.forms import Textarea
 from Marketing_Research.models import UserInfo
 from multiselectfield import MultiSelectField
+from django.db.models import JSONField
 
 def get_compmany_default_value():
     return Company.objects.get(id=5).company
@@ -124,22 +125,7 @@ class Project(models.Model):
         self.save()
   
 
-class GSMRProjectDetail(models.Model):
-    # id = models.BigAutoField(primary_key=True)
-    # project = models.ForeignKey('Project', models.CASCADE, db_column='project',to_field='id')
-    detailedproject = models.CharField(verbose_name='项目明细',max_length=255, blank=True, null=True)
-    createtime = models.DateTimeField(auto_now_add=True)
-    updatetime = models.DateTimeField(auto_now=True)
-    is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
-    company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
 
-    class Meta:
-        managed=False
-        db_table = 'marketing_research_v2\".\"ProjectDetail'
-        verbose_name_plural = '项目细分列表'
-
-    def __str__(self):
-        return self.detailedproject
     
 
 class Brand(models.Model):
@@ -158,23 +144,7 @@ class Brand(models.Model):
             return self.brand
 
 
-class CompetitionRelation(models.Model):
-    # id = models.BigAutoField(primary_key=True)
-    competitionrelation = models.CharField(verbose_name='竞品关系点',max_length=255, blank=True, null=True)
-    createtime = models.DateTimeField(auto_now_add=True)
-    updatetime = models.DateTimeField(auto_now=True)
-    is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
-    class Meta:
-        managed=False
-        db_table = 'marketing_research_v2\".\"CompetitionRelation'
-        verbose_name_plural = '竞品关系列表'
-    def __str__(self):
-            return self.competitionrelation
-    
-    def delete(self, using=None, keep_parents=False):
-        #即使在inline中也是假删除
-        self.is_active = False
-        self.save()
+
 
 
 class GSMRSalesmanPosition(models.Model):
@@ -196,40 +166,36 @@ class GSMRSalesmanPosition(models.Model):
 
 #==========================以下4个是新建的表格============================================
 class GSMRResearchList(models.Model):
-    salesmode_choices=[
-        ('我司业务:',
-        (('代理', '代理'),)
-        ),
-        ('第二类：非我司业务:',
-          (('竞品', '竞品'),('空白市场', '空白市场'))
-        )
-    ]
+    progress_choices = (
+        ('待拜访', '待拜访'),
+        ('初期了解中', '初期了解中'),
+        ('有意向', '有意向'),
+        ('申报预算', '申报预算'),
+        ('审批中', '审批中'),
+        ('审批通过', '审批通过'),
+        ('待招标', '待招标'),
+        ('招标完成', '招标完成'),
+        ('仪器装机启用', '仪器装机启用'),
+        ('仪器试剂均开票','仪器试剂均开票'))
     # id = models.BigAutoField(primary_key=True)
     company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
     project = models.ForeignKey('Project', models.CASCADE, db_column='project',to_field='id',verbose_name= '项目')
-    
     hospital = models.ForeignKey('Hospital', models.CASCADE, db_column='hospital',to_field='id',verbose_name= '医院')
-    
     salesman1 = models.ForeignKey('GSMRUserInfo', models.CASCADE, db_column='salesman1',to_field='id',related_name='salesman1zs',verbose_name= '第一负责人')
     salesman2 = models.ForeignKey('GSMRUserInfo', models.CASCADE, db_column='salesman2',to_field='id',related_name='salesman2zs',verbose_name= '第二负责人')
-
-    salesmode=MultiSelectField(verbose_name='销售模式(可多选)',max_length=25,choices=salesmode_choices,blank=True,null=True)
-
-    testspermonth = models.PositiveIntegerField(verbose_name='月总测试数(人份)',default = 0)
-    owntestspermonth = models.PositiveIntegerField(verbose_name='我司业务月测试数',default = 0)
     
     director = models.CharField(verbose_name='科室主任',max_length=255, blank=True, null=True)
-    
     saleschannel = models.TextField(verbose_name='销售路径',max_length=255, blank=True, null=True)
     support = models.TextField(verbose_name='所需支持',max_length=500, blank=True, null=True)
-    memo=models.TextField(verbose_name='备注',max_length=500, blank=True, null=True)
+    progress=models.CharField(verbose_name='进展(新项目必选)',max_length=25,choices=progress_choices,blank=True, null=True,help_text=u'每点击一次下方的“保存”，都会记录一次进展，注意不要选错')
 
-    operator = models.ForeignKey('GSMRUserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operatorzs',verbose_name= '最后操作人')
+    relation=models.TextField(verbose_name='关系梳理',max_length=500, blank=True, null=True)
+    memo=models.TextField(verbose_name='备注',max_length=500, blank=True, null=True)
     
+    operator = models.ForeignKey('GSMRUserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operatorzs',verbose_name= '最后操作人')
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
-
     uniquestring=models.CharField(verbose_name='联合唯一值',max_length=255, blank=True, null=True)
     
     class Meta:
@@ -252,53 +218,35 @@ class GSMRResearchList(models.Model):
 
 
 
-
 class GSMRResearchDetail(models.Model):
-    is_goldsite_choices = (
-        (True, '是'),
-        (False, '否'),)
-    
-    ownbusiness_choices = (
-        (True, '是'),
-        (False, '否'),)
+    type_choices = (
+        ('非我司业务', '非我司业务'),
+        ('国赛美瑞-招商', '国赛美瑞-招商'),
+        ('普美瑞-招商','普美瑞-招商'),
+        ('普美瑞-直销','普美瑞-直销'),
+        ('普美瑞-集成','普美瑞-集成'),
+        )
     # id = models.BigAutoField(primary_key=True)
     researchlist = models.ForeignKey('GSMRResearchList', models.CASCADE, db_column='researchlist',to_field='id',verbose_name= '调研列表')
-    detailedproject = models.ForeignKey('GSMRProjectDetail', models.CASCADE, db_column='detailedproject',to_field='id',verbose_name= '项目细分(注意根据本页主项目填报)',help_text=u"例如:若本页项目为流式,则项目细分为流式项目下的具体细分",null=True)
-    
-    firsttierdistribution=models.CharField(verbose_name='一级代理',max_length=255, blank=True, null=True)
-    secondtierdistribution=models.CharField(verbose_name='二级代理',max_length=255, blank=True, null=True)
-    
-    
-    detailedprojecttestspermonth=models.PositiveIntegerField(verbose_name='细分项目月测试数(人份)',default = 0)
-    
-    is_goldsite=models.BooleanField(verbose_name='是否国赛',null=False, default = False,choices=is_goldsite_choices)
-    ownbusiness=models.BooleanField(verbose_name='是否我司业务',null=False, default = False,choices=ownbusiness_choices)
-   
-    brand = models.ForeignKey('Brand', models.CASCADE, db_column='brand',to_field='id',verbose_name= '品牌',null=True)
-    endsupplier = models.CharField(verbose_name='终端商',max_length=255, blank=True, null=True)
-    
+    brand = models.ForeignKey('Brand', models.CASCADE, db_column='brand',to_field='id',verbose_name= '品牌',null=False,blank =False)
+    type= models.CharField(verbose_name='分类',max_length=25,choices=type_choices,default='非我司业务')
+    testspermonth = models.PositiveIntegerField(verbose_name='该品牌月测试数',default = 0)
+    testprice = models.DecimalField(verbose_name='代理商价格',max_digits=25, decimal_places=2, blank=True, null=True,default = 0.00,help_text=u'GSMR卖给代理商的价格，非GSMR招商业务可不填')
+    sumpermonth = models.DecimalField(verbose_name='月产出额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0.00)
     machinemodel = models.CharField(verbose_name='仪器型号',max_length=255, blank=True, null=True)
-    machineseries = models.CharField(verbose_name='序列号(我司仪器必填)',max_length=255, blank=True, null=True)
-    machinenumber = models.PositiveIntegerField(verbose_name='仪器数量',default = 0)
+    machinenumber = models.PositiveIntegerField(verbose_name='仪器数量',default = 1)
+    installdate = models.DateField(verbose_name='装机日期',blank=True, null=True,help_text=u'例:2023/07/01')
 
-    installdate = models.DateField(verbose_name='装机日期',blank=True, null=True,help_text=u'例: 2023/02/01')
-    testprice = models.DecimalField(verbose_name='单价',max_digits=25, decimal_places=2, blank=True, null=True)
-
-    expiration=models.CharField(verbose_name='装机时间',max_length=255, blank=True, null=True)
-    competitionrelation = models.ForeignKey('CompetitionRelation', models.CASCADE, db_column='competitionrelation',to_field='id',verbose_name= '竞品关系点',blank=True,null=True)
+    endsupplier = models.CharField(verbose_name='代理商名称',max_length=255, blank=True, null=True)
+    expiration=models.CharField(verbose_name='装机时效',max_length=255, blank=True, null=True)
     
-    contactname = models.CharField(verbose_name='供应商联系人',max_length=255, blank=True, null=True)
-    contactmobile = models.CharField(verbose_name='供应商联系方式',max_length=255, blank=True, null=True)
-    relation=models.TextField(verbose_name='关系梳理',max_length=500, blank=True, null=True)
-    comment = models.CharField(verbose_name='备注',max_length=255, blank=True, null=True)
-
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
         db_table = 'marketing_research_v2\".\"GSMRResearchDetail'
-        verbose_name_plural = '市场调研详情表'
+        verbose_name_plural = '招商调研详情表'
 
     def delete(self, using=None, keep_parents=False):
         #即使在inline中也是假删除
@@ -342,10 +290,10 @@ class GSMRSalesTarget(models.Model):
     q3completemonth=models.CharField(verbose_name='Q3目标完成月',max_length=25,blank=True, null=True,choices=Q3completemonth_choices,default=9)
     q4completemonth=models.CharField(verbose_name='Q4目标完成月',max_length=25,blank=True, null=True,choices=Q4completemonth_choices,default=12)
 
-    q1actualsales= models.DecimalField(verbose_name='Q1实际销售额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
-    q2actualsales= models.DecimalField(verbose_name='Q2实际销售额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
-    q3actualsales= models.DecimalField(verbose_name='Q3实际销售额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
-    q4actualsales= models.DecimalField(verbose_name='Q4实际销售额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
+    q1actualsales= models.DecimalField(verbose_name='Q1实际完成额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
+    q2actualsales= models.DecimalField(verbose_name='Q2实际完成额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
+    q3actualsales= models.DecimalField(verbose_name='Q3实际完成额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
+    q4actualsales= models.DecimalField(verbose_name='Q4实际完成额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
 
     q1finishrate = models.DecimalField(verbose_name='Q1完成率',max_digits=25, decimal_places=2, blank=True, null=True)
     q2finishrate = models.DecimalField(verbose_name='Q2完成率',max_digits=25, decimal_places=2, blank=True, null=True)
@@ -373,20 +321,23 @@ class GSMRSalesTarget(models.Model):
 class GSMRDetailCalculate(models.Model):
     id = models.BigAutoField(primary_key=True)
     researchlist = models.OneToOneField('GSMRResearchList', models.CASCADE, db_column='researchlist',to_field='id',verbose_name= '调研列表')
+    
     totalmachinenumber = models.PositiveIntegerField(verbose_name='仪器总数',default = 0)
-    ownmachinenumber = models.PositiveIntegerField(verbose_name='我司仪器总数',default = 0)
-    ownmachinepercent = models.DecimalField(verbose_name='我司仪器数占比',max_digits=25, decimal_places=2, blank=True, null=True)
-    newold=models.CharField(verbose_name='业务类型',max_length=255, blank=True, null=True)
-    totalsumpermonth = models.DecimalField(verbose_name='22年我司月均销售额总计',max_digits=25, decimal_places=2, blank=True, null=True,default = 0)
+    ownmachinenumber = models.PositiveIntegerField(verbose_name='国赛仪器总数',default = 0)
+    ownmachinepercent = models.DecimalField(verbose_name='仪器数占比',max_digits=25, decimal_places=2, blank=True, null=True)
+    newold=models.CharField(verbose_name='业务类型',max_length=255, blank=True, null=True,default='新商机')
+   
+    totaltestspermonth = models.PositiveIntegerField(verbose_name='总月测试数',default = 0)
+    owntestspermonth = models.PositiveIntegerField(verbose_name='国赛月测试数',default = 0)
+    owntestspercent = models.DecimalField(verbose_name='测试数占比',max_digits=25, decimal_places=2, blank=True, null=True)
 
-    detailedprojectcombine=models.CharField(verbose_name='项目细分集合',max_length=255, blank=True, null=True)
-    ownbusinesscombine=models.CharField(verbose_name='是否我司业务集合',max_length=255, blank=True, null=True)
+    salespermonth = models.DecimalField(verbose_name='总月产出额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0.00)
+    ownsalespermonth = models.DecimalField(verbose_name='国赛美瑞招商月产出额',max_digits=25, decimal_places=2, blank=True, null=True,default = 0.00)
+    ownsalespercent = models.DecimalField(verbose_name='月产出额占比',max_digits=25, decimal_places=2, blank=True, null=True)
+
     brandscombine=models.CharField(verbose_name='品牌集合',max_length=255, blank=True, null=True)
-    machinemodelcombine=models.CharField(verbose_name='仪器型号集合',max_length=255, blank=True, null=True)
-    machineseriescombine=models.CharField(verbose_name='序列号集合',max_length=255, blank=True, null=True)
-    installdatescombine = models.CharField(verbose_name='装机时间集合',max_length=255, blank=True, null=True)
-    competitionrelationcombine = models.CharField(verbose_name='竞品关系点集合',max_length=255, blank=True, null=True)
-    machinenumbercombine = models.CharField(verbose_name='仪器数量集合',max_length=255, blank=True, null=True)
+    testspermonthcombine=models.CharField(verbose_name='测试数集合',max_length=255, blank=True, null=True)
+    progresshistory=JSONField(verbose_name='历史进展',blank=True, null=True)
 
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)

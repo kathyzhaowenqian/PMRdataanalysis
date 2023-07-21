@@ -30,13 +30,13 @@ def result_of_Quatar_display(advanced_days,delayed_days):
     this_year =datetime.now().year
 
     #PMRresearchlist的list显示：
-    list_display = ('hospital_district','hospital_hospitalclass','hospital','colored_project', 'salesman1_chinesename',                   
-                   'testspermonth','owntestspermonth','saleschannel','memo',)#'support','salesmode',
+    list_display = ('hospital_district','hospital','hospital_hospitalclass','colored_project', 'salesman1_chinesename', 'salesman2_chinesename',                   
+                   'detailcalculate_brandscombine','detailcalculate_testspermonthcombine','detailcalculate_totaltestspermonth','detailcalculate_ownsalespermonth','saleschannel','support','progress','detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent',)
             
     # list_editable = ('saleschannel','support')
 
     #这是salestarget中的readonly fields
-    readonly_fields = ('q1actualsales','q2actualsales','q3actualsales','q4actualsales','q1finishrate','q2finishrate','q3finishrate','q4finishrate')
+    readonly_fields = ('field_q1finishrate','field_q2finishrate','field_q3finishrate','field_q4finishrate')
 
     Q1_range = (calculate_quarter_start_end_day(1,this_year)[0]-timedelta(days=advanced_days),calculate_quarter_start_end_day(1,this_year)[1]+timedelta(days=delayed_days))
     Q2_range = (calculate_quarter_start_end_day(2,this_year)[0]-timedelta(days=advanced_days),calculate_quarter_start_end_day(2,this_year)[1]+timedelta(days=delayed_days))
@@ -113,35 +113,32 @@ def result_of_Quatar_display(advanced_days,delayed_days):
     Q4_readonly_field = (calculate_quarter_start_end_day(4,this_year)[0],calculate_quarter_start_end_day(4,this_year)[1]+timedelta(days=delayed_days)) #Q4变灰：10.1-次年1.31
 
     if today >= Q1_readonly_field[0] and today < Q1_readonly_field[1]:
-        readonly_fields = readonly_fields + ('q1target','q1completemonth',)
+        readonly_fields = readonly_fields + ('q1target','q1completemonth','q1actualsales')
     if today >= Q2_readonly_field[0] and today < Q2_readonly_field[1]:
-        readonly_fields = readonly_fields + ('q2target','q2completemonth',)
+        readonly_fields = readonly_fields + ('q2target','q2completemonth','q2actualsales')
     if today >= Q3_readonly_field[0] and today < Q3_readonly_field[1]:
-        readonly_fields = readonly_fields + ('q3target','q3completemonth',)
+        readonly_fields = readonly_fields + ('q3target','q3completemonth','q3actualsales')
     if today >= Q4_readonly_field[0] and today < Q4_readonly_field[1]:
-        readonly_fields = readonly_fields + ('q4target','q4completemonth',)
+        readonly_fields = readonly_fields + ('q4target','q4completemonth','q4actualsales')
 
 
-
-    speicial_case_date = date(2023,5,30)
+    speicial_case_date = date(2023,8,30)
     if today <= speicial_case_date:
         return ( # list_display
-                    ('hospital_district','hospital_hospitalclass','hospital','colored_project',#'salesman1_chinesename', #'salesman2_chinesename',                    
-                   'testspermonth','owntestspermonth','saleschannel','memo',#'salesmode','support',#'detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent',
-                #   'actualsales_23_q1',#'finishrate_23_q1',  'salestarget_23_q1','completemonth_23_q1',
-                   'actualsales_23_q1','salestarget_23_q2','completemonth_23_q2','actualsales_23_q2','finishrate_23_q2'),
-                    #list_editable
-                #   ('saleschannel','support','targetsalesvalue','Q1completemonth','targetsalesvalue2','Q2completemonth'),
-
+                    ('hospital_district','hospital','hospital_hospitalclass','colored_project','salesman1_chinesename','salesman2_chinesename',                    
+                   'detailcalculate_brandscombine','detailcalculate_testspermonthcombine','detailcalculate_totaltestspermonth','detailcalculate_ownsalespermonth','saleschannel','support','progress','detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent',
+                   'salestarget_23_q3','actualsales_23_q3','finishrate_23_q3'),
+             
                     #readonly_fields
-                   ('q1target','q1completemonth','q1actualsales','q2actualsales','q3actualsales','q4actualsales','q1finishrate','q2finishrate','q3finishrate','q4finishrate')
+                   ('q1target','q1completemonth','q1actualsales','field_q1finishrate',
+                    'q2target','q2completemonth','q2actualsales','field_q2finishrate',
+                    'field_q3finishrate','field_q4finishrate')
                 )
 
 
-
-
-
     return list_display,readonly_fields
+
+
 
 if __name__ == '__main__':
     print(result_of_Quatar_display(30,30))

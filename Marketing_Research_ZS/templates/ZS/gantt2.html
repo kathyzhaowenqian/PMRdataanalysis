@@ -9,9 +9,9 @@
     默认按周呈现（月份下面的数字），比如26就是今年第26周。如果需要按日呈现则点击“+”
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
-    <link rel="stylesheet" href="{% static 'PUZHONGXIN/css2/style.css' %}" />
-    <link rel="stylesheet" href="{% static 'PUZHONGXIN/css2//bootstrap.min.css' %}" />
-    <link href="{% static 'PUZHONGXIN/css2/prettify.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'ZS/css2/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'ZS/css2//bootstrap.min.css' %}" />
+    <link href="{% static 'ZS/css2/prettify.min.css' %}" rel="stylesheet" />
     <style type="text/css">
         body {
             font-family: Helvetica, Arial, sans-serif;
@@ -34,11 +34,11 @@
 
 </body>
 </html>
-<script src="{% static 'PUZHONGXIN/js2/jquery-2.1.4.min.js' %}"></script>
-<script src="{% static 'PUZHONGXIN/js2/bootstrap.min.js' %}"></script>
-<script src="{% static 'PUZHONGXIN/js2/jquery.fn.gantt.js' %}"></script>
+<script src="{% static 'ZS/js2/jquery-2.1.4.min.js' %}"></script>
+<script src="{% static 'ZS/js2/bootstrap.min.js' %}"></script>
+<script src="{% static 'ZS/js2/jquery.fn.gantt.js' %}"></script>
 
-<script src="{% static 'PUZHONGXIN/js2/prettify.min.js' %}"></script>
+<script src="{% static 'ZS/js2/prettify.min.js' %}"></script>
 <script>
 
 
@@ -48,7 +48,7 @@
         function getdata() {
             let result = {}
             $.ajax({
-            url: `/PUZHONGXIN/gantt`,
+            url: `/Marketing_Research_ZS/gantt`,
             type: "POST",
             dataType: 'json',
             async: false, //同步请求，不能异步，异步的话数据就同时出不来了
@@ -160,15 +160,15 @@
 <script>
 
 function splittext(text){
-    let str = text;
-    let firstDashIndex = str.indexOf('-'); // 获取第一个'-'的索引
-    let firstPart = str.slice(0, firstDashIndex); // 获取第一个分隔符之前的部分
-    let secondPart = str.slice(firstDashIndex + 1); // 获取第一个分隔符之后的部分
-    let secondDashIndex = secondPart.lastIndexOf('-'); // 获取最后一个'-'的索引
-    let thirdPart = secondPart.slice(0, secondDashIndex); // 获取最后一个分隔符之前的部分
-    let fourthPart = secondPart.slice(secondDashIndex + 1); // 获取最后一个分隔符之后的部分
+    // let str = text;
+    // let firstDashIndex = str.indexOf('-'); // 获取第一个'-'的索引
+    // let firstPart = str.slice(0, firstDashIndex); // 获取第一个分隔符之前的部分
+    // let secondPart = str.slice(firstDashIndex + 1); // 获取第一个分隔符之后的部分
+    // let secondDashIndex = secondPart.lastIndexOf('-'); // 获取最后一个'-'的索引
+    // let thirdPart = secondPart.slice(0, secondDashIndex); // 获取最后一个分隔符之前的部分
+    // let fourthPart = secondPart.slice(secondDashIndex + 1); // 获取最后一个分隔符之后的部分
 
-    return firstPart+'+'+thirdPart+'+'+fourthPart
+    return   text.replace(/-/g, '+');
 }
 
 
@@ -185,12 +185,12 @@ $(document).ready(function() {
 
         for (let index = 0; index < number_project; index++) {
             original_dom = $(`#rowheader${index}`).html()
-            project_name = $(`#rowheader${index}`).text()
-            console.log(project_name)
-            revised_project_name = splittext(project_name)
-            console.log(revised_project_name)
-            project_url = `http://127.0.0.1:8000/admin/PUZHONGXIN/pzxoverall/?q=${revised_project_name}`
-            new_dom = `<a href=${project_url} target="_blank">${original_dom}</a>`
+            infomations = $(`#rowheader${index}`).text()
+            console.log(infomations)
+            revised_infomations = splittext(infomations)
+            console.log(revised_infomations)
+            revised_infomations_url = `http://127.0.0.1:8000/admin/Marketing_Research_ZS/gsmrresearchlist/?q=${revised_infomations}`
+            new_dom = `<a href=${revised_infomations_url} target="_blank">${original_dom}</a>`
             $(`#rowheader${index}`).html(new_dom)
             
         }

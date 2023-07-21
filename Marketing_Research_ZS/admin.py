@@ -41,21 +41,7 @@ class ProjectFilter(SimpleListFilter):
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
 
-class ProjectFilterforDetail(SimpleListFilter):
-    title = '项目' 
-    parameter_name = 'project'
 
-    def lookups(self, request, model_admin):
-        projects = Project.objects.filter(company_id=5)
-        return [(project.id, project.project) for project in projects]
-    
-    def queryset(self, request, queryset):
-        if self.value():
-        # 筛选条件有值时, 查询对应的 node 的文章
-            return queryset.filter(researchlist__project__id=self.value())
-        else:
-        # 筛选条件没有值时，全部的时候是没有值的
-            return queryset
         
 
 class IfTargetCustomerFilter(SimpleListFilter):
@@ -74,7 +60,7 @@ class IfTargetCustomerFilter(SimpleListFilter):
         elif self.value() == '2':
             return queryset.filter(Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') & Q(gsmrsalestarget__q1target = 0)& Q(gsmrsalestarget__q2target =0) & Q(gsmrsalestarget__q3target =0)& Q(gsmrsalestarget__q4target=0))
 
-class CustomerProjectTypeFilter(SimpleListFilter):
+'''class CustomerProjectTypeFilter(SimpleListFilter):
     title = '医院项目分类'
     parameter_name = 'customerprojecttype'
 
@@ -106,11 +92,11 @@ class CustomerProjectTypeFilter(SimpleListFilter):
             return queryset.filter(Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') & Q(gsmrsalestarget__q1actualsales = 0)& Q(gsmrsalestarget__q2actualsales =0) & Q(gsmrsalestarget__q3actualsales =0)& Q(gsmrsalestarget__q4actualsales=0) & Q(gsmrdetailcalculate__totalsumpermonth = 0) )
         elif self.value() == '8': #潜在客户 + 今年新客户， 22年未开票客户 
             return queryset.filter(Q(gsmrdetailcalculate__totalsumpermonth = 0))
+'''
 
 
 
-
-class IfActualSalesFilter(SimpleListFilter):
+'''class IfActualSalesFilter(SimpleListFilter):
     title = '23年是否开票'
     parameter_name = 'ifactualsales'
 
@@ -124,57 +110,56 @@ class IfActualSalesFilter(SimpleListFilter):
  
         elif self.value() == '2':
             return queryset.filter(Q(gsmrsalestarget__is_active=True) & Q(gsmrsalestarget__year='2023') & Q(gsmrsalestarget__q1actualsales = 0)& Q(gsmrsalestarget__q2actualsales =0) & Q(gsmrsalestarget__q3actualsales =0)& Q(gsmrsalestarget__q4actualsales=0))
+'''
 
 
+# class IfSalesChannelFilter(SimpleListFilter):
+#     title = '销售路径'
+#     parameter_name = 'ifsaleschannel'
 
-class IfSalesChannelFilter(SimpleListFilter):
-    title = '销售路径'
-    parameter_name = 'ifsaleschannel'
+#     def lookups(self, request, model_admin):
+#         return [(1, '已填写销售路径'), (2, '未填写销售路径')]
+
+#     def queryset(self, request, queryset):
+#         # pdb.set_trace()
+#         if self.value() == '1':
+#             return queryset.filter(Q(saleschannel__isnull=False) & ~Q(saleschannel=''))
+ 
+#         elif self.value() == '2':
+#             return queryset.filter(Q(saleschannel__isnull=True) | Q(saleschannel=''))
+
+
+class IfSalesSupportChannelProgressFilter(SimpleListFilter):
+    title = '销售路径/所需支持/进展'
+    parameter_name = 'ifsalessupportchannelprogress'
 
     def lookups(self, request, model_admin):
-        return [(1, '已填写销售路径'), (2, '未填写销售路径')]
+        return [(1, '已填写销售路径/所需支持/进展'), (2, '未填写')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-            return queryset.filter(Q(saleschannel__isnull=False) & ~Q(saleschannel=''))
+            return queryset.filter((Q(saleschannel__isnull=False) & ~Q(saleschannel=''))|(Q(support__isnull=False) & ~Q(support=''))|(Q(progress__isnull=False) & ~Q(progress='')))
  
         elif self.value() == '2':
-            return queryset.filter(Q(saleschannel__isnull=True) | Q(saleschannel=''))
+            return queryset.filter((Q(saleschannel__isnull=True) | Q(saleschannel=''))&(Q(support__isnull=True) | Q(support=''))&(Q(progress__isnull=True) | Q(progress='')))
 
-class IfSupportFilter(SimpleListFilter):
-    title = '所需支持'
-    parameter_name = 'ifsupport'
 
-    def lookups(self, request, model_admin):
-        return [(1, '已填写所需支持'), (2, '未填写所需支持')]
+# class IfSupportFilter(SimpleListFilter):
+#     title = '所需支持'
+#     parameter_name = 'ifsupport'
 
-    def queryset(self, request, queryset):
-        # pdb.set_trace()
-        if self.value() == '1':
-            return queryset.filter(Q(support__isnull=False) & ~Q(support=''))
+#     def lookups(self, request, model_admin):
+#         return [(1, '已填写所需支持'), (2, '未填写所需支持')]
+
+#     def queryset(self, request, queryset):
+#         # pdb.set_trace()
+#         if self.value() == '1':
+#             return queryset.filter(Q(support__isnull=False) & ~Q(support=''))
  
-        elif self.value() == '2':
-            return queryset.filter(Q(support__isnull=True) | Q(support=''))
+#         elif self.value() == '2':
+#             return queryset.filter(Q(support__isnull=True) | Q(support=''))
 
-
-class IfMemoFilter(SimpleListFilter):
-    title = '备注'
-    parameter_name = 'ifmemo'
-
-    def lookups(self, request, model_admin):
-        return [(1, '把握较大'), (2, '在跟进'),(3,'未备注')]
-
-    def queryset(self, request, queryset):
-        # pdb.set_trace()
-        if self.value() == '1':
-            return queryset.filter(memo='把握较大') 
- 
-        elif self.value() == '2':
-            return queryset.filter(memo='在跟进')
-        
-        elif self.value() == '3':
-            return queryset.filter(Q(memo__isnull=True) | Q(memo=''))
 
 
 class SalesmanFilter(SimpleListFilter):
@@ -183,7 +168,7 @@ class SalesmanFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = GSMRUserInfo.objects.filter(Q(username__in= ['lxg']))
+        salesmans = GSMRUserInfo.objects.filter(Q(username__in= ['lxg','ddl','zw','cjl','szw','lzr']))
         print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -201,7 +186,7 @@ class SalesmanFilter2(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = GSMRUserInfo.objects.filter(Q(username__in= ['lxg']))
+        salesmans = GSMRUserInfo.objects.filter(Q(username__in= ['lxg','ddl','zw','cjl','szw','lzr']))
         print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -213,7 +198,7 @@ class SalesmanFilter2(SimpleListFilter):
         # 筛选条件没有值时，全部的时候是没有值的
             return queryset
         
-class SalesmanFilterforDetail(SimpleListFilter):
+'''class SalesmanFilterforDetail(SimpleListFilter):
     title = '负责人' 
     parameter_name = 'userinfo'
 
@@ -228,7 +213,7 @@ class SalesmanFilterforDetail(SimpleListFilter):
             return queryset.filter(researchlist__salesman1__id=self.value())
         else:
         # 筛选条件没有值时，全部的时候是没有值的
-            return queryset
+            return queryset'''
 
 
 #admin中的delete优先,具体admin中的更优先,针对inline没有用！！！！！
@@ -250,14 +235,14 @@ class GlobalAdmin(admin.ModelAdmin):
 
 ###------------------FORM---------------------------------------------------------------------------------------------------------------
 # 验证数据手机号
-def validate(value): # 验证数据
+'''def validate(value): # 验证数据
     try:
         v = int(value)
     except:
         raise forms.ValidationError(u'请输入正确手机号')
     if len(value) != 11:
         raise forms.ValidationError(u'请输入正确手机号')
-    
+    '''
 
 class GSMRResearchDetailInlineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -267,25 +252,27 @@ class GSMRResearchDetailInlineForm(forms.ModelForm):
         # self.fields['brand'].queryset =  Brand.objects.filter(is_active=True)
         # print(self)
         #在没有autocomplete的前提下，只有在这个form里面修改才能保证过滤isactive
-        self.fields['competitionrelation'].queryset =  CompetitionRelation.objects.filter(is_active=True)
 
     class Meta: 
             model = GSMRResearchDetail
             exclude = ['id']
             widgets = {
+                'endsupplier': forms.TextInput(attrs={'size':'25'}),
                 'machinemodel': forms.TextInput(attrs={'size':'10'}),
-                'machineseries': forms.TextInput(attrs={'size':'10'}),
-                'testprice': forms.TextInput(attrs={'size':'10'}),
-                'endsupplier': forms.TextInput(attrs={'size':'36'}),
-                'detailedprojecttestspermonth': forms.TextInput(attrs={'size':'10'}),
+                # 'testprice': forms.TextInput(attrs={'size':'10'}),
+                # 'endsupplier': forms.TextInput(attrs={'size':'36'}),
+                # 'detailedprojecttestspermonth': forms.TextInput(attrs={'size':'10'}),
 
                 'machinenumber' : forms.NumberInput(attrs={
                     'style': 'width:7ch'
                 }),
-                'detailedproject': AutocompleteSelect(
-                    model._meta.get_field('detailedproject'),
-                    admin.site,
-                    attrs={'style': 'width: 10ch'}),
+                'testprice' : forms.NumberInput(attrs={
+                    'style': 'width:7ch'
+                }),
+                # 'detailedproject': AutocompleteSelect(
+                #     model._meta.get_field('detailedproject'),
+                #     admin.site,
+                #     attrs={'style': 'width: 10ch'}),
                 'brand': AutocompleteSelect(
                     model._meta.get_field('brand'),
                     admin.site,
@@ -293,7 +280,7 @@ class GSMRResearchDetailInlineForm(forms.ModelForm):
             }
 
 
-class GSMRResearchListForm(forms.ModelForm):
+'''class GSMRResearchListForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
          #限制新增list表中这些外键的显示
@@ -307,7 +294,7 @@ class GSMRResearchListForm(forms.ModelForm):
     class Meta: 
         model = GSMRResearchList
         exclude = ['id']
-   
+   '''
 
 ###------------------INLINE------------------------------------------------------------------------------------------------------------
 
@@ -344,17 +331,18 @@ class ProjectInline(admin.TabularInline):
         return queryset
 
 
-class GSMRResearchDetailInline(admin.StackedInline):
+class GSMRResearchDetailInline(admin.TabularInline):
     form=GSMRResearchDetailInlineForm
     model = GSMRResearchDetail
     fk_name = "researchlist"
+    readonly_fields= ('sumpermonth','expiration')
     extra = 0
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 37})}
     } 
-    fields=(('detailedproject'),('ownbusiness','is_goldsite'),('brand','detailedprojecttestspermonth'),('firsttierdistribution','secondtierdistribution'),('endsupplier','relation'),('contactname','contactmobile'),('machinemodel','machinenumber','installdate'),('competitionrelation','machineseries','testprice'),'comment') 
+    fields=('brand','endsupplier','type','testspermonth','testprice','sumpermonth','machinemodel','machinenumber','installdate','expiration') 
     # readonly_fields = ('sumpermonth',)
-    autocomplete_fields=['detailedproject','brand']
+    autocomplete_fields=['brand']
     verbose_name = verbose_name_plural = ('招商调研详情表')
     GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
     #在inline中显示isactive的detail的表
@@ -426,14 +414,37 @@ class SalesTargetInline(admin.StackedInline):
 
     # readonly_fields = ('q1actualsales','q2actualsales','q3actualsales','q4actualsales','q1finishrate','q2finishrate','q3finishrate','q4finishrate')
     # fieldsets =  ('year','q1target','q1completemonth','q2target','q2completemonth','q3target','q3completemonth','q4target','q4completemonth'),       
-    fields =  ('year',('q1target','q1completemonth','q1actualsales','q1finishrate'),
-                      ('q2target','q2completemonth','q2actualsales','q2finishrate'),
-                      ('q3target','q3completemonth','q3actualsales','q3finishrate'),
-                      ('q4target','q4completemonth','q4actualsales','q4finishrate'),
+    fields =  ('year',('q1target','q1completemonth','q1actualsales','field_q1finishrate'),
+                      ('q2target','q2completemonth','q2actualsales','field_q2finishrate'),
+                      ('q3target','q3completemonth','q3actualsales','field_q3finishrate'),
+                      ('q4target','q4completemonth','q4actualsales','field_q4finishrate'),
                                             )                              
     
     verbose_name = verbose_name_plural = ('作战计划和成果')
     GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
+    def field_q1finishrate(self, obj):
+        value = float(obj.q1finishrate) if obj.q1finishrate else 0
+        style = 'width: 6ch'#; background-color: #f2f2f2;'
+        return format_html('<div style="{}">{}</div>', style,'{:.1%}'.format(value))
+    field_q1finishrate.short_description = 'Q1完成率'
+
+    def field_q2finishrate(self, obj):
+        value = float(obj.q2finishrate) if obj.q2finishrate else 0
+        style = 'width: 6ch'#; background-color: #f2f2f2;'
+        return format_html('<div style="{}">{}</div>', style,'{:.1%}'.format(value))
+    field_q2finishrate.short_description = 'Q2完成率'
+
+    def field_q3finishrate(self, obj):
+        value = float(obj.q3finishrate) if obj.q3finishrate else 0
+        style = 'width: 6ch'#; background-color: #f2f2f2;'
+        return format_html('<div style="{}">{}</div>', style,'{:.1%}'.format(value))
+    field_q3finishrate.short_description = 'Q3完成率'
+
+    def field_q4finishrate(self, obj):
+        value = float(obj.q4finishrate) if obj.q4finishrate else 0
+        style = 'width: 6ch'#; background-color: #f2f2f2;'
+        return format_html('<div style="{}">{}</div>', style,'{:.1%}'.format(value))
+    field_q4finishrate.short_description = 'Q4完成率'
 
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
@@ -488,19 +499,24 @@ class DetailCalculateInline(admin.StackedInline):
     model = GSMRDetailCalculate
     fk_name = "researchlist"
     extra = 0
-    readonly_fields =  ('totalmachinenumber','ownmachinenumber','ownmachinepercent','newold','totalsumpermonth')#,'detailedprojectcombine','ownbusinesscombine','brandscombine','machinenumbercombine','machinemodelcombine','machineseriescombine','installdatescombine','competitionrelationcombine',)                    
-    verbose_name = verbose_name_plural = ('仪器情况汇总')
-    fields =  (('totalmachinenumber','ownmachinenumber','ownmachinepercent','totalsumpermonth','newold'),
-            #    ('detailedprojectcombine'),
-            #    ('ownbusinesscombine'),
-            #    ('brandscombine'),
-            #    ('machinenumbercombine'),
-            #    ('machinemodelcombine'),
-            #    ('machineseriescombine'),
-            #    ('installdatescombine'),
-            #    ('competitionrelationcombine'),
-               )
-                                           
+    readonly_fields =  ('totalmachinenumber','ownmachinenumber','field_ownmachinepercent','newold','totaltestspermonth','owntestspermonth','field_owntestspercent','ownsalespermonth')                    
+    verbose_name = verbose_name_plural = ('数据汇总')
+    fields =  ('totalmachinenumber','ownmachinenumber','field_ownmachinepercent','newold','totaltestspermonth','owntestspermonth','field_owntestspercent','ownsalespermonth')
+                             
+    def field_ownmachinepercent(self, obj):
+        value = float(obj.ownmachinepercent) if obj.ownmachinepercent else 0
+        style = 'width: 6ch'#; background-color: #f2f2f2;'
+        return format_html('<div style="{}">{}</div>', style,'{:.1%}'.format(value))
+    field_ownmachinepercent.short_description = '国赛仪器数占比'
+
+    def field_owntestspercent(self, obj):
+        value = float(obj.owntestspercent) if obj.owntestspercent else 0
+        style = 'width: 6ch'#; background-color: #f2f2f2;'
+        return format_html('<div style="{}">{}</div>', style,'{:.1%}'.format(value))
+    field_owntestspercent.short_description = '国赛测试数占比'
+
+
+
 
 ###------------------ADMIN-----------------------------------------------------------------------------------------------------------------------------------
 
@@ -546,12 +562,11 @@ class CompanyAdmin(GlobalAdmin):
 
 @admin.register(GSMRResearchList)
 class GSMRResearchListAdmin(GlobalAdmin):
-    form=GSMRResearchListForm
+    # form=GSMRResearchListForm
     inlines=[SalesTargetInline,GSMRResearchDetailInline,DetailCalculateInline]
     empty_value_display = '--'
     list_display_links =('hospital',)
     exclude = ('operator','is_active')
-    search_fields=['uniquestring']
     list_per_page = 10
     list_display = result_of_Quatar_display(settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS,settings.MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS)[0]
  
@@ -567,18 +582,19 @@ class GSMRResearchListAdmin(GlobalAdmin):
                         When(hospital__hospitalclass='未定级', then=Value(4)),
                         output_field=IntegerField(),
                     ),
-                'hospital__hospitalname','salesman1','project',)#('id',)
+                'hospital__hospitalname','salesman1','project',)
     
+  
     
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,IfTargetCustomerFilter,CustomerProjectTypeFilter,IfActualSalesFilter,IfSalesChannelFilter,IfSupportFilter,IfMemoFilter]
-    search_fields = ['hospital__hospitalname','gsmrresearchdetail__brand__brand']
-    fieldsets = (('作战背景', {'fields': ('company','project','hospital','salesman1','salesman2',
-                                        'testspermonth','owntestspermonth','salesmode','director',),
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,IfTargetCustomerFilter,'gsmrdetailcalculate__newold',IfSalesSupportChannelProgressFilter]
+    search_fields = ['hospital__hospitalname','gsmrresearchdetail__brand__brand','hospital__hospitalclass','hospital__district','project__project','gsmrresearchdetail__machinemodel']
+    fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
+                                       'director','relation','memo'),
                               'classes': ('wide','extrapretty',),
                               'description': format_html(
-                '<span style="color:{};font-size:10.0pt;">{}</span>','red','注意："第一负责人"只允许填登录用户自己的姓名')}),
+                '<span style="color:{};font-size:10.0pt;">{}</span>','red','注意："第一负责人" 只允许填登录用户自己的姓名,不可代填')}),
 
-                 ('作战路径及需求', {'fields': ('saleschannel','support','memo'),
+                 ('作战路径及需求', {'fields': ('saleschannel','support','progress'),
                               'classes': ('wide',)}),                
                 )
     GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
@@ -594,9 +610,9 @@ class GSMRResearchListAdmin(GlobalAdmin):
             kwargs["queryset"] = Project.objects.filter(is_active=True,company_id=5) 
         if db_field.name == 'salesman1': 
             # kwargs['initial'] = #设置默认值
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & ~Q(username__in= ['admin','ssl','chm','lijun','pdh','ybb','fzj','gsj','zxl','zjm','gjb','wh','jll','yy']))
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['lxg','ddl','zw','cjl','szw','lzr']))
         if db_field.name == 'salesman2':  
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & ~Q(username__in= ['admin','ssl','chm','lijun','pdh','ybb','fzj','gsj','zxl','zjm','gjb','wh','jll','yy'])) 
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['lxg','ddl','zw','cjl','szw','lzr'])) 
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
@@ -627,6 +643,9 @@ class GSMRResearchListAdmin(GlobalAdmin):
         else:
             print('我在PmrResearchListAdmin has delete permission else else else',False)
             return False
+        
+
+
         
 
     def has_change_permission(self,request, obj=None):
@@ -693,20 +712,20 @@ class GSMRResearchListAdmin(GlobalAdmin):
             print('没有分组admin')
         #先拿到objects列表
         qs = super(GSMRResearchListAdmin, self).get_queryset(request)
-        print('我在PMRResearchListAdmin-get_queryset')
+        # print('我在PMRResearchListAdmin-get_queryset')
 
         #要不要在此加入Q1-Q4变动的？？
         self.list_display = result_of_Quatar_display(settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS,settings.MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS)[0]
         # self.list_display = self.list_display + ('detail_qtysum','detail_own_qtysum',)
 
         if request.user.is_superuser :
-            print('我在PMRResearchListAdmin-get_queryset-筛选active的')            
+            # print('我在PMRResearchListAdmin-get_queryset-筛选active的')            
             return qs.filter(is_active=True,company_id=5)
 
                 
         # <QuerySet [{'name': 'pmrdirectsales'}, {'name': 'QTmanager'}]>
         user_in_group_list = request.user.groups.values('name')
-        print(user_in_group_list)
+        # print(user_in_group_list)
         for user_in_group_dict in user_in_group_list:
             if user_in_group_dict['name'] in self.GSMR_view_group_list:
                  # print('我在模型里')
@@ -744,11 +763,12 @@ class GSMRResearchListAdmin(GlobalAdmin):
                     delete_obj.save()
 
 
-
     def save_model(self, request, obj, form, change):
         obj.operator = request.user
-        obj.uniquestring = '公司:{}, 医院:{}, 项目:{}, 负责人:{}'.format(obj.company,obj.hospital,obj.project,obj.salesman1)
+        obj.uniquestring = '公司:{}, 医院:{}, 项目:{}, 第一负责人:{}'.format(obj.company,obj.hospital,obj.project,obj.salesman1)
         super().save_model(request, obj, form, change)
+
+
 
     def save_related(self, request, form, formsets, change): 
         ###注意要判断是否共用仪器！！！！！！！如果我司仪器必填序列号，怎么validate？？？！？
@@ -756,11 +776,14 @@ class GSMRResearchListAdmin(GlobalAdmin):
         super().save_related(request, form, formsets, change)
         if form.cleaned_data.get('salesman1')==request.user or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss': 
             machine_total_number=0
-            new_or_old_list=[]
             machine_own_number=0
-            machineserieslist_all=[]
-            machineserieslist_own=[]
-    
+            new_or_old_list=[]
+            brandscombine=[]
+            testspermonthcombine=[]
+            totaltests=0
+            owntests=0
+            salespermonth=0
+            ownsalespermonth=0
             if len(formsets[1].cleaned_data) > 0:
                 #formsets[1]是仪器详情表，显示inline的行数，删除的行也计算在内
                 # print(len(formsets[1].cleaned_data))
@@ -768,48 +791,107 @@ class GSMRResearchListAdmin(GlobalAdmin):
                     #循环列表中每一个字典，一个字典就是一行具体的数据
                         #是否我司业务不为空 且  没有被删除  且 仪器数量不为0         
                     print('each_inline',each_inline)  
-                    print(type(each_inline.get('id')))     
+                    # print(type(each_inline.get('id')))     
                     if  each_inline.get('DELETE')==False and each_inline.get('machinenumber')!=0:
                         machine_total_number += each_inline['machinenumber']  
-                        new_or_old_list.append(each_inline['ownbusiness'])
-                        if each_inline['machineseries']:
-                            machineserieslist_all.append(each_inline['machineseries'])
-                        # print('machine_total_number',machine_total_number)
-                        # print('machineserieslist_all',machineserieslist_all,len(machineserieslist_all),list(set(machineserieslist_all)),len(list(set(machineserieslist_all))))
-                        if each_inline['ownbusiness']==True:
-                            machine_own_number += each_inline['machinenumber']
-                            if each_inline['machineseries']:
-                                machineserieslist_own.append(each_inline['machineseries'])
+                        # print('each_inline[brand]',each_inline['brand'])
+                        brandscombine.append(each_inline['brand'].brand)
+                        testspermonthcombine.append(each_inline['testspermonth'])
+                        totaltests += each_inline['testspermonth'] 
+                        salespermonth+=each_inline['testspermonth'] * each_inline['testprice']
+                        new_or_old_list.append({'brand':each_inline['brand'].brand,'supplier':each_inline['endsupplier']})
 
-            machine_total_number=machine_total_number-len(machineserieslist_all)+len(list(set(machineserieslist_all)))
-            machine_own_number=machine_own_number-len(machineserieslist_own)+len(list(set(machineserieslist_own)))
+                        if each_inline['brand'].brand=="国赛" :#and ("普美瑞" not in each_inline['endsupplier']  or  "普美瑞-"  in each_inline['endsupplier']):
+                            machine_own_number += each_inline['machinenumber'] #针对国赛品牌
+                            owntests += each_inline['testspermonth']  #针对国赛品牌
+                            if each_inline['type']=="国赛美瑞-招商" :
+                                ownsalespermonth +=each_inline['testspermonth'] * each_inline['testprice'] #针对国赛美瑞招商业务
 
             print('我在save_related machine_own_number\machine_total_number',machine_own_number,machine_total_number) 
-            # print('form.instance',form.instance,form.instance.id)
             if machine_total_number == 0 or machine_own_number ==0:
                 ownmachinepercent = 0
             else:
                 ownmachinepercent= machine_own_number/machine_total_number
 
-            if '是' in new_or_old_list:
-                newold='已有业务(含我司仪器)'
+            if totaltests == 0 or owntests ==0:
+                owntestspercent = 0
             else:
-                newold='新商机(不含我司仪器)'
+                owntestspercent= owntests/totaltests
+
+            if salespermonth == 0 or ownsalespermonth ==0:
+                ownsalespercent = 0
+            else:
+                ownsalespercent= ownsalespermonth/salespermonth
+            # print('我在new_or_old_listnew_or_old_listnew_or_old_list',new_or_old_list)
+            # newolds=''
+            # for i in new_or_old_list:
+            #     if i['brand']=="国赛":# and ("普美瑞" not in i['supplier']  or  "普美瑞-"  in i['supplier']):
+            #         newolds+='已有国赛业务'
+            #     else:
+            #         newolds+='新商机'
+            # print('newold',newolds)
+            if any(item.get("brand") == "国赛" for item in new_or_old_list):
+                newolds='已有国赛业务'
+            else:
+                newolds='新商机'
+            print('brandscombine',brandscombine)
+            print('testspermonthcombine',testspermonthcombine)
+
+
             #如果有计算项（老数据修改），则以更新的方式
             if GSMRDetailCalculate.objects.filter(researchlist_id=form.instance.id):
-                # print('能获取对应的detailcalculate::::',GSMRDetailCalculate.objects.filter(researchlist_id=form.instance.id))
                 a=GSMRDetailCalculate.objects.get(researchlist=form.instance)
                 # print(a)
                 a.totalmachinenumber=machine_total_number
                 a.ownmachinenumber=machine_own_number
                 a.ownmachinepercent=ownmachinepercent
-                a.newold=newold
+                a.newold=newolds
+                a.brandscombine='|'.join(str(i) for i in brandscombine)
+                # print('a.brandscombine',a.brandscombine)
+                a.testspermonthcombine='|'.join(str(i) for i in testspermonthcombine)
+                # print('a.testspermonthcombine',a.testspermonthcombine)
+                a.totaltestspermonth=totaltests
+                a.owntestspermonth=owntests
+                a.owntestspercent=owntestspercent
+                a.salespermonth=salespermonth
+                a.ownsalespermonth=ownsalespermonth
+                a.ownsalespercent=ownsalespercent
                 a.is_active=True
                 a.save()
             else:
                 print('不能获取对应的detailcalculate')
-                GSMRDetailCalculate.objects.create(researchlist=form.instance,totalmachinenumber=machine_total_number,ownmachinenumber=machine_own_number,ownmachinepercent=ownmachinepercent,newold=newold,is_active=True).save()
+                GSMRDetailCalculate.objects.create(researchlist=form.instance,totalmachinenumber=machine_total_number,\
+                                                   ownmachinenumber=machine_own_number,ownmachinepercent=ownmachinepercent,newold=newolds,\
+                                                   brandscombine=brandscombine,testspermonthcombine=testspermonthcombine,\
+                                                   totaltestspermonth=totaltests,owntestspermonth=owntests,owntestspercent=owntestspercent,\
+                                                   salespermonth=salespermonth,ownsalespermonth=ownsalespermonth,ownsalespercent=ownsalespercent,\
+                                                   is_active=True).save()
         
+            #把进展整合 然后装进detailcalculate中
+            if GSMRResearchList.objects.filter(id=form.instance.id):
+                GSMRResearchListobj=GSMRResearchList.objects.get(id=form.instance.id)
+                print('GSMRResearchListobj',GSMRResearchListobj)
+                if GSMRResearchListobj.progress:
+                    progress_history= [{'district':GSMRResearchListobj.hospital.district,
+                                        'hospitalname':GSMRResearchListobj.hospital.hospitalname,
+                                        'hospitalclass':GSMRResearchListobj.hospital.hospitalclass,
+                                        'salesman1':GSMRResearchListobj.salesman1.chinesename,
+                                        'salesman2':GSMRResearchListobj.salesman2.chinesename,
+                                        'salesman2':GSMRResearchListobj.salesman2.chinesename,
+                                        'project':GSMRResearchListobj.project.project,
+                                        'progress':GSMRResearchListobj.progress,                                
+                                        'time':str(datetime.now())                               
+                                    }]
+                    GSMRDetailCalculateobj=  GSMRDetailCalculate.objects.get(researchlist=form.instance)
+                    print('GSMRDetailCalculateobj',GSMRDetailCalculateobj)
+                    if not GSMRDetailCalculateobj.progresshistory:
+                        GSMRDetailCalculateobj.progresshistory=progress_history
+                    else:
+                        GSMRDetailCalculateobj.progresshistory.extend(progress_history)
+                    GSMRDetailCalculateobj.save()
+
+
+
             for eachdetail in GSMRResearchDetail.objects.filter(researchlist_id=form.instance.id):
                 # print('eachdetail',eachdetail)
                 if not eachdetail.installdate:
@@ -820,6 +902,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                     else:
                         ret = '5年内'      
                 eachdetail.expiration=ret
+                eachdetail.sumpermonth=eachdetail.testspermonth * eachdetail.testprice
                 eachdetail.save()
 
             if not GSMRSalesTarget.objects.filter(researchlist_id=form.instance.id):
@@ -827,29 +910,73 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 GSMRSalesTarget.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
             else:
                 if len(formsets[0].cleaned_data) > 0:
-                    # for each_inline in formsets[0].cleaned_data:
-                    #     if  each_inline.get('DELETE')==True and each_inline.get('year')=='2023':
-                    #         GSMRSalesTarget.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
-                    #     if  each_inline.get('DELETE')==True and each_inline.get('year')=='2024':
-                    #         GSMRSalesTarget.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
+                    targets2023=GSMRSalesTarget.objects.filter(researchlist_id=form.instance.id,year='2023',is_active=True)
+                    if len(targets2023)>1:
+                        for i in range(1,len(targets2023)):
+                            targets2023[i].delete()                
+                    for i in targets2023:
+                        i.q1finishrate=i.q1actualsales/i.q1target if i.q1target !=0 else 0.00 
+                        i.q2finishrate=i.q2actualsales/i.q2target if i.q2target !=0 else 0.00
+                        i.q3finishrate=i.q3actualsales/i.q3target if i.q3target !=0 else 0.00
+                        i.q4finishrate=i.q4actualsales/i.q4target if i.q4target !=0 else 0.00                         
+                        i.save()
+
+                    targets2024=GSMRSalesTarget.objects.filter(researchlist_id=form.instance.id,year='2024',is_active=True)
+                    if len(targets2024)>1:
+                        for i in range(1,len(targets2024)):
+                            targets2024[i].delete()
+                    for i in targets2024:
+                        i.q1finishrate=i.q1actualsales/i.q1target if i.q1target !=0 else 0.00 
+                        i.q2finishrate=i.q2actualsales/i.q2target if i.q2target !=0 else 0.00
+                        i.q3finishrate=i.q3actualsales/i.q3target if i.q3target !=0 else 0.00
+                        i.q4finishrate=i.q4actualsales/i.q4target if i.q4target !=0 else 0.00        
+                        i.save()
+
+
                     if not GSMRSalesTarget.objects.filter(researchlist_id=form.instance.id,year='2023',is_active=True):
                         GSMRSalesTarget.objects.create(researchlist=form.instance,year='2023',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
+             
                     if not GSMRSalesTarget.objects.filter(researchlist_id=form.instance.id,year='2024',is_active=True):
                         GSMRSalesTarget.objects.create(researchlist=form.instance,year='2024',q1target=0,q2target=0,q3target=0,q4target=0,is_active=True).save()
 
             print('saverelated 保存成功')
    
+              
+
+
+
+
+
 
 
    #这是通过saverelated点击保存时已经存入detailcalculate的数据
-    @admin.display(description='仪器总数')
+    @admin.display(ordering="gsmrdetailcalculate__totaltestspermonth",description='测试总数')
+    def detailcalculate_totaltestspermonth(self, obj):
+        if obj.gsmrdetailcalculate.totaltestspermonth ==0:
+            return  '--'
+        else:
+            return obj.gsmrdetailcalculate.totaltestspermonth
+        
+    @admin.display(ordering="gsmrdetailcalculate__brandscombine",description='品牌')    
+    def detailcalculate_brandscombine(self, obj):
+        return obj.gsmrdetailcalculate.brandscombine
+    
+    @admin.display(ordering="gsmrdetailcalculate__testspermonthcombine",description='测试数')    
+    def detailcalculate_testspermonthcombine(self, obj):
+        return obj.gsmrdetailcalculate.testspermonthcombine
+
+    @admin.display(ordering="gsmrdetailcalculate__ownsalespermonth",description='国赛美瑞招商月产出额')    
+    def detailcalculate_ownsalespermonth(self, obj):
+        return obj.gsmrdetailcalculate.ownsalespermonth
+    
+    @admin.display(ordering="gsmrdetailcalculate__totalmachinenumber",description='仪器总数')
     def detailcalculate_totalmachinenumber(self, obj):
         if obj.gsmrdetailcalculate.totalmachinenumber ==0:
             return  '--'
         else:
             return obj.gsmrdetailcalculate.totalmachinenumber
     
-    @admin.display(description='我司仪器占比')
+    @admin.display(ordering="gsmrdetailcalculate__ownmachinepercent",description='我司仪器占比')
     def detailcalculate_ownmachinenumberpercent(self, obj):
         if obj.gsmrdetailcalculate.ownmachinepercent ==0:
             return '--'
@@ -872,24 +999,24 @@ class GSMRResearchListAdmin(GlobalAdmin):
     def salesman1_chinesename(self, obj):
         return obj.salesman1.chinesename
 
-    @admin.display(description='第二责任人')
+    @admin.display(ordering="salesman2__chinesename",description='第二责任人')
     def salesman2_chinesename(self, obj):
         return obj.salesman2.chinesename
 
     @admin.display(ordering="project__project",description='项目')
     def colored_project(self,obj):
-        if obj.project.project=='CRP/SAA':
+        if obj.project.project=='全血蛋白':
             color_code='red'  
 
-        elif obj.project.project=='血球':
+        elif obj.project.project=='小发光':
             color_code='orange'    
 
-        elif obj.project.project=='糖化':
+        elif obj.project.project=='尿蛋白':
             color_code='green'   
 
-        elif obj.project.project=='尿蛋白':
+        elif obj.project.project=='糖化':
             color_code='purple'
-        elif obj.project.project=='发光':
+        elif obj.project.project=='血清蛋白':
             color_code='blue'
         else:
             color_code='black' 
@@ -1390,103 +1517,93 @@ class GSMRResearchListAdmin(GlobalAdmin):
     def calculate(self, request, queryset):
         for i in queryset:
             #更新是新客户还是老客户
-            if i.gsmrresearchdetail_set.filter(Q(is_active=True)&Q(ownbusiness=True) & ~Q(machinenumber='0')) :
-                i.gsmrdetailcalculate.newold='已有业务(含我司仪器)'
+            if i.gsmrresearchdetail_set.filter(Q(is_active=True)& Q(brand=9) & ~Q(machinenumber='0')) :
+                print('calculate已有国赛业务')
+                i.gsmrdetailcalculate.newold='已有国赛业务'
             else:
-                i.gsmrdetailcalculate.newold='新商机(不含我司仪器)'
+                i.gsmrdetailcalculate.newold='新商机'
+                print('calculate新商机')
             
             #更新仪器总数量
-            qty= i.gsmrresearchdetail_set.filter(is_active=True).aggregate(sumsum=Sum("machinenumber"))   
-            # print('我在action中的仪器总数',qty)
-            totalseries_qty= i.gsmrresearchdetail_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & ~Q(machinenumber=0)).aggregate(countseries=Count("machineseries"))  
-            distinctseries_qty=i.gsmrresearchdetail_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & ~Q(machinenumber=0)).values('machineseries').distinct().count()
-            machinetotalnumber=qty['sumsum']
-            machinetotalseries_qty=totalseries_qty['countseries']    
-            # print('machinetotalnumber,machinetotalseries_qty,distinctseries_qty',machinetotalnumber,machinetotalseries_qty,distinctseries_qty)        
-            if not qty:
-                machinenumberret=0
-            if not machinetotalnumber:
-                machinenumberret=0
-            else:    
-                if machinetotalseries_qty:
-                    totalqty=machinetotalnumber-machinetotalseries_qty+distinctseries_qty 
-                    machinenumberret= totalqty        
-                else:
-                    machinenumberret = machinetotalnumber
-            i.gsmrdetailcalculate.totalmachinenumber=machinenumberret
+            machinetotalqty= i.gsmrresearchdetail_set.filter(is_active=True).aggregate(sumsum=Sum("machinenumber"))['sumsum']  
+            if not machinetotalqty:
+                machinetotalret=0
+            else:
+                machinetotalret=machinetotalqty
+            i.gsmrdetailcalculate.totalmachinenumber=machinetotalret
+            # print('machinetotalqty',machinetotalqty)
+
 
             #更新我司仪器数    
-            qtyown= i.gsmrresearchdetail_set.filter(Q(is_active=True) & Q(ownbusiness=True)).aggregate(sumsum=Sum("machinenumber"))
-            totalseries_own_qty= i.gsmrresearchdetail_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & Q(ownbusiness=True) & ~Q(machinenumber=0)).aggregate(countseries=Count("machineseries"))  
-            distinctseries_own_qty=i.gsmrresearchdetail_set.filter(Q(is_active=True) & Q(machineseries__isnull=False) & Q(ownbusiness=True) & ~Q(machinenumber=0)).values('machineseries').distinct().count()
-            machinetotalnumberown=qtyown['sumsum']
-            machinetotalseries_qtyown=totalseries_own_qty['countseries']
-            if not qtyown:
-                ownmachinenumberret=0
-            if not machinetotalnumberown:
-                ownmachinenumberret=0
+            machineqtyown= i.gsmrresearchdetail_set.filter(Q(is_active=True) & Q(brand=9)).aggregate(sumsum=Sum("machinenumber"))['sumsum']
+            # print('machineqtyown',machineqtyown)
+            if not machineqtyown:
+                machineownret=0
             else:
-                if machinetotalseries_qtyown:
-                    totalownqty=machinetotalnumberown-machinetotalseries_qtyown+distinctseries_own_qty
-                    ownmachinenumberret=totalownqty            
-                else:
-                    ownmachinenumberret = machinetotalnumberown
-            i.gsmrdetailcalculate.ownmachinenumber=ownmachinenumberret
+                machineownret=machineqtyown
+            i.gsmrdetailcalculate.ownmachinenumber=machineownret
+
 
             #更新我司仪器占比     
-            if not qtyown or ownmachinenumberret==0 or ownmachinenumberret=='--' :
-                ret=0
-            elif not qty or machinenumberret==0 or  machinenumberret =='--':
-                ret=0
+            if not machinetotalqty or machinetotalret==0 or machinetotalret=='--' or machineownret=='--':
+                ownmachinepercent=0       
             else:
-                ret=ownmachinenumberret/machinenumberret
-            i.gsmrdetailcalculate.ownmachinepercent=ret
+                ownmachinepercent=machineownret/machinetotalret
+            i.gsmrdetailcalculate.ownmachinepercent=ownmachinepercent
+            
 
 
-             #更新是否我司业务集合在detailcalculate表中
-            ownbusinesses= i.gsmrresearchdetail_set.filter(is_active=True)
-            if not ownbusinesses:
-                ret = '--'
-            elif len(ownbusinesses)>1:
-                ret = '/'.join(str(i.ownbusiness) for i in ownbusinesses if i.machinenumber != 0 )
-                ret=ret.replace('True','是')  
-                ret=ret.replace('False','否')  
+
+            #---------------
+            #更新测试总数量
+            totaltestspermonth= i.gsmrresearchdetail_set.filter(is_active=True).aggregate(sumsum=Sum("testspermonth"))['sumsum']    
+            if not totaltestspermonth:
+                totaltestspermonthret=0
             else:
-                if ownbusinesses[0].machinenumber != 0:
-                    ret=str(ownbusinesses[0].ownbusiness)
-                    ret=ret.replace('True','是')  
-                    ret=ret.replace('False','否')  
-                else:
-                    ret='--'
-            i.gsmrdetailcalculate.ownbusinesscombine=ret
+                totaltestspermonthret=totaltestspermonth
+            i.gsmrdetailcalculate.totaltestspermonth=totaltestspermonthret
 
-            #更新项目细分集合在detailcalculate表中
-            detailedprojects= i.gsmrresearchdetail_set.filter(is_active=True)
-            if not detailedprojects:
-                ret = '--'
-                
-            elif len(detailedprojects)>1:
-                detailedprojectslist=[]
-                for eachdetail in detailedprojects:
-                    if eachdetail.machinenumber != 0:
-                        if eachdetail.detailedproject:
-                            detailedprojectslist.append(str(eachdetail.detailedproject.detailedproject))
-                        else:
-                            detailedprojectslist.append('None')
-                ret = '/'.join(detailedprojectslist)
-                
+            #更新我司测试  
+            owntestspermonth= i.gsmrresearchdetail_set.filter(Q(is_active=True) & Q(brand=9)).aggregate(sumsum=Sum("testspermonth"))['sumsum']  
+            if not owntestspermonth:
+                owntestspermonthret=0
             else:
-                if detailedprojects[0].machinenumber != 0:
-                    if detailedprojects[0].detailedproject:
-                        ret=str(detailedprojects[0].detailedproject.detailedproject)
-                    else:
-                        ret='None'
-                else:
-                    ret='--'
-            i.gsmrdetailcalculate.detailedprojectcombine=ret
+                owntestspermonthret=owntestspermonth
+            i.gsmrdetailcalculate.owntestspermonth=owntestspermonthret
 
+            #更新我司测试占比     
+            if not totaltestspermonth or  totaltestspermonthret==0 or owntestspermonthret=='--' or totaltestspermonthret=='--':
+                owntestspercent=0       
+            else:
+                owntestspercent=owntestspermonthret/totaltestspermonthret
+            i.gsmrdetailcalculate.owntestspercent=owntestspercent
 
-            #更新品牌集合在detailcalculate表中
+            #---------------
+            #更新sum量
+            salespermonth= i.gsmrresearchdetail_set.filter(is_active=True).aggregate(sumsum=Sum("sumpermonth"))['sumsum']    
+            if not salespermonth:
+                salespermonthret=0
+            else:
+                salespermonthret=salespermonth
+            i.gsmrdetailcalculate.salespermonth=salespermonthret
+
+            #更新我司sum   
+            ownsalespermonth= i.gsmrresearchdetail_set.filter(Q(is_active=True) & Q(brand=9) & Q(type='国赛美瑞-招商')).aggregate(sumsum=Sum("sumpermonth"))['sumsum']  
+            if not ownsalespermonth:
+                ownsalespermonthret=0
+            else:
+                ownsalespermonthret=ownsalespermonth
+            i.gsmrdetailcalculate.ownsalespermonth=ownsalespermonthret
+
+            #更新我司sum占比     
+            if not salespermonth or salespermonthret==0:
+                ownsalespercent=0       
+            else:
+                ownsalespercent=ownsalespermonthret/salespermonthret
+            i.gsmrdetailcalculate.ownsalespercent=ownsalespercent
+
+            #---------------
+            #更新品牌集合在detailcalculate表中brandscombine
             brands= i.gsmrresearchdetail_set.filter(is_active=True)
             if not brands:
                 ret = '--'
@@ -1498,7 +1615,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                             brandslist.append(str(eachdetail.brand.brand))
                         else:
                             brandslist.append('None')
-                ret = '/'.join(brandslist)
+                ret = '|'.join(brandslist)
                 
             else:
                 if brands[0].machinenumber != 0:
@@ -1510,85 +1627,19 @@ class GSMRResearchListAdmin(GlobalAdmin):
                     ret='--'
             i.gsmrdetailcalculate.brandscombine=ret
 
-            #更新仪器型号集合在detailcalculate表中
-            machinemodels= i.gsmrresearchdetail_set.filter(is_active=True)
-            if not machinemodels:
+
+            #更新测试数量集合在detailcalculate表中     testspermonthcombine
+            tests= i.gsmrresearchdetail_set.filter(is_active=True)
+            if not tests:
                 ret = '--'
-            elif len(machinemodels)>1:
-                ret = '/'.join(str(i.machinemodel) for i in machinemodels if i.machinenumber != 0)               
+            elif len(tests)>1:
+                ret = '|'.join(str(i.testspermonth) for i in tests if i.machinenumber != 0)               
             else:
-                if machinemodels[0].machinenumber != 0:
-                    ret=str(machinemodels[0].machinemodel)
+                if tests[0].machinenumber != 0:
+                    ret=str(tests[0].testspermonth)
                 else:
                     ret='--'
-            i.gsmrdetailcalculate.machinemodelcombine=ret
-
-            #更新仪器数量集合在detailcalculate表中
-            machinenumbers= i.gsmrresearchdetail_set.filter(is_active=True)
-            if not machinenumbers:
-                ret = '--'
-            elif len(machinenumbers)>1:
-                ret = '/'.join(str(i.machinenumber) for i in machinenumbers if i.machinenumber != 0)               
-            else:
-                if machinenumbers[0].machinenumber != 0:
-                    ret=str(machinenumbers[0].machinenumber)
-                else:
-                    ret='--'
-            i.gsmrdetailcalculate.machinenumbercombine=ret
-
-            #更新仪器序列号集合在detailcalculate表中
-            machineserieses= i.gsmrresearchdetail_set.filter(is_active=True)
-            if not machineserieses:
-                ret = '--'
-            elif len(machineserieses)>1:
-                ret = '/'.join(str(i.machineseries) for i in machineserieses if i.machinenumber != 0)               
-            else:
-                if machineserieses[0].machineseries != 0:
-                    ret=str(machineserieses[0].machineseries)
-                else:
-                    ret='--'
-            i.gsmrdetailcalculate.machineseriescombine=ret
-
-
-            #更新装机时间集合在detailcalculate表中
-            installdates= i.gsmrresearchdetail_set.filter(is_active=True)
-            if not installdates:
-                ret = '--'
-            elif len(installdates)>1:
-                ret = '/'.join(str(i.installdate) for i in installdates if i.machinenumber != 0)
-                
-            else:
-                if installdates[0].machinenumber != 0 :
-                    ret=str(installdates[0].installdate)
-                else:
-                    ret='--'
-            i.gsmrdetailcalculate.installdatescombine=ret
-
-            #更新竞品关系点集合在detailcalculate表中
-            competitors= i.gsmrresearchdetail_set.filter(is_active=True)
-            if not competitors:
-                ret = '--'
-            elif len(competitors)>1:
-                competitorslist=[]
-                for eachdetail in competitors:
-                    if eachdetail.machinenumber != 0:
-                        if eachdetail.competitionrelation:
-                            competitorslist.append(str(eachdetail.competitionrelation.competitionrelation))
-                        else:
-                            competitorslist.append('None')
-                ret = '/'.join(competitorslist)
-                
-            else:
-                if competitors[0].machinenumber != 0:
-                    if competitors[0].competitionrelation:
-                        ret=str(competitors[0].competitionrelation.competitionrelation)
-                    else:
-                        ret='None'
-                else:
-                    ret='--'
-            i.gsmrdetailcalculate.competitionrelationcombine=ret
-
-            i.gsmrdetailcalculate.save()
+            i.gsmrdetailcalculate.testspermonthcombine=ret
 
             #更新装机时间在detail表中
             qs_fk=i.gsmrresearchdetail_set.all()
@@ -1602,6 +1653,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
                         ret = '5年内'            
                 j.expiration=ret
                 j.save()
+            i.gsmrdetailcalculate.save()    
             i.save()           
 
 
@@ -1618,16 +1670,15 @@ class GSMRResearchListAdmin(GlobalAdmin):
 @admin.register(GSMRResearchDetail)
 class GSMRResearchDetailAdmin(GlobalAdmin):
     exclude = ('id','createtime','updatetime')
-    search_fields=['researchlist__hospital__hospitalname','brand__brand','machinemodel','competitionrelation__competitionrelation']
-    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',ProjectFilterforDetail,SalesmanFilterforDetail,'competitionrelation','researchlist__gsmrdetailcalculate__newold','expiration']
+    search_fields=['researchlist__hospital__hospitalname','brand__brand']
+    list_filter = ['researchlist__hospital__district','researchlist__hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'researchlist__gsmrdetailcalculate__newold','expiration']
 
     list_display_links =('list_hospitalname',)
     empty_value_display = '--'
     list_per_page = 15
-    list_display = ('list_district','list_hospitalclass','list_hospitalname','list_salesman1', 'list_project',
-                    'renamed_detailedproject','firsttierdistribution','secondtierdistribution','ownbusiness',
-                    'is_goldsite','brand','machinemodel','machineseries','machinenumber','installdate','colored_expiration',
-                    'testprice','endsupplier','colored_competitionrelation')
+    list_display = ('list_district','list_hospitalname','list_hospitalclass','list_salesman1', 'list_salesman2','list_project',
+                  'brand','type','endsupplier','testspermonth','testprice','sumpermonth','machinenumber','machinemodel','installdate','colored_expiration',
+                    )
     autocomplete_fields=['researchlist','brand']
     readonly_fields=('is_active','expiration')
     
@@ -1704,12 +1755,12 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'researchlist': 
             kwargs["queryset"] = GSMRResearchList.objects.filter(is_active=True) 
-        if db_field.name == 'detailedproject': 
-            kwargs["queryset"] = GSMRProjectDetail.objects.filter(is_active=True) 
-        if db_field.name == 'brand':  
-            kwargs["queryset"] = Brand.objects.filter(is_active=True) 
-        if db_field.name == 'competitionrelation': 
-            kwargs["queryset"] = CompetitionRelation.objects.filter(is_active=True)
+        # if db_field.name == 'detailedproject': 
+        #     kwargs["queryset"] = GSMRProjectDetail.objects.filter(is_active=True) 
+        # if db_field.name == 'brand':  
+        #     kwargs["queryset"] = Brand.objects.filter(is_active=True) 
+        # if db_field.name == 'competitionrelation': 
+        #     kwargs["queryset"] = CompetitionRelation.objects.filter(is_active=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -1729,15 +1780,15 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
     def list_hospitalname(self, obj):
         return obj.researchlist.hospital.hospitalname
     
-    @admin.display(ordering="-detailedproject",description='项目细分')
-    def renamed_detailedproject(self, obj):
-        return obj.detailedproject
-    
 
 
     @admin.display(ordering="researchlist__salesman1",description='第一负责人')
     def list_salesman1(self, obj): #用relatedname
         return obj.researchlist.salesman1.chinesename
+    
+    @admin.display(ordering="researchlist__salesman2",description='第二负责人')
+    def list_salesman2(self, obj): #用relatedname
+        return obj.researchlist.salesman2.chinesename
 
     @admin.display(ordering="researchlist__project",description='项目')
     def list_project(self,obj):
@@ -1745,18 +1796,18 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
             obj.researchlist.project.project = '--'
             color_code = 'black'
 
-        if obj.researchlist.project.project=='CRP/SAA':
+        if obj.researchlist.project.project=='全血蛋白':
             color_code='red'  
 
-        elif obj.researchlist.project.project=='血球':
+        elif obj.researchlist.project.project=='小发光':
             color_code='orange'    
 
-        elif obj.researchlist.project.project=='糖化':
+        elif obj.researchlist.project.project=='尿蛋白':
             color_code='green'   
 
-        elif obj.researchlist.project.project=='尿蛋白':
+        elif obj.researchlist.project.project=='糖化':
             color_code='purple'
-        elif obj.researchlist.project.project=='发光':
+        elif obj.researchlist.project.project=='血清蛋白':
             color_code='blue'
 
         else:
@@ -1791,22 +1842,6 @@ class GSMRResearchDetailAdmin(GlobalAdmin):
                 )
 
 
-    @admin.display(ordering="competitionrelation",description='竞品关系点')
-    def colored_competitionrelation(self,obj):
-        if not obj.competitionrelation:
-            ret = '--'
-            color_code = 'black'
-        else:
-            if obj.competitionrelation.competitionrelation=='组长' or obj.competitionrelation.competitionrelation=='无':
-                color_code='red'          
-                ret=  obj.competitionrelation.competitionrelation
-            else:
-                color_code='black'   
-                ret=  obj.competitionrelation.competitionrelation    
-        return format_html(
-                '<span style="color:{};">{}</span>',
-                color_code,
-                ret, )
 
 
 
@@ -1852,25 +1887,6 @@ class BrandAdmin(GlobalAdmin):
         return queryset,use_distinct 
     
 
-@admin.register(GSMRProjectDetail)  
-class ProjectDetailAdmin(GlobalAdmin):   
-    search_fields=['detailedproject']
-    exclude = ('id','createtime','updatetime','is_active')
-
-    def get_search_results(self, request, queryset, search_term):
-        queryset,use_distinct = super().get_search_results(request, queryset, search_term)
-        if 'autocomplete' in request.path:
-            queryset=queryset.filter(is_active=True,company_id=5).order_by('id')
-        return queryset,use_distinct 
-    
-   
-
-@admin.register(CompetitionRelation)  
-class CompetitionRelationAdmin(GlobalAdmin):   
-    search_fields=['competitionrelation']
-    exclude = ('id','createtime','updatetime','is_active')
-
-
 @admin.register(GSMRSalesTarget)  
 class SalesTargetAdmin(GlobalAdmin):   
     exclude = ('id','createtime','updatetime','is_active')
@@ -1882,12 +1898,11 @@ class SalesTargetAdmin(GlobalAdmin):
 
 @admin.register(GSMRResearchListDelete)
 class GSMRResearchListDeleteAdmin(admin.ModelAdmin):
-    # form=PMRResearchListForm
-    # inlines=[SalesTargetInline,PMRResearchDetailInline,DetailCalculateInline]
+
     empty_value_display = '--'
     # list_display_links =('hospital',)
     exclude = ('operator','is_active')
-    readonly_fields=('company','hospital','project','salesman1','salesman2','testspermonth','owntestspermonth','salesmode','saleschannel','support','memo')
+    readonly_fields=('company','hospital','project','salesman1','salesman2','director','saleschannel','support')
     search_fields=['uniquestring']
     GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
 
@@ -1904,7 +1919,7 @@ class GSMRResearchListDeleteAdmin(admin.ModelAdmin):
                 return qs.filter(is_active=False,company_id=5)      
 
        #普通销售的话:
-        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=5)))#|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=5)))
+        return qs.filter((Q(is_active=False)&Q(salesman1=request.user)&Q(company_id=5))|(Q(is_active=False)&Q(salesman2=request.user)&Q(company_id=5)))
     
 
     def has_delete_permission(self, request,obj=None):
