@@ -370,7 +370,7 @@ class GSMRResearchDetailInline(admin.TabularInline):
             if request.POST.get('salesman1'):                
                 if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
                     return True
-                elif request.POST.get('salesman1')!= str(request.user.id):
+                elif request.POST.get('salesman1')!= str(request.user.id) and  request.POST.get('salesman2')!= str(request.user.id):
                     print('我在PMRResearchDetailInline has add permission:: :obj==None FALSE request.POST.get(salesman1)',request.POST.get('salesman1'),request.user)
                     return False
                 else:
@@ -380,7 +380,7 @@ class GSMRResearchDetailInline(admin.TabularInline):
                 return True
 
         else:    
-            if request.user.is_superuser or obj.salesman1==request.user  or request.POST.get('salesman1')==str(request.user.id) or request.user.groups.values()[0]['name'] =='boss':
+            if request.user.is_superuser or obj.salesman1==request.user or obj.salesman2==request.user  or request.POST.get('salesman1')==str(request.user.id) or request.POST.get('salesman2')==str(request.user.id) or request.user.groups.values()[0]['name'] =='boss':
                 print('我在inline has add permission:::,obj.salesman1 if ',True)
                 return True
             else:
@@ -392,7 +392,7 @@ class GSMRResearchDetailInline(admin.TabularInline):
         if obj==None:
                 print('我在PMRResearchDetailInline has change permission:::obj,request.POST.get(salesman1)',True,request.POST.get('salesman1'))
                 return True            
-        elif obj.salesman1==request.user or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
+        elif obj.salesman1==request.user or obj.salesman2==request.user  or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
             print('我在PMRResearchDetailInline has change permission:::obj',True,obj.salesman1)
             return True
         else:
@@ -420,8 +420,8 @@ class SalesTargetInline(admin.StackedInline):
                       ('q4target','q4completemonth','q4actualsales','field_q4finishrate'),
                                             )                              
     
-    verbose_name = verbose_name_plural = ('作战计划和成果')
-    GSMR_view_group_list = ['boss','GSMRmanager','gsmronlyview','allviewonly']
+    verbose_name = verbose_name_plural = ('作战计划和成果 （仅针对新项目）')
+    GSMR_view_group_list = ['boss','GSMRmanager','GSMR','gsmronlyview','allviewonly']
     def field_q1finishrate(self, obj):
         value = float(obj.q1finishrate) if obj.q1finishrate else 0
         style = 'width: 6ch'#; background-color: #f2f2f2;'
@@ -617,8 +617,6 @@ class GSMRResearchListAdmin(GlobalAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     
-
-#下面三个还没有修改
     def has_delete_permission(self, request,obj=None):
         if request.user.groups.values():
             if request.user.groups.values()[0]['name'] == 'gsmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
@@ -630,7 +628,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
         if request.POST.get('salesman1'):
             if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
                 return True
-            if request.POST.get('salesman1')!=str(request.user.id):
+            if request.POST.get('salesman1')!=str(request.user.id) and request.POST.get('salesman2')!=str(request.user.id):
                 print('我在PmrResearchListAdmin has delete permission request.POST.get(salesman1)  false!!!',request.POST.get('salesman1'))
                 return False
             else: 
@@ -660,13 +658,13 @@ class GSMRResearchListAdmin(GlobalAdmin):
             if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
                 print('我在PmrResearchListAdmin has change permission request.POST.get(salesman1)  True superuser!!!')
                 return True
-            if request.POST.get('salesman1')!=str(request.user.id):
+            if request.POST.get('salesman1')!=str(request.user.id) and request.POST.get('salesman2')!=str(request.user.id):
                 print('我在PmrResearchListAdmin has change permission request.POST.get(salesman1)  false!!!',request.POST.get('salesman1'))
                 return False
             else: 
                 print('我在PmrResearchListAdmin has change permission request.POST.get(salesman1)  true!!',request.POST.get('salesman1'))
                 return True
-        if obj.salesman1==request.user or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
+        if obj.salesman1==request.user or obj.salesman2==request.user  or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
             print('我在PmrResearchListAdmin has change permission True obj.salesman1 ',obj.salesman1)
             return True
         else:
@@ -774,7 +772,7 @@ class GSMRResearchListAdmin(GlobalAdmin):
         ###注意要判断是否共用仪器！！！！！！！如果我司仪器必填序列号，怎么validate？？？！？
         print('我在save_related')
         super().save_related(request, form, formsets, change)
-        if form.cleaned_data.get('salesman1')==request.user or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss': 
+        if form.cleaned_data.get('salesman1')==request.user or form.cleaned_data.get('salesman2')==request.user or request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss': 
             machine_total_number=0
             machine_own_number=0
             new_or_old_list=[]

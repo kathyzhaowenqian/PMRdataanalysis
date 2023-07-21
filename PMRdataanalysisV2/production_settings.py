@@ -230,7 +230,7 @@ SIMPLEUI_CONFIG = {
                 'icon': 'fa-solid fa-pen'
                 }, 
                 {
-                'name': '调研表仪器详情表',
+                'name': '调研表详情表',
                 'icon': 'fa-solid fa-list',
                 'url': '/admin/Marketing_Research_QT/pmrresearchdetail3/'
                 },

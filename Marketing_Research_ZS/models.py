@@ -187,7 +187,7 @@ class GSMRResearchList(models.Model):
     director = models.CharField(verbose_name='科室主任',max_length=255, blank=True, null=True)
     saleschannel = models.TextField(verbose_name='销售路径',max_length=255, blank=True, null=True)
     support = models.TextField(verbose_name='所需支持',max_length=500, blank=True, null=True)
-    progress=models.CharField(verbose_name='进展(新项目必选)',max_length=25,choices=progress_choices,blank=True, null=True,help_text=u'每点击一次下方的“保存”，都会记录一次进展，注意不要选错')
+    progress=models.CharField(verbose_name='进展(新项目必选)',max_length=25,choices=progress_choices,blank=True, null=True,help_text=u'仅针对新项目，每点击一次下方的“保存”，都会记录一次进展，注意不要选错')
 
     relation=models.TextField(verbose_name='关系梳理',max_length=500, blank=True, null=True)
     memo=models.TextField(verbose_name='备注',max_length=500, blank=True, null=True)
