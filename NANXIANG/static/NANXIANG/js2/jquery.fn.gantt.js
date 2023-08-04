@@ -167,7 +167,6 @@
         }
     }
 
-
     function splittext(text){
         let str = text;
         let firstDashIndex = str.indexOf('-'); // 获取第一个'-'的索引
@@ -195,13 +194,13 @@
             console.log(project_name)
             revised_project_name = splittext(project_name)
             console.log(revised_project_name)
-            project_url = `http://127.0.0.1:8000/admin/PUZHONGXIN/pzxoverall/?q=${revised_project_name}`
+            project_url = `http://127.0.0.1:8000/admin/NANXIANG/nxoverall/?q=${revised_project_name}`
             new_dom = `<a href=${project_url} target="_blank">${original_dom}</a>`
             $(`#rowheader${index}`).html(new_dom)
             
         }
     } 
-
+    
     $.fn.gantt = function (options) {
 
         var scales = ["hours", "days", "weeks", "months"];
@@ -824,10 +823,6 @@
 
                 return $('<div class="rightPanel"></div>').append(dataPanel);
             },
-
-
-            
-
 
             // **Navigation**
             navigation: function (element) {

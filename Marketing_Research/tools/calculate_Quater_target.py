@@ -133,7 +133,7 @@ def result_of_Quatar_display(advanced_days,delayed_days):
                    'testspermonth','owntestspermonth','salesmode','saleschannel','support','progress','detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent',
                  # 'actualsales_23_q1',#'finishrate_23_q1',#  'salestarget_23_q1','completemonth_23_q1',
                    #'salestarget_23_q2','completemonth_23_q2',
-                   'actualsales_23_q1','actualsales_23_q2','finishrate_23_q2','salestarget_23_q3','completemonth_23_q3',#
+                   'actualsales_23_q1','actualsales_23_q2','finishrate_23_q2','salestarget_23_q3','completemonth_23_q3','actualsales_23_q3',#
                    
                    ),
                     #list_editable

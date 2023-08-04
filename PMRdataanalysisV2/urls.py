@@ -28,5 +28,8 @@ urlpatterns = [
     path('Marketing_Research_WD/',include('Marketing_Research_WD.urls')),
     path('PUZHONGXIN/',include('PUZHONGXIN.urls')),
     path('Marketing_Research_ZS/',include('Marketing_Research_ZS.urls')),
+    path('ANTING/',include('ANTING.urls')),
+    path('NANXIANG/',include('NANXIANG.urls')),
+
     path('favicon.ico', favicon_view)
 ]

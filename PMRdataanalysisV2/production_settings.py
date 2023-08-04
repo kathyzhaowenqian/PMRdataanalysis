@@ -159,7 +159,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['Marketing_Research/static/','PUZHONGXIN/static/','Marketing_Research_ZS/static/']
+STATICFILES_DIRS = ['Marketing_Research/static/','PUZHONGXIN/static/','Marketing_Research_ZS/static/','/ANTING/static/','/NANXIANG/static/']
 
 
 
@@ -412,10 +412,52 @@ SIMPLEUI_CONFIG = {
                             {
                             'name': '安亭战略地图',
                             'url': '/admin/ANTING/atspdlist/'
-                            },                        
+                            },      
+                        #三级菜单：安亭作战计划                      
+                            {
+                            'name': '安亭作战计划(在此填报)',
+                            'url': '/admin/ANTING/atoverall/'
+                            },       
+                        #三级菜单：安亭甘特图                     
+                            {
+                            'name': '安亭进度甘特图',
+                            'url': '/ANTING/gantt'
+                            },         
+                        #三级菜单：安亭新开项目明细                     
+                            {
+                            'name': '安亭新开项目明细',
+                            'url': '/admin/ANTING/atnewprojectdetail/'
+                            },         
+                            #三级菜单：安亭供应商重新谈判明细                     
+                            {
+                            'name': '安亭供应商重新谈判明细',
+                            'url': '/admin/ANTING/atnegotiationdetail/'
+                            },        
+                            #三级菜单：安亭渠道变更明细                     
+                            {
+                            'name': '安亭渠道变更明细',
+                            'url': '/admin/ANTING/atchangechanneldetail/'
+                            },    
+                            #三级菜单：安亭品牌替换后明细                     
+                            {
+                            'name': '安亭品牌替换后明细',
+                            'url': '/admin/ANTING/atafterchangebranddetail/'
+                            },   
+                            #三级菜单：安亭套餐绑定明细                     
+                            {
+                            'name': '安亭套餐绑定明细',
+                            'url': '/admin/ANTING/atsetdetail/'
+                            },   
+                            #三级菜单：安亭作战计划已删除的数据  
+                            {
+                            'name': '安亭作战计划已删除的数据',
+                            'icon': 'fa-solid fa-list',
+                            'url': '/admin/ANTING/atoveralldelete/'
+                            },
+
+
                     ]                
                 } ,
-
 
                 #二级菜单：南翔
                 {
@@ -427,9 +469,51 @@ SIMPLEUI_CONFIG = {
                             {
                             'name': '南翔战略地图',
                             'url': '/admin/NANXIANG/nxspdlist/'
-                            },                        
+                            },     
+                        #三级菜单：南翔作战计划                      
+                            {
+                            'name': '南翔作战计划(在此填报)',
+                            'url': '/admin/NANXIANG/nxoverall/'
+                            },       
+                        #三级菜单：南翔甘特图                     
+                            {
+                            'name': '南翔进度甘特图',
+                            'url': '/NANXIANG/gantt'
+                            },         
+                        #三级菜单：南翔新开项目明细                     
+                            {
+                            'name': '南翔新开项目明细',
+                            'url': '/admin/NANXIANG/nxnewprojectdetail/'
+                            },         
+                            #三级菜单：南翔供应商重新谈判明细                     
+                            {
+                            'name': '南翔供应商重新谈判明细',
+                            'url': '/admin/NANXIANG/nxnegotiationdetail/'
+                            },        
+                            #三级菜单：南翔渠道变更明细                     
+                            {
+                            'name': '南翔渠道变更明细',
+                            'url': '/admin/NANXIANG/nxchangechanneldetail/'
+                            },    
+                            #三级菜单：南翔品牌替换后明细                     
+                            {
+                            'name': '南翔品牌替换后明细',
+                            'url': '/admin/NANXIANG/nxafterchangebranddetail/'
+                            },   
+                            #三级菜单：南翔套餐绑定明细                     
+                            {
+                            'name': '南翔套餐绑定明细',
+                            'url': '/admin/NANXIANG/nxsetdetail/'
+                            },   
+                            #三级菜单：南翔作战计划已删除的数据  
+                            {
+                            'name': '南翔作战计划已删除的数据',
+                            'icon': 'fa-solid fa-list',
+                            'url': '/admin/NANXIANG/nxoveralldelete/'
+                            },
                     ]                
-                } ,         
+                } ,      
+
                 {
                 # 第二级菜单                
                 'name': '潜在医院调研表',
@@ -543,3 +627,5 @@ MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS = 30
 SIMPLEUI_LOGO = '/static/pmr/images/logo.png'
 
 SESSION_COOKIE_AGE = 21600 
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240

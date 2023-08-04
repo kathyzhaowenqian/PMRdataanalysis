@@ -2049,7 +2049,7 @@ class PZXOverallAdmin(nested_admin.NestedModelAdmin):
             completemonths.append(str(newprojectobject.completemonth) if newprojectobject.completemonth else '--' )
             supports.append(newprojectobject.support if newprojectobject.support else '--' )
             actionplan.append(newprojectobject.actionplan if newprojectobject.actionplan else '--' )
-            relation.append(newprojectobject.actionplan if newprojectobject.relation else '--' )
+            relation.append(newprojectobject.relation if newprojectobject.relation else '--' )
             monthgpgrowthdetail.append(str('{:,.0f}'.format(newprojectobject.monthgpgrowth)) if newprojectobject.monthgpgrowth else '--' )
             thisyeargpgrowthdetail.append(str('{:,.0f}'.format(newprojectobject.thisyeargpgrowth))if newprojectobject.thisyeargpgrowth else '--' )
             
@@ -2290,7 +2290,7 @@ class PZXOverallAdmin(nested_admin.NestedModelAdmin):
             completemonths.append(str(negotiationobject.completemonth) if negotiationobject.completemonth else '--' )
             supports.append(negotiationobject.support if negotiationobject.support else '--' )
             actionplan.append(negotiationobject.actionplan if negotiationobject.actionplan else '--' )
-            relation.append(negotiationobject.actionplan if negotiationobject.relation else '--' )
+            relation.append(negotiationobject.relation if negotiationobject.relation else '--' )
             monthgpgrowthdetail.append(str('{:,.0f}'.format(negotiationobject.monthgpgrowth)) if negotiationobject.monthgpgrowth else '--' )
             thisyeargpgrowthdetail.append(str('{:,.0f}'.format(negotiationobject.thisyeargpgrowth)) if negotiationobject.thisyeargpgrowth else '--' )
 
@@ -2479,7 +2479,7 @@ class PZXOverallAdmin(nested_admin.NestedModelAdmin):
             completemonths.append(str(changechannelobject.completemonth) if changechannelobject.completemonth else '--' )
             supports.append(changechannelobject.support if changechannelobject.support else '--' )
             actionplan.append(changechannelobject.actionplan if changechannelobject.actionplan else '--' )
-            relation.append(changechannelobject.actionplan if changechannelobject.relation else '--' )
+            relation.append(changechannelobject.relation if changechannelobject.relation else '--' )
             monthgpgrowthdetail.append(str('{:,.0f}'.format(changechannelobject.monthgpgrowth)) if changechannelobject.monthgpgrowth else '--' )
             thisyeargpgrowthdetail.append(str('{:,.0f}'.format(changechannelobject.thisyeargpgrowth)) if changechannelobject.thisyeargpgrowth else '--' )
 
@@ -2613,7 +2613,7 @@ class PZXOverallAdmin(nested_admin.NestedModelAdmin):
             completemonths.append(str(changebrandobject.completemonth) if changebrandobject.completemonth else '--' )
             supports.append(changebrandobject.support if changebrandobject.support else '--' )
             actionplan.append(changebrandobject.actionplan if changebrandobject.actionplan else '--' )
-            relation.append(changebrandobject.actionplan if changebrandobject.relation else '--' )
+            relation.append(changebrandobject.relation if changebrandobject.relation else '--' )
             monthgpgrowthdetail.append(str('{:,.0f}'.format(changebrandobject.monthgpgrowth)) if changebrandobject.monthgpgrowth else '--' )
             thisyeargpgrowthdetail.append(str('{:,.0f}'.format(changebrandobject.thisyeargpgrowth)) if changebrandobject.thisyeargpgrowth else '--' )
         
@@ -2696,7 +2696,7 @@ class PZXOverallAdmin(nested_admin.NestedModelAdmin):
             completemonths.append(str(setobject.completemonth) if setobject.completemonth else '--' )
             supports.append(setobject.support if setobject.support else '--' )
             actionplan.append(setobject.actionplan if setobject.actionplan else '--' )
-            relation.append(setobject.actionplan if setobject.relation else '--' )
+            relation.append(setobject.relation if setobject.relation else '--' )
             monthgpgrowthdetail.append(str('{:,.0f}'.format(setobject.monthgpgrowth)) if setobject.monthgpgrowth else '--' )
             thisyeargpgrowthdetail.append(str('{:,.0f}'.format(setobject.thisyeargpgrowth))if setobject.thisyeargpgrowth else '--' )
 

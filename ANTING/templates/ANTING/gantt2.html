@@ -9,9 +9,9 @@
     默认按周呈现（月份下面的数字），比如26就是今年第26周。如果需要按日呈现则点击“+”
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
-    <link rel="stylesheet" href="{% static 'PUZHONGXIN/css2/style.css' %}" />
-    <link rel="stylesheet" href="{% static 'PUZHONGXIN/css2//bootstrap.min.css' %}" />
-    <link href="{% static 'PUZHONGXIN/css2/prettify.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'ANTING/css2/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'ANTING/css2//bootstrap.min.css' %}" />
+    <link href="{% static 'ANTING/css2/prettify.min.css' %}" rel="stylesheet" />
     <style type="text/css">
         body {
             font-family: Helvetica, Arial, sans-serif;
@@ -34,11 +34,11 @@
 
 </body>
 </html>
-<script src="{% static 'PUZHONGXIN/js2/jquery-2.1.4.min.js' %}"></script>
-<script src="{% static 'PUZHONGXIN/js2/bootstrap.min.js' %}"></script>
-<script src="{% static 'PUZHONGXIN/js2/jquery.fn.gantt.js' %}"></script>
+<script src="{% static 'ANTING/js2/jquery-2.1.4.min.js' %}"></script>
+<script src="{% static 'ANTING/js2/bootstrap.min.js' %}"></script>
+<script src="{% static 'ANTING/js2/jquery.fn.gantt.js' %}"></script>
 
-<script src="{% static 'PUZHONGXIN/js2/prettify.min.js' %}"></script>
+<script src="{% static 'ANTING/js2/prettify.min.js' %}"></script>
 <script>
 
 
@@ -48,7 +48,7 @@
         function getdata() {
             let result = {}
             $.ajax({
-            url: `/PUZHONGXIN/gantt`,
+            url: `/ANTING/gantt`,
             type: "POST",
             dataType: 'json',
             async: false, //同步请求，不能异步，异步的话数据就同时出不来了
@@ -176,8 +176,7 @@ function splittext(text){
 $(document).ready(function() {
   // 使用选择器抓取动态拼接的DOM元素
   // 使用 setTimeout 来延迟执行
-
-    //hyperlink_projectname function
+  //hyperlink_projectname function
     hyperlink_projectname = function(){
         
         
@@ -193,7 +192,7 @@ $(document).ready(function() {
             console.log(project_name)
             revised_project_name = splittext(project_name)
             console.log(revised_project_name)
-            project_url = `http://127.0.0.1:8000/admin/PUZHONGXIN/pzxoverall/?q=${revised_project_name}`
+            project_url = `http://127.0.0.1:8000/admin/ANTING/atoverall/?q=${revised_project_name}`
             new_dom = `<a href=${project_url} target="_blank">${original_dom}</a>`
             $(`#rowheader${index}`).html(new_dom)
             
@@ -209,12 +208,7 @@ $(document).ready(function() {
 
     setTimeout(hyperlink_projectname,2000); // 延迟 2000ms（2秒）执行
   
-    
-
-
-   
-
-
+  
 });
 
 

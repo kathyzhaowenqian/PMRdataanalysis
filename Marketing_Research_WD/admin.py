@@ -798,7 +798,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                     print(type(each_inline.get('id')))     
                     if  each_inline.get('DELETE')==False and each_inline.get('machinenumber')!=0:
                         machine_total_number += each_inline['machinenumber']  
-                        new_or_old_list.append(each_inline['ownbusiness'])
+                        new_or_old_list.append(str(each_inline['ownbusiness']))
                         if each_inline['machineseries']:
                             machineserieslist_all.append(each_inline['machineseries'])
                         # print('machine_total_number',machine_total_number)
@@ -818,7 +818,7 @@ class PMRResearchListAdmin(GlobalAdmin):
             else:
                 ownmachinepercent= machine_own_number/machine_total_number
 
-            if '是' in new_or_old_list:
+            if 'True' in new_or_old_list:
                 newold='已有业务(含我司仪器)'
             else:
                 newold='新商机(不含我司仪器)'

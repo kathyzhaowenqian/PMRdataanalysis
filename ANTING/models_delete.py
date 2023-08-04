@@ -11,9 +11,9 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models import JSONField
 
 def get_compmany_default_value():
-    return Company.objects.get(id=9).company
+    return CompanyDELETE.objects.get(id=9).company
 
-class ATUserInfo(UserInfo):   
+class ATUserInfoDELETE(UserInfo):   
     
     class Meta:
         proxy =True
@@ -30,10 +30,10 @@ class ATUserInfo(UserInfo):
             # 如果用户名为空则返回不能为空的对象
             return self.username
 
-class ATSalesmanPosition(models.Model):
+class ATSalesmanPositionDELETE(models.Model):
     # id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey('ATUserInfo', models.CASCADE, db_column='user',to_field='id') #settings.AUTH_USER_MODEL
-    company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
+    user = models.ForeignKey('ATUserInfoDELETE', models.CASCADE, db_column='user',to_field='id') #settings.AUTH_USER_MODEL
+    company = models.ForeignKey('CompanyDELETE', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
     position = models.CharField(verbose_name='岗位',max_length=255, blank=True, null=True)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
@@ -44,7 +44,7 @@ class ATSalesmanPosition(models.Model):
         db_table = 'marketing_research_v2\".\"SalesmanPosition'
         verbose_name_plural = '员工职位列表'
 
-class Company(models.Model):
+class CompanyDELETE(models.Model):
     # id = models.BigAutoField(primary_key=True)
     company = models.CharField(verbose_name='公司',max_length=255, blank=True, null=True,)
     createtime = models.DateTimeField(auto_now_add=True)
@@ -65,10 +65,10 @@ class Company(models.Model):
         self.is_active = False
         self.save()
 
-class ATSPDList(models.Model):
+class ATSPDListDELETE(models.Model):
     # id = models.BigAutoField(primary_key=True)
-    company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
-    salesman = models.ForeignKey('ATUserInfo', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanAT',verbose_name= '负责人')
+    company = models.ForeignKey('CompanyDELETE', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
+    salesman = models.ForeignKey('ATUserInfoDELETE', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanATDELETE',verbose_name= '负责人')
 
     supplier = models.CharField(verbose_name='供应商',max_length=255, blank=True, null=True)
     brand = models.CharField(verbose_name='品牌',max_length=255, blank=True, null=True)
@@ -82,7 +82,7 @@ class ATSPDList(models.Model):
     gppercent = models.DecimalField(verbose_name='毛利率',max_digits=25, decimal_places=6, blank=True, null=True)
     relation = models.CharField(verbose_name='关系点',max_length=255, blank=True, null=True)
 
-    operator = models.ForeignKey('ATUserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operatorAT',verbose_name= '最后操作人')   
+    operator = models.ForeignKey('ATUserInfoDELETE', models.CASCADE, db_column='operator',to_field='id',related_name='operatorATDELETE',verbose_name= '最后操作人')   
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
@@ -98,32 +98,32 @@ class ATSPDList(models.Model):
 
 
 #============================================================
-class ATOverall(models.Model):
+class ATOverallDELETE(models.Model):
     whygrowth_choices=[       
         ('新开项目', '新开项目'),
         ('供应商重新谈判', '供应商重新谈判'),
         ('渠道变更', '渠道变更'),
-        ('品牌替换', '品牌替换'), 
+        ('品牌替换', '品牌替换'),
         ('套餐绑定', '套餐绑定'),
         ('--', '--'),]
-    company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
-    salesman = models.ForeignKey('ATUserInfo', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanatoverall',verbose_name= '负责人',default=7)
-    department = models.CharField(verbose_name='科室',max_length=255, blank=True, null=True)
+    company = models.ForeignKey('CompanyDELETE', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司',default=get_compmany_default_value)
+    salesman = models.ForeignKey('ATUserInfoDELETE', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanatoverallDELETE',verbose_name= '负责人',default=7)
+    department = models.CharField(verbose_name='科室',max_length=255, blank=False, null=False)
     semidepartment=models.CharField(verbose_name='使用科室',max_length=255, blank=False, null=False)
     project = models.CharField(verbose_name='项目大类',help_text=u"项目大类必填",max_length=255, blank=False, null=False)
 
-    purchasesum=models.DecimalField(verbose_name='项目1-6月销售成本', max_digits=25, decimal_places=2,default=0)
-    purchasesumpercent=models.DecimalField(verbose_name='该项目占总成本占比', max_digits=25, decimal_places=4,default=0)
-    theoreticalvalue=models.DecimalField(verbose_name='项目销售额', max_digits=25, decimal_places=2,default=0)
-    theoreticalgp=models.DecimalField(verbose_name='项目毛利润', max_digits=25, decimal_places=2,default=0)
-    theoreticalgppercent=models.DecimalField(verbose_name='项目毛利率', max_digits=25, decimal_places=4,default=0)
+    purchasesum=models.DecimalField(verbose_name='项目1-6月采购额', max_digits=25, decimal_places=2,default=0)
+    purchasesumpercent=models.DecimalField(verbose_name='该项目占总采购额占比', max_digits=25, decimal_places=4,default=0)
+    theoreticalvalue=models.DecimalField(verbose_name='项目理论销售额', max_digits=25, decimal_places=2,default=0)
+    theoreticalgp=models.DecimalField(verbose_name='项目理论毛利润', max_digits=25, decimal_places=2,default=0)
+    theoreticalgppercent=models.DecimalField(verbose_name='项目理论毛利率', max_digits=25, decimal_places=4,default=0)
 
     supplier = models.CharField(verbose_name='供应商',max_length=255, blank=False, null=False)
-    supplierpurchasesum=models.DecimalField(verbose_name='供应商1-6月销售成本', max_digits=25, decimal_places=2,default=0)
-    purchasesumpercentinproject=models.DecimalField(verbose_name='项目中各供应商成本占比', max_digits=25, decimal_places=4,default=0)
-    suppliertheoreticalvalue=models.DecimalField(verbose_name='供应商销售额', max_digits=25, decimal_places=2,default=0)
-    suppliertheoreticalgp=models.DecimalField(verbose_name='供应商毛利润', max_digits=25, decimal_places=2,default=0)
-    suppliertheoreticalgppercent=models.DecimalField(verbose_name='供应商毛利率', max_digits=25, decimal_places=4,default=0)
+    supplierpurchasesum=models.DecimalField(verbose_name='供应商1-6月采购额', max_digits=25, decimal_places=2,default=0)
+    purchasesumpercentinproject=models.DecimalField(verbose_name='项目中各供应商采购额占比', max_digits=25, decimal_places=4,default=0)
+    suppliertheoreticalvalue=models.DecimalField(verbose_name='供应商理论销售额', max_digits=25, decimal_places=2,default=0)
+    suppliertheoreticalgp=models.DecimalField(verbose_name='供应商理论毛利润', max_digits=25, decimal_places=2,default=0)
+    suppliertheoreticalgppercent=models.DecimalField(verbose_name='供应商理论毛利率', max_digits=25, decimal_places=4,default=0)
 
     relation=models.CharField(verbose_name='关系点',max_length=255, blank=True, null=True)
     actionplan=models.CharField(verbose_name='行动计划',max_length=255, blank=True, null=True)
@@ -140,12 +140,13 @@ class ATOverall(models.Model):
     thisyeargpgrowth = models.DecimalField(verbose_name='23年毛利额增量预估总计/元',max_digits=25, decimal_places=2, default=0)
     thisyeargpgrowthdetail = models.CharField(verbose_name='23年毛利额增量预估',max_length=255, blank=True, null=True) #用|隔开的
    
-    operator = models.ForeignKey('ATUserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operatoratoverall',verbose_name= '最后操作人')   
+    operator = models.ForeignKey('ATUserInfoDELETE', models.CASCADE, db_column='operator',to_field='id',related_name='operatoratoverallDELETE',verbose_name= '最后操作人')   
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATPlanOverall'
         verbose_name_plural = '安亭作战计划'
     
@@ -154,7 +155,7 @@ class ATOverall(models.Model):
     
 
 #新项目---------------------
-class ATNewProjectStatus(models.Model):
+class ATNewProjectStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -179,7 +180,7 @@ class ATNewProjectStatus(models.Model):
         ('招标完成', '招标完成'),
         ('仪器装机启用', '仪器装机启用'),
         ('仪器试剂均开票','仪器试剂均开票'))
-    overallid = models.ForeignKey('ATOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    overallid = models.ForeignKey('ATOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='新开项目')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
@@ -209,6 +210,7 @@ class ATNewProjectStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATNewProjectStatus'
         verbose_name_plural = '安亭新开项目状态'
     
@@ -220,11 +222,11 @@ class ATNewProjectStatus(models.Model):
         self.save()
   
 
-class ATNewProjectDetail(models.Model):
+class ATNewProjectDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('ATNewProjectStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('ATNewProjectStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='新项目明细')
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
@@ -270,6 +272,7 @@ class ATNewProjectDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATNewProjectDetail'
         verbose_name_plural = '安亭新开项目明细'
     
@@ -283,7 +286,7 @@ class ATNewProjectDetail(models.Model):
 
 #供应商重新谈判----------------------
 
-class ATNegotiationStatus(models.Model):
+class ATNegotiationStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -302,7 +305,7 @@ class ATNegotiationStatus(models.Model):
         ('已谈判等回复', '已谈判等回复'),
         ('新价格已确认', '新价格已确认'),
       )
-    overallid = models.ForeignKey('ATOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    overallid = models.ForeignKey('ATOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='供应商重新谈判')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
@@ -330,6 +333,7 @@ class ATNegotiationStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATNegotiationStatus'
         verbose_name_plural = '安亭供应商重新谈判状态'
     
@@ -341,11 +345,11 @@ class ATNegotiationStatus(models.Model):
         self.save()
 
 
-class ATNegotiationDetail(models.Model):
+class ATNegotiationDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('ATNegotiationStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('ATNegotiationStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='价格谈判明细')
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True) ###
@@ -354,7 +358,7 @@ class ATNegotiationDetail(models.Model):
     newsupplier = models.CharField(verbose_name='新供应商 ',max_length=255, blank=True, null=True)
     beforeorafterbrandchange = models.CharField(verbose_name='品牌是置换前还是置换后',max_length=255, blank=True, null=True,choices=brand_choices)
 
-    productid =  models.ForeignKey('ATMenu', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
+    productid =  models.ForeignKey('ATMenuDELETE', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
     code = models.CharField(verbose_name='产品编码U8 ',max_length=255, blank=True, null=True)##
     product = models.CharField(verbose_name='产品名称U8',help_text=u"请按系统名称填报",max_length=255, blank=True, null=True)###
     spec = models.CharField(verbose_name='规格',max_length=255, blank=True, null=True)###
@@ -399,6 +403,7 @@ class ATNegotiationDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATNegotiationDetail'
         verbose_name_plural = '安亭供应商重新谈判明细'
     
@@ -412,7 +417,7 @@ class ATNegotiationDetail(models.Model):
 
 #渠道变更------------------
 
-class ATChangeChannelStatus(models.Model):
+class ATChangeChannelStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -431,7 +436,7 @@ class ATChangeChannelStatus(models.Model):
         ('已谈判等回复', '已谈判等回复'),
         ('新渠道价格已确认', '新渠道价格已确认'),
       )
-    overallid = models.ForeignKey('ATOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    overallid = models.ForeignKey('ATOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='渠道变更')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
@@ -460,6 +465,7 @@ class ATChangeChannelStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATChangeChannelStatus'
         verbose_name_plural = '安亭渠道变更状态'
     
@@ -471,11 +477,11 @@ class ATChangeChannelStatus(models.Model):
         self.save()
 
 
-class ATChangeChannelDetail(models.Model):
+class ATChangeChannelDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('ATChangeChannelStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('ATChangeChannelStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='渠道变更明细')
 
     originalsupplier = models.CharField(verbose_name='原供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
@@ -486,7 +492,7 @@ class ATChangeChannelDetail(models.Model):
     product = models.CharField(verbose_name='产品名称U8',help_text=u"请按系统名称填报",max_length=255, blank=True, null=True)
     spec = models.CharField(verbose_name='规格',max_length=255, blank=True, null=True)
     unit = models.CharField(verbose_name='单位',max_length=255, blank=True, null=True)
-    productid =  models.ForeignKey('ATMenu', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
+    productid =  models.ForeignKey('ATMenuDELETE', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
 
     pplperunit = models.PositiveIntegerField(verbose_name='每单位人份数(必填)',help_text=u"举例：单位是盒，规格是60T/盒，则该处填60。液体类产品请大家仔细斟酌后填报",validators=[MinValueValidator(1)],default = 0)
     recentsales = models.DecimalField(verbose_name='半年度开票额 ',help_text=u"半年度采购数量/单位 X 每单位人份数 X LIS收费单价 X LIS结算%", max_digits=25, decimal_places=2, blank=True, null=True)
@@ -524,6 +530,7 @@ class ATChangeChannelDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATChangeChannelDetail'
         verbose_name_plural = '安亭渠道变更明细'
     
@@ -537,7 +544,7 @@ class ATChangeChannelDetail(models.Model):
 
 #品牌替换-------------------
 
-class ATChangeBrandStatus(models.Model):
+class ATChangeBrandStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -556,7 +563,7 @@ class ATChangeBrandStatus(models.Model):
         ('已谈判等回复', '已谈判等回复'),
         ('新价格已确认', '新价格已确认'),
       )
-    overallid = models.ForeignKey('ATOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    overallid = models.ForeignKey('ATOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='品牌替换')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
@@ -585,6 +592,7 @@ class ATChangeBrandStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATChangeBrandStatus'
         verbose_name_plural = '安亭品牌替换状态'
     
@@ -596,13 +604,13 @@ class ATChangeBrandStatus(models.Model):
         self.save()
 
 #品牌替换前
-class ATBeforeChangeBrandDetail(models.Model):
+class ATBeforeChangeBrandDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('ATChangeBrandStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('ATChangeBrandStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='品牌替换前')
-    productid =  models.ForeignKey('ATMenu', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
+    productid =  models.ForeignKey('ATMenuDELETE', models.CASCADE, db_column='productid',to_field='id',verbose_name= '产品信息:名称_规格_单位_采购价_供应商_品牌',blank=True, null=True)###
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
     originalbrand = models.CharField(verbose_name='品牌',help_text=u"请按系统中品牌名称填报",max_length=255, blank=True, null=True)
@@ -648,6 +656,7 @@ class ATBeforeChangeBrandDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATBeforeChangeBrandDetail'
         verbose_name_plural = '安亭品牌替换前明细'
     
@@ -660,11 +669,11 @@ class ATBeforeChangeBrandDetail(models.Model):
 
 
 #品牌替换后
-class ATAfterChangeBrandDetail(models.Model):
+class ATAfterChangeBrandDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('ATChangeBrandStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('ATChangeBrandStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='品牌替换后')
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
@@ -710,6 +719,7 @@ class ATAfterChangeBrandDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATAfterChangeBrandDetail'
         verbose_name_plural = '安亭品牌替换后明细'
     
@@ -723,7 +733,7 @@ class ATAfterChangeBrandDetail(models.Model):
 
 #套餐绑定------------
 
-class ATSetStatus(models.Model):
+class ATSetStatusDELETE(models.Model):
     completemonth_choices = (
         (1, 1),
         (2, 2),
@@ -742,7 +752,7 @@ class ATSetStatus(models.Model):
         ('已谈判等回复', '已谈判等回复'),
         ('新价格已确认', '新价格已确认'),
       )
-    overallid = models.ForeignKey('ATOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+    overallid = models.ForeignKey('ATOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='套餐绑定')
 
     progress=models.CharField(verbose_name='进度(必填)',max_length=25,choices=progress_choices,default='待拜访')
@@ -771,6 +781,7 @@ class ATSetStatus(models.Model):
 
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATSetStatus'
         verbose_name_plural = '安亭套餐绑定状态'
     
@@ -782,11 +793,11 @@ class ATSetStatus(models.Model):
         self.save()
 
 
-class ATSetDetail(models.Model):
+class ATSetDetailDELETE(models.Model):
     brand_choices = (
         ('置换前', '置换前'),
         ('置换后', '置换后'),)
-    progressid = models.ForeignKey('ATSetStatus', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
+    progressid = models.ForeignKey('ATSetStatusDELETE', models.CASCADE, db_column='progressid',to_field='id',verbose_name= '进度状态')
     whygrowth = models.CharField(verbose_name='增量来源',max_length=255,default='套餐绑定明细')
 
     originalsupplier = models.CharField(verbose_name='供应商',help_text=u"请按系统中供应商名称填报",max_length=255, blank=True, null=True)
@@ -832,6 +843,7 @@ class ATSetDetail(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATSetDetail'
         verbose_name_plural = '套餐绑定明细'
     
@@ -845,8 +857,8 @@ class ATSetDetail(models.Model):
 
 
 #=====================================
-class ATCalculate(models.Model):
-    overallid = models.OneToOneField('ATOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
+class ATCalculateDELETE(models.Model):
+    overallid = models.OneToOneField('ATOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '作战计划')
     estnewgpgrowth = models.DecimalField(verbose_name='新开项目：预估月毛利额增量总计',max_digits=25, decimal_places=2, default=0)
     estnegogpgrowth = models.DecimalField(verbose_name='供应商重新谈判：预估月毛利额增量总计',max_digits=25, decimal_places=2,  default=0)
     estchannelgpgrowth = models.DecimalField(verbose_name='渠道变更：预估月毛利额增量总计',max_digits=25, decimal_places=2,  default=0)
@@ -871,14 +883,15 @@ class ATCalculate(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATCalculate'
         verbose_name_plural = '作战计划计算表'
     
  
 #========
 #安亭大菜单给供应商重新谈判的筛选用的
-class ATMenu(models.Model):
-    overallid = models.ForeignKey('ATOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '主表id',default=0)
+class ATMenuDELETE(models.Model):
+    overallid = models.ForeignKey('ATOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '主表id',default=0)
 
     customer = models.CharField(verbose_name='客户',max_length=255, default='安亭')
     department = models.CharField(verbose_name='科室',max_length=255, blank=True, null=True)
@@ -896,11 +909,11 @@ class ATMenu(models.Model):
     supplier = models.CharField(verbose_name='供应商',max_length=255, blank=True, null=True)
     costperunit = models.DecimalField(verbose_name='采购价/单位',max_digits=25, decimal_places=2,default = 0)
     priceperunit = models.DecimalField(verbose_name='销售价/单位',max_digits=25, decimal_places=2,default = 0)
-    purchaseqty = models.DecimalField(verbose_name='1-6月销售数量',max_digits=25, decimal_places=2,default = 0)#purchaseqty
-    purchasesum = models.DecimalField(verbose_name='1-6月销售成本',max_digits=25, decimal_places=2,default = 0)#purchasesum
-    theoreticalvalue = models.DecimalField(verbose_name='1-6月销售金额',max_digits=25, decimal_places=2,default = 0)
-    theoreticalgp = models.DecimalField(verbose_name='毛利润',max_digits=25, decimal_places=2,default = 0)
-    theoreticalgppercent = models.DecimalField(verbose_name='毛利率',max_digits=25, decimal_places=4,default = 0)
+    purchaseqty = models.DecimalField(verbose_name='1-6月采购数量',max_digits=25, decimal_places=2,default = 0)
+    purchasesum = models.DecimalField(verbose_name='1-6月采购金额（订单跟踪）',max_digits=25, decimal_places=2,default = 0)
+    theoreticalvalue = models.DecimalField(verbose_name='理论销售金额（根据售价反推）',max_digits=25, decimal_places=2,default = 0)
+    theoreticalgp = models.DecimalField(verbose_name='理论毛利润',max_digits=25, decimal_places=2,default = 0)
+    theoreticalgppercent = models.DecimalField(verbose_name='理论毛利率',max_digits=25, decimal_places=4,default = 0)
 
     machinemodel = models.CharField(verbose_name='仪器型号',max_length=255, blank=True, null=True)
     machinebrand = models.CharField(verbose_name='仪器品牌',max_length=255, blank=True, null=True)
@@ -909,6 +922,7 @@ class ATMenu(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATMenu'
         verbose_name_plural = '安亭大菜单作筛选'
     def __str__(self):
@@ -918,8 +932,8 @@ class ATMenu(models.Model):
 
 
 #安亭大菜单给inline展示用的
-class ATMenuforinline(models.Model):
-    overallid = models.ForeignKey('ATOverall', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '主表id',default=1)
+class ATMenuforinlineDELETE(models.Model):
+    overallid = models.ForeignKey('ATOverallDELETE', models.CASCADE, db_column='overallid',to_field='id',verbose_name= '主表id',default=1)
 
     customer = models.CharField(verbose_name='客户',max_length=255, default='安亭')
     department = models.CharField(verbose_name='科室',max_length=255, blank=True, null=True)
@@ -938,11 +952,11 @@ class ATMenuforinline(models.Model):
    
     costperunit = models.DecimalField(verbose_name='采购价/单位',max_digits=25, decimal_places=2,default = 0)
     priceperunit = models.DecimalField(verbose_name='销售价/单位',max_digits=25, decimal_places=2,default = 0)
-    purchaseqty = models.DecimalField(verbose_name='1-6月销售数量',max_digits=25, decimal_places=2,default = 0)#purchaseqty
-    purchasesum = models.DecimalField(verbose_name='1-6月销售成本',max_digits=25, decimal_places=2,default = 0)
-    theoreticalvalue = models.DecimalField(verbose_name='1-6月销售金额',max_digits=25, decimal_places=2,default = 0)
-    theoreticalgp = models.DecimalField(verbose_name='毛利润',max_digits=25, decimal_places=2,default = 0)
-    theoreticalgppercent = models.DecimalField(verbose_name='毛利率',max_digits=25, decimal_places=2,default = 0)
+    purchaseqty = models.DecimalField(verbose_name='1-6月采购数量',max_digits=25, decimal_places=2,default = 0)
+    purchasesum = models.DecimalField(verbose_name='1-6月采购金额（订单跟踪）',max_digits=25, decimal_places=2,default = 0)
+    theoreticalvalue = models.DecimalField(verbose_name='理论销售金额（根据售价反推）',max_digits=25, decimal_places=2,default = 0)
+    theoreticalgp = models.DecimalField(verbose_name='理论毛利润',max_digits=25, decimal_places=2,default = 0)
+    theoreticalgppercent = models.DecimalField(verbose_name='理论毛利率',max_digits=25, decimal_places=2,default = 0)
 
     machinemodel = models.CharField(verbose_name='仪器型号',max_length=255, blank=True, null=True)
     machinebrand = models.CharField(verbose_name='仪器品牌',max_length=255, blank=True, null=True)
@@ -951,6 +965,7 @@ class ATMenuforinline(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"ATMenuforinline'
         verbose_name_plural = '安亭大菜单作展示'
 

@@ -863,7 +863,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                     print(type(each_inline.get('id')))     
                     if  each_inline.get('DELETE')==False and each_inline.get('machinenumber')!=0:
                         machine_total_number += each_inline['machinenumber']  
-                        new_or_old_list.append(each_inline['ownbusiness'])
+                        new_or_old_list.append(str(each_inline['ownbusiness']))
                         if each_inline['machineseries']:
                             machineserieslist_all.append(each_inline['machineseries'])
                         # print('machine_total_number',machine_total_number)
@@ -882,11 +882,12 @@ class PMRResearchListAdmin(GlobalAdmin):
                 ownmachinepercent = 0
             else:
                 ownmachinepercent= machine_own_number/machine_total_number
-
-            if '是' in new_or_old_list:
+            print('save relatedd new_or_old_list',new_or_old_list)
+            if 'True' in new_or_old_list:
                 newold='已有业务(含我司仪器)'
             else:
                 newold='新商机(不含我司仪器)'
+            print('save relatedd newold',newold)
 
             #如果有计算项（老数据修改），则以更新的方式
             if DetailCalculate.objects.filter(researchlist_id=form.instance.id):
