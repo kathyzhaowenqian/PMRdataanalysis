@@ -61,7 +61,6 @@ WORKDIR /pmrdataanalysis
 # 设置时间为上海时间
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
-
 # 安装 requirements.txt 模块
 RUN python -m pip install --upgrade pip
 RUN pip install --upgrade pip setuptools
