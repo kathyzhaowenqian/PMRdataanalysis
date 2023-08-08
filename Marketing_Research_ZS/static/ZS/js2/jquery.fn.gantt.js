@@ -152,6 +152,7 @@
         return new Date( this.getFullYear(), this.getMonth(), this.getDate() + diff );
     };
 
+
     // fixes https://github.com/taitems/jQuery.Gantt/issues/62
     function ktkGetNextDate(currentDate, scaleStep) {
         for(var minIncrements = 1;; minIncrements++) {
@@ -167,6 +168,43 @@
         }
     }
 
+    function splittext(text){
+        // let str = text;
+        // let firstDashIndex = str.indexOf('-'); // 获取第一个'-'的索引
+        // let firstPart = str.slice(0, firstDashIndex); // 获取第一个分隔符之前的部分
+        // let secondPart = str.slice(firstDashIndex + 1); // 获取第一个分隔符之后的部分
+        // let secondDashIndex = secondPart.lastIndexOf('-'); // 获取最后一个'-'的索引
+        // let thirdPart = secondPart.slice(0, secondDashIndex); // 获取最后一个分隔符之前的部分
+        // let fourthPart = secondPart.slice(secondDashIndex + 1); // 获取最后一个分隔符之后的部分
+    
+        return   text.replace(/-/g, '+');
+    }
+    
+    function hyperlink_projectname(){
+
+        
+        var parent_div = $('.leftPanel');
+
+        number_child_div = parent_div.children('div').length
+        number_project = (number_child_div-1)/2
+        console.log(number_project)
+        
+        for (let index = 0; index < number_project; index++) {
+            original_dom = $(`#rowheader${index}`).html()
+            project_name = $(`#rowheader${index}`).text()
+            console.log(project_name)
+            revised_project_name = splittext(project_name)
+            console.log(revised_project_name)
+            project_url = `/admin/Marketing_Research_ZS/gsmrresearchlist/?q=${revised_project_name}`
+            new_dom = `<a href=${project_url} target="_blank">${original_dom}</a>`
+            $(`#rowheader${index}`).html(new_dom)
+            
+        }
+    }
+
+
+
+    
     $.fn.gantt = function (options) {
 
         var scales = ["hours", "days", "weeks", "months"];
@@ -890,11 +928,21 @@
                                     .html('&#43;')
                                     .click(function () {
                                         core.zoomInOut(element, -1);
+                                        setTimeout(hyperlink_projectname,2000);
+
+
+
                                     }))
+
+
                                 .append($('<button type="button" class="nav-link nav-zoomOut"/>')
                                     .html('&#45;')
                                     .click(function () {
                                         core.zoomInOut(element, 1);
+                                        setTimeout(hyperlink_projectname,2000);
+
+
+
                                     }))
                                     )
                                 );

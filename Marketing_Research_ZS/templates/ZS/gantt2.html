@@ -176,28 +176,66 @@ function splittext(text){
 $(document).ready(function() {
   // 使用选择器抓取动态拼接的DOM元素
   // 使用 setTimeout 来延迟执行
-    setTimeout(function() {
+
+
+  //hyperlink_projectname function
+  hyperlink_projectname = function(){
+        
+        
         var parent_div = $('.leftPanel');
 
         number_child_div = parent_div.children('div').length
         number_project = (number_child_div-1)/2
         console.log(number_project)
-
+        
         for (let index = 0; index < number_project; index++) {
             original_dom = $(`#rowheader${index}`).html()
-            infomations = $(`#rowheader${index}`).text()
-            console.log(infomations)
-            revised_infomations = splittext(infomations)
-            console.log(revised_infomations)
-            revised_infomations_url = `http://127.0.0.1:8000/admin/Marketing_Research_ZS/gsmrresearchlist/?q=${revised_infomations}`
-            new_dom = `<a href=${revised_infomations_url} target="_blank">${original_dom}</a>`
+            project_name = $(`#rowheader${index}`).text()
+            console.log(project_name)
+            revised_project_name = splittext(project_name)
+            console.log(revised_project_name)
+            project_url = `/admin/Marketing_Research_ZS/gsmrresearchlist/?q=${revised_project_name}`
+            new_dom = `<a href=${project_url} target="_blank">${original_dom}</a>`
             $(`#rowheader${index}`).html(new_dom)
             
         }
+
+        // $('.nav-zoomIn').on('click',function(){
+        //     core.zoomInOut(element, -1);
+        //     console.log(111)
+        // })
+
+    } 
+    
+
+    setTimeout(hyperlink_projectname,2000); // 延迟 2000ms（2秒）执行
+  
+
+
+
+    
+    // setTimeout(function() {
+    //     var parent_div = $('.leftPanel');
+
+    //     number_child_div = parent_div.children('div').length
+    //     number_project = (number_child_div-1)/2
+    //     console.log(number_project)
+
+    //     for (let index = 0; index < number_project; index++) {
+    //         original_dom = $(`#rowheader${index}`).html()
+    //         infomations = $(`#rowheader${index}`).text()
+    //         console.log(infomations)
+    //         revised_infomations = splittext(infomations)
+    //         console.log(revised_infomations)
+    //         revised_infomations_url = `/admin/Marketing_Research_ZS/gsmrresearchlist/?q=${revised_infomations}`
+    //         new_dom = `<a href=${revised_infomations_url} target="_blank">${original_dom}</a>`
+    //         $(`#rowheader${index}`).html(new_dom)
+            
+    //     }
         
 
 
-    }, 1000); // 延迟 2000ms（2秒）执行
+    // }, 1000); // 延迟 2000ms（2秒）执行
   
 });
 
