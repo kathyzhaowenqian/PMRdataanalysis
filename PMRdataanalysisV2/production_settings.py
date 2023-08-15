@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'SIWUWU',
     'ANTING',
     'NANXIANG',
+    'XINYI',
+    'PIZHOU',
     'nested_admin',
 ]
 
@@ -513,6 +515,60 @@ SIMPLEUI_CONFIG = {
                             },
                     ]                
                 } ,      
+
+               #二级菜单：新沂
+                {
+                    'name': '新沂',
+                    'icon': 'fab fa-github',
+                    'models': [
+
+                 
+                        #三级菜单：新沂作战计划                      
+                            {
+                            'name': '新沂作战计划(在此填报)',
+                            'url': '/admin/XINYI/xyoverall/'
+                            },       
+                        #三级菜单：新沂甘特图                     
+                            {
+                            'name': '新沂进度甘特图',
+                            'url': '/XINYI/gantt'
+                            },         
+                        #三级菜单：新沂新开项目明细                     
+                            {
+                            'name': '新沂新开项目明细',
+                            'url': '/admin/XINYI/xynewprojectdetail/'
+                            },         
+                            #三级菜单：新沂供应商重新谈判明细                     
+                            {
+                            'name': '新沂供应商重新谈判明细',
+                            'url': '/admin/XINYI/xynegotiationdetail/'
+                            },        
+                            #三级菜单：新沂渠道变更明细                     
+                            {
+                            'name': '新沂渠道变更明细',
+                            'url': '/admin/XINYI/xychangechanneldetail/'
+                            },    
+                            #三级菜单：新沂品牌替换后明细                     
+                            {
+                            'name': '新沂品牌替换后明细',
+                            'url': '/admin/XINYI/xyafterchangebranddetail/'
+                            },   
+                            #三级菜单：新沂套餐绑定明细                     
+                            {
+                            'name': '新沂套餐绑定明细',
+                            'url': '/admin/XINYI/xysetdetail/'
+                            },   
+                            #三级菜单：新沂作战计划已删除的数据  
+                            {
+                            'name': '新沂作战计划已删除的数据',
+                            'icon': 'fa-solid fa-list',
+                            'url': '/admin/XINYI/xyoveralldelete/'
+                            },
+                    ]                
+                } ,    
+
+
+
 
                 {
                 # 第二级菜单                

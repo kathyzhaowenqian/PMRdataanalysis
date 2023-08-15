@@ -9,15 +9,14 @@
     默认按周呈现（月份下面的数字），比如26就是今年第26周。如果需要按日呈现则点击“+”
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
-    <link rel="stylesheet" href="{% static 'ZS/css2/style.css' %}" />
-    <link rel="stylesheet" href="{% static 'ZS/css2//bootstrap.min.css' %}" />
-    <link href="{% static 'ZS/css2/prettify.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'XINYI/css2/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'XINYI/css2//bootstrap.min.css' %}" />
+    <link href="{% static 'XINYI/css2/prettify.min.css' %}" rel="stylesheet" />
     <style type="text/css">
         body {
             font-family: Helvetica, Arial, sans-serif;
             font-size: 13px;
             padding: 0 0 50px 0;
-            /* background-color: aqua; */
         }
 
         .contain {
@@ -35,11 +34,11 @@
 
 </body>
 </html>
-<script src="{% static 'ZS/js2/jquery-2.1.4.min.js' %}"></script>
-<script src="{% static 'ZS/js2/bootstrap.min.js' %}"></script>
-<script src="{% static 'ZS/js2/jquery.fn.gantt.js' %}"></script>
+<script src="{% static 'XINYI/js2/jquery-2.1.4.min.js' %}"></script>
+<script src="{% static 'XINYI/js2/bootstrap.min.js' %}"></script>
+<script src="{% static 'XINYI/js2/jquery.fn.gantt.js' %}"></script>
 
-<script src="{% static 'ZS/js2/prettify.min.js' %}"></script>
+<script src="{% static 'XINYI/js2/prettify.min.js' %}"></script>
 <script>
 
 
@@ -49,7 +48,7 @@
         function getdata() {
             let result = {}
             $.ajax({
-            url: `/Marketing_Research_ZS/gantt`,
+            url: `/XINYI/gantt`,
             type: "POST",
             dataType: 'json',
             async: false, //同步请求，不能异步，异步的话数据就同时出不来了
@@ -161,15 +160,15 @@
 <script>
 
 function splittext(text){
-    // let str = text;
-    // let firstDashIndex = str.indexOf('-'); // 获取第一个'-'的索引
-    // let firstPart = str.slice(0, firstDashIndex); // 获取第一个分隔符之前的部分
-    // let secondPart = str.slice(firstDashIndex + 1); // 获取第一个分隔符之后的部分
-    // let secondDashIndex = secondPart.lastIndexOf('-'); // 获取最后一个'-'的索引
-    // let thirdPart = secondPart.slice(0, secondDashIndex); // 获取最后一个分隔符之前的部分
-    // let fourthPart = secondPart.slice(secondDashIndex + 1); // 获取最后一个分隔符之后的部分
+    let str = text;
+    let firstDashIndex = str.indexOf('-'); // 获取第一个'-'的索引
+    let firstPart = str.slice(0, firstDashIndex); // 获取第一个分隔符之前的部分
+    let secondPart = str.slice(firstDashIndex + 1); // 获取第一个分隔符之后的部分
+    let secondDashIndex = secondPart.lastIndexOf('-'); // 获取最后一个'-'的索引
+    let thirdPart = secondPart.slice(0, secondDashIndex); // 获取最后一个分隔符之前的部分
+    let fourthPart = secondPart.slice(secondDashIndex + 1); // 获取最后一个分隔符之后的部分
 
-    return   text.replace(/-/g, '+');
+    return firstPart+'+'+thirdPart+'+'+fourthPart
 }
 
 
@@ -178,9 +177,8 @@ $(document).ready(function() {
   // 使用选择器抓取动态拼接的DOM元素
   // 使用 setTimeout 来延迟执行
 
-
-  //hyperlink_projectname function
-  hyperlink_projectname = function(){
+    //hyperlink_projectname function
+    hyperlink_projectname = function(){
         
         
         var parent_div = $('.leftPanel');
@@ -195,7 +193,7 @@ $(document).ready(function() {
             console.log(project_name)
             revised_project_name = splittext(project_name)
             console.log(revised_project_name)
-            project_url = `/admin/Marketing_Research_ZS/gsmrresearchlist/?q=${revised_project_name}`
+            project_url = `/admin/XINYI/xyoverall/?q=${revised_project_name}`
             new_dom = `<a href=${project_url} target="_blank">${original_dom}</a>`
             $(`#rowheader${index}`).html(new_dom)
             
@@ -211,33 +209,12 @@ $(document).ready(function() {
 
     setTimeout(hyperlink_projectname,2000); // 延迟 2000ms（2秒）执行
   
-
-
-
     
-    // setTimeout(function() {
-    //     var parent_div = $('.leftPanel');
-
-    //     number_child_div = parent_div.children('div').length
-    //     number_project = (number_child_div-1)/2
-    //     console.log(number_project)
-
-    //     for (let index = 0; index < number_project; index++) {
-    //         original_dom = $(`#rowheader${index}`).html()
-    //         infomations = $(`#rowheader${index}`).text()
-    //         console.log(infomations)
-    //         revised_infomations = splittext(infomations)
-    //         console.log(revised_infomations)
-    //         revised_infomations_url = `/admin/Marketing_Research_ZS/gsmrresearchlist/?q=${revised_infomations}`
-    //         new_dom = `<a href=${revised_infomations_url} target="_blank">${original_dom}</a>`
-    //         $(`#rowheader${index}`).html(new_dom)
-            
-    //     }
-        
 
 
-    // }, 1000); // 延迟 2000ms（2秒）执行
-  
+   
+
+
 });
 
 

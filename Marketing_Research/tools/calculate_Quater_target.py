@@ -126,7 +126,7 @@ def result_of_Quatar_display(advanced_days,delayed_days):
 
 
 
-    speicial_case_date = date(2023,7,31)
+    speicial_case_date = date(2023,8,31)
     if today <= speicial_case_date:
         return ( # list_display
                     ('hospital_district','hospital_hospitalclass','hospital','colored_project','salesman1_chinesename','salesman2_chinesename',                    
