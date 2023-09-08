@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'NANXIANG',
     'XINYI',
     'PIZHOU',
+    'XUERYUAN',
+    'PMRKA',
     'nested_admin',
 ]
 
@@ -186,7 +188,7 @@ SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
 SIMPLEUI_CONFIG = {
     'system_keep': True,
      # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
-    'menu_display':  ['普美瑞直销调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','用友-U8-同步','认证授权'],    
+    'menu_display':  ['普美瑞直销调研表','普美瑞KA调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','用友-U8-同步','认证授权'],    
     'dynamic': True,    # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
     'menus': [
 
@@ -219,6 +221,34 @@ SIMPLEUI_CONFIG = {
 
             ] 
         },
+
+
+        #一级菜单：普美瑞KA客户调研表
+        {
+            'name': '普美瑞KA调研表',
+            'icon': 'fa-solid fa-star',
+            'models': [
+                {
+                # 第二级菜单                
+                'name': '调研表列表(在此填报)',
+                'url': '/admin/PMRKA/pmrresearchlistpmrka/',
+                'icon': 'fa-solid fa-pen'
+                }, 
+                {
+                'name': '调研表详情表',
+                'icon': 'fa-solid fa-list',
+                'url': '/admin/PMRKA/pmrresearchdetailpmrka/'
+                },
+
+                {
+                'name': '已删除的数据',
+                'icon': 'fa-solid fa-list',
+                'url': '/admin/PMRKA/pmrresearchlistpmrkadelete/'
+                },
+
+            ] 
+        },
+
 
         #一级菜单：其田直销调研表
         {
@@ -390,19 +420,56 @@ SIMPLEUI_CONFIG = {
                     ]                
                 } ,
                 
-                #二级菜单：四五五
+                #二级菜单：徐二院
                 {
-                    'name': '四五五',
+                    'name': '徐二院',
                     'icon': 'fab fa-github',
                     'models': [
-
-                        #三级菜单：四五五战略地图                      
+ 
+                        #三级菜单：徐二院作战计划                      
                             {
-                            'name': '四五五战略地图',
-                            'url': '/admin/SIWUWU/swwspdlist/'
-                            },                        
+                            'name': '徐二院作战计划(在此填报)',
+                            'url': '/admin/XUERYUAN/xeyoverall/'
+                            },       
+                        #三级菜单：徐二院甘特图                     
+                            {
+                            'name': '徐二院进度甘特图',
+                            'url': '/XUERYUAN/gantt'
+                            },         
+                        #三级菜单：徐二院新开项目明细                     
+                            {
+                            'name': '徐二院新开项目明细',
+                            'url': '/admin/XUERYUAN/xeynewprojectdetail/'
+                            },         
+                            #三级菜单：徐二院供应商重新谈判明细                     
+                            {
+                            'name': '徐二院供应商重新谈判明细',
+                            'url': '/admin/XUERYUAN/xeynegotiationdetail/'
+                            },        
+                            #三级菜单：徐二院渠道变更明细                     
+                            {
+                            'name': '徐二院渠道变更明细',
+                            'url': '/admin/XUERYUAN/xeychangechanneldetail/'
+                            },    
+                            #三级菜单：徐二院品牌替换后明细                     
+                            {
+                            'name': '徐二院品牌替换后明细',
+                            'url': '/admin/XUERYUAN/xeyafterchangebranddetail/'
+                            },   
+                            #三级菜单：徐二院套餐绑定明细                     
+                            {
+                            'name': '徐二院套餐绑定明细',
+                            'url': '/admin/XUERYUAN/xeysetdetail/'
+                            },   
+                            #三级菜单：徐二院作战计划已删除的数据  
+                            {
+                            'name': '徐二院作战计划已删除的数据',
+                            'icon': 'fa-solid fa-list',
+                            'url': '/admin/XUERYUAN/xeyoveralldelete/'
+                            },
                     ]                
                 } ,
+
 
                 #二级菜单：安亭
                 {
@@ -515,6 +582,21 @@ SIMPLEUI_CONFIG = {
                             },
                     ]                
                 } ,      
+
+                #二级菜单：四五五
+                {
+                    'name': '四五五',
+                    'icon': 'fab fa-github',
+                    'models': [
+
+                        #三级菜单：四五五战略地图                      
+                            {
+                            'name': '四五五战略地图',
+                            'url': '/admin/SIWUWU/swwspdlist/'
+                            },                        
+                    ]                
+                } ,
+
 
                #二级菜单：新沂
                 {

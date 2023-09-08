@@ -8,7 +8,7 @@ import sys
 def main():
     """Run administrative tasks."""
     # 开发环境启动的settings
-    # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PMRdataanalysisV2.local_settings')
+    #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PMRdataanalysisV2.local_settings')
     # 生成境启动的settings 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PMRdataanalysisV2.production_settings')
     try:

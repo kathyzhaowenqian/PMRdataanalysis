@@ -1,0 +1,225 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <title>jQuery.Gantt</title>
+    <br><br><br><br><br>
+    该页面记录每一次进度的变更。 
+    默认按周呈现（月份下面的数字），比如26就是今年第26周。如果需要按日呈现则点击“+”
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
+    <link rel="stylesheet" href="{% static 'XUERYUAN/css2/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'XUERYUAN/css2//bootstrap.min.css' %}" />
+    <link href="{% static 'XUERYUAN/css2/prettify.min.css' %}" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            padding: 0 0 50px 0;
+        }
+
+        .contain {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="gantt_ot" style="width:95%; margin:10px auto;">
+        <div class="gantt"></div>
+    </div>
+
+
+</body>
+</html>
+<script src="{% static 'XUERYUAN/js2/jquery-2.1.4.min.js' %}"></script>
+<script src="{% static 'XUERYUAN/js2/bootstrap.min.js' %}"></script>
+<script src="{% static 'XUERYUAN/js2/jquery.fn.gantt.js' %}"></script>
+
+<script src="{% static 'XUERYUAN/js2/prettify.min.js' %}"></script>
+<script>
+
+
+
+    $(function () {
+
+        function getdata() {
+            let result = {}
+            $.ajax({
+            url: `/XUERYUAN/gantt`,
+            type: "POST",
+            dataType: 'json',
+            async: false, //同步请求，不能异步，异步的话数据就同时出不来了
+            //  没有请求成功ajax ，也是返回result,result={"code":500,data:"error"}
+            headers: {'X-CSRFToken': `{{csrf_token}}`},
+
+            success: function (resp) {
+                // 返回成功的 ajax 请求
+                
+                result = JSON.parse(resp)
+                console.log(result['data'])
+            }
+            // error: function (resp) {
+            // 	// 返回成功的 ajax 请求
+            // 	result = JSON.parse(resp)
+            // 	// console.log(result['code'])
+            // }
+            });
+
+            // popup.style.display = "none"
+            return result			
+        }
+
+        
+        datasource=getdata()['data']['datasource']
+        "use strict";
+        
+        //初始化gantt
+        $(".gantt").gantt({
+            source: datasource,
+            // [
+            //  {
+            //         name: "task  8",
+            //         desc: "",
+            //         values: [{
+            //             from: "/Date(1336611200000)/",
+            //             to: "/Date(1338711200000)/",
+            //             label: "",
+            //             customClass: "ganttOrange"
+            //         }]
+            //     },
+
+            //     {
+            //         name: "more",
+            //         desc: "",
+            //         values: [
+            //         {
+            //             from: "2021-03-05",
+            //             to: "2021-03-05",
+            //             label: "1",
+            //             customClass: "ganttBlue"
+            //         },
+            //         {
+            //             from: "2021-03-05",
+            //             to: "2021-03-07",
+            //             label: "2",
+            //             customClass: "ganttPurple"
+            //         },
+            //         {
+            //             from: "2021-03-07",
+            //             to: "2021-03-07",
+            //             label: "3",
+            //             customClass: "ganttYellow"
+            //         },
+
+            //         ]
+            //     }],
+            
+            navigate: 'scroll',//buttons  scroll
+            scale: "weeks",// months  weeks days  hours
+            maxScale: "months",
+            minScale: "days",
+            itemsPerPage: 100,
+            // onItemClick: function (data) {
+
+            //     alert(JSON.stringify(Negotiationsource));
+            //     console.log(Negotiationsource);
+            // },
+            // onAddClick: function (dt, rowId) {
+            //     alert("Empty space clicked - add an item!");
+            // },
+            onRender: function () {
+                if (window.console && typeof console.log === "function") {
+                    console.log("chart rendered");
+                }
+            }
+        });
+
+        
+
+        // //弹窗功能
+        // $(".gantt").popover({
+        //     selector: ".bar",
+        //     title: "I'm a popover",
+        //     content: "我是弹窗.",
+        //     trigger: "hover",
+        //     placement: "auto right"
+        // });
+
+
+        //prettyPrint();
+    });
+
+
+
+
+</script>
+
+<script>
+
+function splittext(text){
+    let str = text;
+    let firstDashIndex = str.indexOf('-'); // 获取第一个'-'的索引
+    let firstPart = str.slice(0, firstDashIndex); // 获取第一个分隔符之前的部分
+    let secondPart = str.slice(firstDashIndex + 1); // 获取第一个分隔符之后的部分
+    let secondDashIndex = secondPart.lastIndexOf('-'); // 获取最后一个'-'的索引
+    let thirdPart = secondPart.slice(0, secondDashIndex); // 获取最后一个分隔符之前的部分
+    let fourthPart = secondPart.slice(secondDashIndex + 1); // 获取最后一个分隔符之后的部分
+
+    return firstPart+'+'+thirdPart+'+'+fourthPart
+}
+
+
+// 等待页面加载完成
+$(document).ready(function() {
+  // 使用选择器抓取动态拼接的DOM元素
+  // 使用 setTimeout 来延迟执行
+
+    //hyperlink_projectname function
+    hyperlink_projectname = function(){
+        
+        
+        var parent_div = $('.leftPanel');
+
+        number_child_div = parent_div.children('div').length
+        number_project = (number_child_div-1)/2
+        console.log(number_project)
+        
+        for (let index = 0; index < number_project; index++) {
+            original_dom = $(`#rowheader${index}`).html()
+            project_name = $(`#rowheader${index}`).text()
+            console.log(project_name)
+            revised_project_name = splittext(project_name)
+            console.log(revised_project_name)
+            project_url = `/admin/XUERYUAN/xeyoverall/?q=${revised_project_name}`
+            new_dom = `<a href=${project_url} target="_blank">${original_dom}</a>`
+            $(`#rowheader${index}`).html(new_dom)
+            
+        }
+
+        // $('.nav-zoomIn').on('click',function(){
+        //     core.zoomInOut(element, -1);
+        //     console.log(111)
+        // })
+
+    } 
+    
+
+    setTimeout(hyperlink_projectname,2000); // 延迟 2000ms（2秒）执行
+  
+    
+
+
+   
+
+
+});
+
+
+// $(document).on('click', '.fn-label', function() {
+//     console.log(this)
+// });
+
+</script>
