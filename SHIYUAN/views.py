@@ -48,6 +48,7 @@ class Download(View):
         file_path = 'ShiYuan.xlsx'
         with open(file_path, 'rb') as f:
             response = HttpResponse(f.read())
+            
             response['Content-Disposition'] = 'attachment; filename=ShiYuan.xlsx'
             response['Content-Type'] = 'application/vnd.ms-excel'
             return response
