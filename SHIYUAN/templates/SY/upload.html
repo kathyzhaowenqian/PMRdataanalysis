@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>十院数据统计</title>
+</head>
+
+<body>
+
+    <form action="/SHIYUAN/uploads" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="excelFile" accept=".xlsx,.xls">
+        <button type="submit">上传excel</button>
+    </form>
+    <br>
+    <br>
+    <br>
+    点击：上传excel后，等待片刻，会自动下载统计好的文件
+    <br>
+    注意：
+    <br>
+    1，上传的文件一定要按规定的表头，不能有合并单元格
+    <br>
+    2，下载后的文件需要人工比对，如果有问题的话，请重新调整要上传的文件，然后再直接重新上传
+    <br>
+    <!-- <a href={{ download_link }}> 下载统计好的数据</a> -->
+
+</body>
+
+</html>
+

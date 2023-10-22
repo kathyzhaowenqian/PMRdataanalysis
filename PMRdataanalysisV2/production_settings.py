@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'PIZHOU',
     'XUERYUAN',
     'PMRKA',
+    'SHIYUAN',
     'nested_admin',
 ]
 
@@ -648,7 +649,19 @@ SIMPLEUI_CONFIG = {
                             },
                     ]                
                 } ,    
+                #二级菜单：十院
+                {
+                    'name': '十院',
+                    'icon': 'fab fa-github',
+                    'models': [
 
+                        #三级菜单：十院数据统计                     
+                            {
+                            'name': '十院数据统计',
+                            'url': '/SHIYUAN/uploads'
+                            },                        
+                    ]                
+                } ,
 
 
 
