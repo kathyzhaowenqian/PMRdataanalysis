@@ -14,6 +14,10 @@ import xlwt
 import io
 from SHIYUAN.tools.CalculateAPI import *
 import os
+
+Upload_File_2 = os.path.join(os.path.dirname(__file__), './file/sy', 'ShiYuan.xlsx')
+
+
 class Upload(View):
 
     def __init__(self, **kwargs: Any) -> None:
@@ -57,10 +61,11 @@ class Upload(View):
 class Download(View):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.Upload_File = os.path.join(os.path.dirname(__file__), './file/sy', 'ShiYuan.xlsx')
+        # self.Upload_File = os.path.join(os.path.dirname(__file__), './file/sy', 'ShiYuan.xlsx')
+        
 
     def get(self,request):
-        file_path = self.Upload_File
+        file_path = Upload_File_2
         with open(file_path, 'rb') as f:
             response = HttpResponse(f.read())
             
