@@ -16,10 +16,15 @@ from SHIYUAN.tools.CalculateAPI import *
 import os
 class Upload(View):
     def get(self,request):
+        if os.path.exists('十院明细.xlsx'):  # 判断文件是否存在
+            os.remove('十院明细.xlsx')       # 删除文件
+        if os.path.exists('ShiYuan.xlsx'):  # 判断文件是否存在
+            os.remove('ShiYuan.xlsx')       # 删除文件
         return render(request,'SY/upload.html')
     
     def post(self,request):
         if  request.FILES['excelFile']:
+
             excel_file = request.FILES['excelFile']
             # print('看一下格式excel_file',excel_file)
             # order_data = pd.read_excel(excel_file, sheet_name='订单')
