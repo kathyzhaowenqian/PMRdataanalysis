@@ -14,13 +14,18 @@ def SHIYUAN(rawdata):
     in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细') 
     consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细') 
     #订单统计
+    order_groupby_df=order_df.groupby(['订单编号','物料编码'])['数量'].sum().reset_index()
+    order_unique_df=order_df[['订单日期','使用科室','订单编号','货号','物料编码','智检编码','名称','规格','品牌','单位','供应商','进价','销价','备注']]
+    order_unique_df =order_unique_df.drop_duplicates(subset=['订单编号','物料编码'], keep='first')
+    order_merge_df = pd.merge(order_unique_df,order_groupby_df, on=['订单编号','物料编码'], how='left')
+    order_merge_df.rename(columns={ '数量':'订单总数量'},inplace=True)
     kyl_in_out_df=in_out_df[in_out_df['备注']=='康意路入库']
     unique_kyl_in_out_df=kyl_in_out_df.groupby(['订单号','商品编码'])['数量'].sum().reset_index()
     unique_kyl_in_out_df.rename(columns={ '数量':'康意路入库总数量'},inplace=True)
     all_kyl_in_out_df= kyl_in_out_df.groupby(['订单号','商品编码']).agg({'数量': lambda x: '/'.join(map(str, x)), '入库日期': lambda x: '/'.join(map(str, x))}).reset_index()
     all_kyl_in_out_df.rename(columns={ '数量':'康意路数量明细','入库日期':'康意路入库日期明细'},inplace=True)
     kyl_df=pd.merge(unique_kyl_in_out_df,all_kyl_in_out_df,  how="left",  left_on=['订单号','商品编码'],right_on=['订单号','商品编码'])
-    order_kyl_df=pd.merge(order_df,kyl_df,  how="left",  left_on=['订单编号','物料编码'],right_on=['订单号','商品编码'])
+    order_kyl_df=pd.merge(order_merge_df,kyl_df,  how="left",  left_on=['订单编号','物料编码'],right_on=['订单号','商品编码'])
     order_kyl_df.drop(labels=['订单号','商品编码'],axis=1, inplace = True)
     zs_in_out_df=in_out_df[in_out_df['备注']=='直送']
     unique_zs_in_out_df=zs_in_out_df.groupby(['订单号','商品编码'])['数量'].sum().reset_index()
@@ -33,7 +38,7 @@ def SHIYUAN(rawdata):
     order_all_df['康意路入库总数量']=order_all_df['康意路入库总数量'].fillna(0)
     order_all_df['直送入库总数量']=order_all_df['直送入库总数量'].fillna(0)
     order_all_df['合计入库']=order_all_df['康意路入库总数量']+order_all_df['直送入库总数量']
-    order_all_df['欠货数量']=order_all_df['数量']-order_all_df['合计入库']
+    order_all_df['欠货数量']=order_all_df['订单总数量']-order_all_df['合计入库']
     #康意路库存明细带批号
     product_batch_kyl_in_df=kyl_in_out_df.groupby(['商品编码','批号'])['数量'].sum().reset_index()
     product_batch_kyl_out_df=in_out_df[in_out_df['备注']=='康意路出库'].groupby(['商品编码','批号'])['数量'].sum().reset_index()
