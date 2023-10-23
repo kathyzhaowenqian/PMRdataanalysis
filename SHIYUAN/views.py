@@ -13,7 +13,7 @@ import pandas as pd
 import xlwt
 import io
 from SHIYUAN.tools.CalculateAPI import *
-
+import os
 class Upload(View):
     def get(self,request):
         return render(request,'SY/upload.html')
@@ -28,8 +28,11 @@ class Upload(View):
             # # 存储调整后的数据到新的Excel文件
             # new_excel_file = 'ShiYuan.xlsx'
             # order_data.to_excel(new_excel_file, index=False)
+            file_name = 'ShiYuan.xlsx'
+            if os.path.exists(file_name):  # 判断文件是否存在
+                os.remove(file_name)       # 删除文件
             sheet_name_list = ['订单统计','订单明细(上传的)','直送入库和康意路出入库明细(上传的)','康意路库存','康意路库存(带批次)','医院端的库存和领用汇总','医院端的库存和领用汇总(带批次)','领用明细(上传的)']
-            writer = pd.ExcelWriter('ShiYuan.xlsx')
+            writer = pd.ExcelWriter(file_name)
             result_list=SHIYUAN(excel_file)
 
             for i in range(len(result_list)):
@@ -39,9 +42,10 @@ class Upload(View):
             #     worksheet.set_column('A:B',16) ## 设置excel表格列宽为16
             writer.close()
 
-
             return HttpResponseRedirect('/SHIYUAN/downloads')
         return HttpResponse('没有正确上传')
+
+
 
 class Download(View):
     def get(self,request):
