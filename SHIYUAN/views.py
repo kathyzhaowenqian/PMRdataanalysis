@@ -18,7 +18,7 @@ class Upload(View):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.Upload_File = os.path.join(os.path.dirname(__file__), 'file/sy', 'ShiYuan.xlsx')
+        self.Upload_File = os.path.join(os.path.dirname(__file__), './file/sy', 'ShiYuan.xlsx')
 
     def get(self,request):
         print('os.path.dirname(__file__),',os.path.dirname(__file__))
@@ -57,7 +57,7 @@ class Upload(View):
 class Download(View):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.Upload_File = os.path.join(os.path.dirname(__file__), 'file/sy', 'ShiYuan.xlsx')
+        self.Upload_File = os.path.join(os.path.dirname(__file__), './file/sy', 'ShiYuan.xlsx')
 
     def get(self,request):
         file_path = self.Upload_File
