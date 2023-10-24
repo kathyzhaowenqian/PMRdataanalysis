@@ -13,10 +13,10 @@ services:
       - /opt/pmrdataanalysis/djangostatic:/djangostatic
 
     deploy:
-      replicas : 2
+      replicas : 1
         
     ports:
-      - "8001-8002:8000"
+      - "8001:8000"
     restart: always
 
      # 限制容器日志的大小
