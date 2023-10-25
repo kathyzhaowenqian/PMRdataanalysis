@@ -31,7 +31,7 @@ class Upload(View):
 
     def get(self,request):
         # login_user = request.user.chinesename
-        if request.user.username=='admin' or  request.user.username=='cyp' or  request.user.username=='cxy':               
+        if request.user.username=='admin' or  request.user.username=='syp' or  request.user.username=='cxy':               
             # print('os.path.dirname(__file__),',os.path.dirname(__file__))
                 
             if os.path.exists(self.Upload_File):  # 判断文件是否存在
@@ -100,7 +100,7 @@ class Upload(View):
 class Download(View):
     def get(self,request):
         # login_user = request.user.chinesename
-        if request.user.username=='admin' or  request.user.username=='cyp' or  request.user.username=='cxy':  
+        if request.user.username=='admin' or  request.user.username=='syp' or  request.user.username=='cxy':  
             file_path = Upload_File_2
 
             if not os.path.exists(file_path):
