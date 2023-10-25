@@ -72,9 +72,9 @@
                 success: function (response) {
                     console.log(response)
                     // 处理上传成功后的响应
-                    if (response.status_code == 200) {
+                    if (response.code == 200) {
 
-                        $('#message').text(response.data);
+                        $('#message').text(response.data).css('color', 'green');
                     } else {
                         $('#message').text(response.data);
                     }
@@ -116,7 +116,7 @@
 
                     // console.log(response)
                     if (response.code != 404) {
-                        $('#message2').text('下载成功');
+                        $('#message2').text('下载成功').css('color', 'green');
                          // jump to download url
                          window.location.href = '/SHIYUAN/downloads'
                     } else  {
