@@ -23,7 +23,8 @@
         <br><br>
         <button type="submit">上传Excel文件</button>
     </form>
-
+    <!-- <div id=progress-bar></div> -->
+    <!-- <br> -->
     <div id="message" style="color: red;"></div>
 
     <br><br>
@@ -69,6 +70,14 @@
                 data: formData,
                 processData: false, // 不处理数据
                 contentType: false, // 不设置内容类型 
+                // xhr: function () {
+                //     var xhr = $.ajaxSettings.xhr(); xhr.upload.onprogress = function (e) { // 更新进度条
+                //         if (e.lengthComputable) {
+                //             var percent = Math.round((e.loaded / e.total) * 100);
+                //             $('#progress-bar').css('width', percent + '%').text(percent + '%');
+                //         }
+                //     }; return xhr;
+                // },
                 success: function (response) {
                     console.log(response)
                     // 处理上传成功后的响应
@@ -85,6 +94,7 @@
                 }
             });
         });
+
 
 
 
@@ -117,9 +127,9 @@
                     // console.log(response)
                     if (response.code != 404) {
                         $('#message2').text('下载成功').css('color', 'green');
-                         // jump to download url
-                         window.location.href = '/SHIYUAN/downloads'
-                    } else  {
+                        // jump to download url
+                        window.location.href = '/SHIYUAN/downloads'
+                    } else {
                         $('#message2').text(response.data);
                     }
                 },
@@ -128,7 +138,7 @@
                 }
             });
 
-           
+
 
         });
 

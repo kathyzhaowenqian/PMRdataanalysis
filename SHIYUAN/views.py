@@ -30,7 +30,7 @@ class Upload(View):
         self.Upload_File = Upload_File_2
 
     def get(self,request):
-        login_user = request.user.chinesename
+        # login_user = request.user.chinesename
         if request.user.username=='admin' or  request.user.username=='cyp' or  request.user.username=='cxy':               
             # print('os.path.dirname(__file__),',os.path.dirname(__file__))
                 
@@ -99,24 +99,27 @@ class Upload(View):
 
 class Download(View):
     def get(self,request):
-        file_path = Upload_File_2
+        # login_user = request.user.chinesename
+        if request.user.username=='admin' or  request.user.username=='cyp' or  request.user.username=='cxy':  
+            file_path = Upload_File_2
 
-        if not os.path.exists(file_path):
-            return JsonResponse({'code':404,'data': '请先上传文件'})
+            if not os.path.exists(file_path):
+                return JsonResponse({'code':404,'data': '请先上传文件'})
 
-            
-        try:
-            with open(file_path, 'rb') as f:
-                response = HttpResponse(f.read())
-                response['Content-Disposition'] = 'attachment; filename=ShiYuanCalculate.xlsx'
-                response['Content-Type'] = 'application/vnd.ms-excel'
-                print('response??????',response)
-
-                return response              
                 
-        except Exception as e:
-            return JsonResponse({'code':404,'data': '下载失败：' + str(e)})
-        
+            try:
+                with open(file_path, 'rb') as f:
+                    response = HttpResponse(f.read())
+                    response['Content-Disposition'] = 'attachment; filename=ShiYuanCalculate.xlsx'
+                    response['Content-Type'] = 'application/vnd.ms-excel'
+                    # print('response??????',response)
+
+                    return response              
+                    
+            except Exception as e:
+                return JsonResponse({'code':404,'data': '下载失败：' + str(e)})
+        else:
+            return HttpResponse('您好，目前您暂无权限访问')    
 
 # class Download(View):
 #     def __init__(self, **kwargs: Any) -> None:
