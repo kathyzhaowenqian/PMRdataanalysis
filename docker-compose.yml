@@ -11,12 +11,13 @@ services:
     volumes:
       #把静态文件夹目录挂载出来,方便 nginx 转发
       - /opt/pmrdataanalysis/djangostatic:/djangostatic
+      - /opt/pmrdataanalysis/excelfile:/pmrdataanalysis/SHIYUAN/file/sy
 
     deploy:
-      replicas : 1
+      replicas : 2
         
     ports:
-      - "8001:8000"
+      - "8001-8002:8000"
     restart: always
 
      # 限制容器日志的大小
