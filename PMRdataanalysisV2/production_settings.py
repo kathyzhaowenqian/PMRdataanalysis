@@ -655,11 +655,17 @@ SIMPLEUI_CONFIG = {
                     'icon': 'fab fa-github',
                     'models': [
 
+                        # #三级菜单：十院数据统计                     
+                        #     {
+                        #     'name': '十院数据统计',
+                        #     'url': '/SHIYUAN/uploads'
+                        #     },     
                         #三级菜单：十院数据统计                     
                             {
-                            'name': '十院数据统计',
-                            'url': '/SHIYUAN/uploads'
+                            'name': '十院数据处理平台',
+                            'url': '/SHIYUAN/uploads2'
                             },                        
+                                                    
                     ]                
                 } ,
 
