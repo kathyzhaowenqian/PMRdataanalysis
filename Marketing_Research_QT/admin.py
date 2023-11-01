@@ -1231,42 +1231,42 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 #每季度实际完成额
     @admin.display(description='23/Q1实际')
     def actualsales_23_q1(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q1actualsales
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2023',is_active=True)[0].q1actualsales)
     actualsales_23_q1.admin_order_field = '-salestarget3__q1actualsales'
 
     @admin.display(description='23/Q2实际')
     def actualsales_23_q2(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q2actualsales
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2023',is_active=True)[0].q2actualsales)
     actualsales_23_q2.admin_order_field = '-salestarget3__q2actualsales'
     
     @admin.display(description='23/Q3实际')
     def actualsales_23_q3(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q3actualsales
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2023',is_active=True)[0].q3actualsales)
     actualsales_23_q3.admin_order_field = '-salestarget3__q3actualsales'
 
     @admin.display(description='23/Q4实际')
     def actualsales_23_q4(self, obj):
-        return obj.salestarget3_set.filter(year='2023',is_active=True)[0].q4actualsales
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2023',is_active=True)[0].q4actualsales)
     actualsales_23_q4.admin_order_field = '-salestarget3__q4actualsales'
     
     @admin.display(description='24/Q1实际')
     def actualsales_24_q1(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q1actualsales
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2024',is_active=True)[0].q1actualsales)
     actualsales_24_q1.admin_order_field = '-salestarget3__q1actualsales'
 
     @admin.display(description='24/Q2实际')
     def actualsales_24_q2(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q2actualsales
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2024',is_active=True)[0].q2actualsales)
     actualsales_24_q2.admin_order_field = '-salestarget3__q2actualsales'
     
     @admin.display(description='24/Q3实际')
     def actualsales_24_q3(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q3actualsales
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2024',is_active=True)[0].q3actualsales)
     actualsales_24_q3.admin_order_field = '-salestarget3__q3actualsales'
 
     @admin.display(description='24/Q4实际')
     def actualsales_24_q4(self, obj):
-        return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q4actualsales
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2024',is_active=True)[0].q4actualsales)
     actualsales_24_q4.admin_order_field = '-salestarget3__q4actualsales'
 
 
