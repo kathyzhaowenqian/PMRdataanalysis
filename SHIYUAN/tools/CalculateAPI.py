@@ -13,15 +13,19 @@ def SHIYUAN(rawdata):
     order_df = pd.read_excel(rawdata, sheet_name = '订单') #要保证订单编号和物料编码联合只出现一次
     order_df['订单编号'] = order_df['订单编号'].astype(str)
     order_df['物料编码'] = order_df['物料编码'].astype(str)
+    order_df['数量'] = order_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
 
     in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细') 
     in_out_df['订单号'] = in_out_df['订单号'].astype(str)
     in_out_df['商品编码'] = in_out_df['商品编码'].astype(str)
     in_out_df['批号'] = in_out_df['批号'].astype(str)
+    in_out_df['数量'] = in_out_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
 
     consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细') 
     consumption_df['编码'] = consumption_df['编码'].astype(str)
     consumption_df['批号'] = consumption_df['批号'].astype(str)
+    consumption_df['数量'] = consumption_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+
     #订单统计
     order_groupby_df=order_df.groupby(['订单编号','物料编码'])['数量'].sum().reset_index()
     order_unique_df=order_df[['订单日期','使用科室','订单编号','货号','物料编码','智检编码','名称','规格','品牌','单位','供应商','进价','销价','备注']]
