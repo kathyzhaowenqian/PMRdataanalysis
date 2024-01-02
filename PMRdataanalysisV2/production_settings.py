@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'XUERYUAN',
     'PMRKA',
     'SHIYUAN',
+    'Suppliers',
     'nested_admin',
 ]
 
@@ -337,30 +338,6 @@ SIMPLEUI_CONFIG = {
                 },                        
              ]        
         },
-
-        # #一级菜单：百来调研表
-        # {
-        #     'name': '百来社区医院调研表',
-        #     'icon': 'fa-solid fa-star',
-        #     'models': [
-        #         {
-        #         # 第二级菜单                
-        #         'name': '调研表列表(在此填报)',
-        #         'url': '/admin/Marketing_Research_Community/communityresearchlist/',
-        #         'icon': 'fa-solid fa-pen'
-        #         }, 
-        #         {
-        #         'name': '调研表仪器详情表',
-        #         'icon': 'fa-solid fa-list',
-        #         'url': '/admin/Marketing_Research_Community/communityresearchdetail/'
-        #         },
-        #         {
-        #         'name': '已删除的数据',
-        #         'icon': 'fa-solid fa-list',
-        #         'url': '/admin/Marketing_Research_Community/communityresearchlistdelete/'
-        #         },                        
-        #      ]        
-        # },
 
         #一级菜单：集成战略地图/作战计划
         {
@@ -706,7 +683,7 @@ SIMPLEUI_CONFIG = {
                         'url': '/Suppliers/uploads_xey_23'
                         },                        
                                     
-            ]
+                        ]
             },
 
             ]
