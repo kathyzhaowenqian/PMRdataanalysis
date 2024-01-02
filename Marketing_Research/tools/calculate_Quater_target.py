@@ -31,7 +31,7 @@ def result_of_Quatar_display(advanced_days,delayed_days):
 
     #PMRresearchlist的list显示：
     list_display = ('hospital_district','hospital_hospitalclass','hospital','colored_project','salesman1_chinesename','salesman2_chinesename',                    
-                   'testspermonth','owntestspermonth','salesmode','saleschannel','support','progress','detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent',)
+                   'testspermonth','owntestspermonth','salesmode','saleschannel','support','progress','detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent','actualsales_2023', )
             
     # list_editable = ('saleschannel','support')
 
@@ -125,24 +125,24 @@ def result_of_Quatar_display(advanced_days,delayed_days):
         readonly_fields = readonly_fields + ('q4target','q4completemonth',)
 
 
-
-    speicial_case_date = date(2023,11,30)
+    speicial_case_date = date(2024,1,31)
     if today <= speicial_case_date:
         return ( # list_display
                     ('hospital_district','hospital_hospitalclass','hospital','colored_project','salesman1_chinesename','salesman2_chinesename',                    
                    'testspermonth','owntestspermonth','salesmode','saleschannel','support','progress','detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent',
                  # 'actualsales_23_q1',#'finishrate_23_q1',#  'salestarget_23_q1','completemonth_23_q1',
                    #'salestarget_23_q2','completemonth_23_q2',
-                   'actualsales_23_q1','actualsales_23_q2','actualsales_23_q3','actualsales_23_q4','salestarget_23_q4','completemonth_23_q4',#
+                   'actualsales_2023',
+                   'actualsales_23_q1','actualsales_23_q2','actualsales_23_q3','actualsales_23_q4','salestarget_24_q1','completemonth_24_q1',#
                    
                    ),
                     #list_editable
                 #   ('saleschannel','support','targetsalesvalue','Q1completemonth','targetsalesvalue2','Q2completemonth'),
 
                     #readonly_fields
-                   ('q1target','q1completemonth','q1actualsales','q1finishrate',
-                    'q2target','q2completemonth','q2actualsales','q2finishrate',
-                    'q3target','q3completemonth','q3actualsales','q3finishrate',
+                   ('q1actualsales','q1finishrate',
+                    'q2actualsales','q2finishrate',
+                    'q3actualsales','q3finishrate',
                     'q4actualsales','q4finishrate',
                    )
                 )

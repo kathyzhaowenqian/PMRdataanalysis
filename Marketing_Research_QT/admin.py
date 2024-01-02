@@ -472,17 +472,18 @@ class SalesTargetInline(admin.StackedInline):
             return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user)&Q(year='2023'))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)&Q(year='2023')))
         
         #如果大于2024.1.1减掉30天
-        if today > calculate_quarter_start_end_day(1,thisyear+1)[0]-timedelta(days=settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS):
-            if request.user.is_superuser :
-                return qs.filter(is_active=True)  
-              
-            user_in_group_list = request.user.groups.values('name')
-            for user_in_group_dict in user_in_group_list:
-                if user_in_group_dict['name'] in self.QT_view_group_list:
-                    return qs.filter(is_active=True)
+        # if today > calculate_quarter_start_end_day(1,thisyear+1)[0]-timedelta(days=settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS):
+        if request.user.is_superuser :
+            return qs.filter(is_active=True,year='2024')  
+            
+        user_in_group_list = request.user.groups.values('name')
+        for user_in_group_dict in user_in_group_list:
+            if user_in_group_dict['name'] in self.QT_view_group_list:
+                return qs.filter(is_active=True,year='2024')
 
-            #普通销售的话:
-            return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)))
+        #普通销售的话:
+        return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user)&Q(year='2024'))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)&Q(year='2024')))
+        
 
     #普通销售不允许删除目标inline
     def has_delete_permission(self,request, obj=None):
@@ -745,7 +746,14 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
 
         if request.user.is_superuser :
             print('我在PMRResearchListAdmin-get_queryset-筛选active的')            
-            return qs.filter(is_active=True,company_id=2)
+            qs= qs.filter(is_active=True,company_id=2)
+            qs = qs.annotate(
+            actualsales_2023=Sum('salestarget3__q1actualsales') +
+                         Sum('salestarget3__q2actualsales') +
+                         Sum('salestarget3__q3actualsales') +
+                         Sum('salestarget3__q4actualsales'),
+            )          
+            return qs   
 
                 
         # <QuerySet [{'name': 'pmrdirectsales'}, {'name': 'QTmanager'}]>
@@ -754,11 +762,24 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
         for user_in_group_dict in user_in_group_list:
             if user_in_group_dict['name'] in self.QT_view_group_list:
                  # print('我在模型里')
-                return qs.filter(is_active=True,company_id=2)
-            
+                qs= qs.filter(is_active=True,company_id=2)
+                qs = qs.annotate(
+                actualsales_2023=Sum('salestarget3__q1actualsales') +
+                            Sum('salestarget3__q2actualsales') +
+                            Sum('salestarget3__q3actualsales') +
+                            Sum('salestarget3__q4actualsales'),
+                )          
+                return qs   
+                
        #普通销售的话:
-        return qs.filter((Q(is_active=True)&Q(salesman1=request.user)&Q(company_id=2))|(Q(is_active=True)&Q(salesman2=request.user)&Q(company_id=2)))
-                      
+        qs= qs.filter((Q(is_active=True)&Q(salesman1=request.user)&Q(company_id=2))|(Q(is_active=True)&Q(salesman2=request.user)&Q(company_id=2)))
+        qs = qs.annotate(
+            actualsales_2023=Sum('salestarget3__q1actualsales') +
+                         Sum('salestarget3__q2actualsales') +
+                         Sum('salestarget3__q3actualsales') +
+                         Sum('salestarget3__q4actualsales'),
+            )          
+        return qs                 
 
 # ------delete_model内层的红色删除键------------------------------
     def delete_model(self, request, obj):
@@ -1227,7 +1248,13 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
         return obj.salestarget3_set.filter(year='2024',is_active=True)[0].q4completemonth
     completemonth_24_q4.admin_order_field = 'salestarget3__q4completemonth'
 
+#23年全年实际完成额
+    @admin.display(description='23年开票额')
+    def actualsales_2023(self, obj):
+        return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2023',is_active=True)[0].q1actualsales+obj.salestarget3_set.filter(year='2023',is_active=True)[0].q2actualsales+obj.salestarget3_set.filter(year='2023',is_active=True)[0].q3actualsales+obj.salestarget3_set.filter(year='2023',is_active=True)[0].q4actualsales)
+    actualsales_2023.admin_order_field = '-actualsales_2023'
 
+    
 #每季度实际完成额
     @admin.display(description='23/Q1实际')
     def actualsales_23_q1(self, obj):

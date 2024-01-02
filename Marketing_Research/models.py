@@ -283,7 +283,6 @@ class PMRResearchList(models.Model):
         DetailCalculate.objects.filter(researchlist=self).update(is_active=False)
 
 
-
 class PMRResearchDetail(models.Model):
     ownbusiness_choices = (
         (True, '是'),

@@ -189,7 +189,7 @@ SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
 SIMPLEUI_CONFIG = {
     'system_keep': True,
      # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
-    'menu_display':  ['普美瑞直销调研表','普美瑞KA调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','用友-U8-同步','认证授权'],    
+    'menu_display':  ['普美瑞直销调研表','普美瑞KA调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','供应商信息查询','用友-U8-同步','认证授权'],    
     'dynamic': True,    # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
     'menus': [
 
@@ -680,6 +680,37 @@ SIMPLEUI_CONFIG = {
 
 
             ]        
+        },
+
+       #一级菜单：供应商信息查询
+        {
+        'name': '供应商信息查询',
+        'icon': 'fa-solid fa-star',
+        'models': [
+            #二级菜单：
+            {
+                'name': '供应商基础信息表',
+                'url': '/admin/Suppliers/supplierinfo/'
+            },  
+            {
+                'name': '徐二院供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：徐二院     
+                        {
+                        'name': '徐二院供应商排行',
+                        'url': '/admin/Suppliers/xey_supplier_rank/'
+                        },                      
+                        {
+                        'name': '徐二院EXCEL上传平台',
+                        'url': '/Suppliers/uploads_xey_23'
+                        },                        
+                                    
+            ]
+            },
+
+            ]
+    
         },
 
         
