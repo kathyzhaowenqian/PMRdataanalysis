@@ -15,7 +15,7 @@ from sqlalchemy.types import *
 def RawSaveToSql(rawdata,project,table,seq):
     detail_df = pd.read_excel(rawdata, sheet_name = project, dtype={'发票号':str,'存货编码': str,'税率': str,'规格型号': str,'订单号': str,'入库单号': str}) 
     detail_df=detail_df[['序号','发票类型','发票号','发票日期','供应商','存货编码','存货名称','规格型号','主计量','税率','数量','原币无税单价','原币单价','原币金额','原币税额','原币价税合计','订单号','入库单号','项目名称','品牌','走账方式']]
-
+    detail_df['发票日期'] = pd.to_datetime(detail_df['发票日期'])
     detail_df['数量'] = detail_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
     detail_df['原币无税单价'] = detail_df['原币无税单价'].apply(lambda x: float(str(x).replace(',', '')))
     detail_df['原币金额'] = detail_df['原币金额'].apply(lambda x: float(str(x).replace(',', '')))
@@ -118,6 +118,7 @@ def TransformData(table2122,table23,table24,project,filename,Supplier_Rank_table
     #先从数据库拿供应商基础信息
     supplier_info_sql ='''select * from "SUPPLIERS"."Supplier_info" where is_active=True and project ={}'''.format("'"+project+"'")  #可以写format
     supplier_info_df = pd.read_sql_query(supplier_info_sql,con=conn)
+    supplier_info_df=supplier_info_df.drop_duplicates(subset=['supplier'], keep='first')
     conn.close()
     
     new_suppliers = supplierlist_df[~supplierlist_df['supplier'].isin(supplier_info_df['supplier'])]

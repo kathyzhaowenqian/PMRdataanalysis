@@ -659,7 +659,7 @@ SIMPLEUI_CONFIG = {
             ]        
         },
 
-       #一级菜单：供应商信息查询
+#一级菜单：供应商信息查询
         {
         'name': '供应商信息查询',
         'icon': 'fa-solid fa-star',
@@ -677,14 +677,323 @@ SIMPLEUI_CONFIG = {
                         {
                         'name': '徐二院供应商排行',
                         'url': '/admin/Suppliers/xey_supplier_rank/'
-                        },                      
+                        },     
+                        {
+                        'name': '徐二院供应商详情表',
+                        'url': '/admin/Suppliers/xey_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '徐二院产品排行',
+                        'url': '/admin/Suppliers/xey_product_rank/'
+                        },                     
                         {
                         'name': '徐二院EXCEL上传平台',
                         'url': '/Suppliers/uploads_xey_23'
-                        },                        
-                                    
-                        ]
+                        },                                                           
+                    ]
             },
+
+            {
+                'name': '普中心供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：PZX    
+                        {
+                        'name': '普中心供应商排行',
+                        'url': '/admin/Suppliers/pzx_supplier_rank/'
+                        },     
+                        {
+                        'name': '普中心供应商详情表',
+                        'url': '/admin/Suppliers/pzx_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '普中心产品排行',
+                        'url': '/admin/Suppliers/pzx_product_rank/'
+                        },                     
+                        {
+                        'name': '普中心EXCEL上传平台',
+                        'url': '/Suppliers/uploads_pzx_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '新沂供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：NQ    
+                        {
+                        'name': '新沂供应商排行',
+                        'url': '/admin/Suppliers/xinyi_supplier_rank/'
+                        },     
+                        {
+                        'name': '新沂供应商详情表',
+                        'url': '/admin/Suppliers/xinyi_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '新沂产品排行',
+                        'url': '/admin/Suppliers/xinyi_product_rank/'
+                        },                     
+                        {
+                        'name': '新沂EXCEL上传平台',
+                        'url': '/Suppliers/uploads_xinyi_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '邳州供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：    
+                        {
+                        'name': '邳州供应商排行',
+                        'url': '/admin/Suppliers/pizhou_supplier_rank/'
+                        },     
+                        {
+                        'name': '邳州供应商详情表',
+                        'url': '/admin/Suppliers/pizhou_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '邳州产品排行',
+                        'url': '/admin/Suppliers/pizhou_product_rank/'
+                        },                     
+                        {
+                        'name': '邳州EXCEL上传平台',
+                        'url': '/Suppliers/uploads_pizhou_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '安亭供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：    
+                        {
+                        'name': '安亭供应商排行',
+                        'url': '/admin/Suppliers/anting_supplier_rank/'
+                        },     
+                        {
+                        'name': '安亭供应商详情表',
+                        'url': '/admin/Suppliers/anting_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '安亭产品排行',
+                        'url': '/admin/Suppliers/anting_product_rank/'
+                        },                     
+                        {
+                        'name': '安亭EXCEL上传平台',
+                        'url': '/Suppliers/uploads_anting_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '南翔供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：    
+                        {
+                        'name': '南翔供应商排行',
+                        'url': '/admin/Suppliers/nanxiang_supplier_rank/'
+                        },     
+                        {
+                        'name': '南翔供应商详情表',
+                        'url': '/admin/Suppliers/nanxiang_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '南翔产品排行',
+                        'url': '/admin/Suppliers/nanxiang_product_rank/'
+                        },                     
+                        {
+                        'name': '南翔EXCEL上传平台',
+                        'url': '/Suppliers/uploads_nanxiang_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '南桥供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单： 
+                        {
+                        'name': '南桥供应商排行',
+                        'url': '/admin/Suppliers/nq_supplier_rank/'
+                        },     
+                        {
+                        'name': '南桥供应商详情表',
+                        'url': '/admin/Suppliers/nq_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '南桥产品排行',
+                        'url': '/admin/Suppliers/nq_product_rank/'
+                        },                     
+                        {
+                        'name': '南桥EXCEL上传平台',
+                        'url': '/Suppliers/uploads_nq_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '齐贤供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：  
+                        {
+                        'name': '齐贤供应商排行',
+                        'url': '/admin/Suppliers/qixian_supplier_rank/'
+                        },     
+                        {
+                        'name': '齐贤供应商详情表',
+                        'url': '/admin/Suppliers/qixian_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '齐贤产品排行',
+                        'url': '/admin/Suppliers/qixian_product_rank/'
+                        },                     
+                        {
+                        'name': '齐贤EXCEL上传平台',
+                        'url': '/Suppliers/uploads_qixian_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '申养供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：  
+                        {
+                        'name': '申养供应商排行',
+                        'url': '/admin/Suppliers/shenyang_supplier_rank/'
+                        },     
+                        {
+                        'name': '申养供应商详情表',
+                        'url': '/admin/Suppliers/shenyang_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '申养产品排行',
+                        'url': '/admin/Suppliers/shenyang_product_rank/'
+                        },                     
+                        {
+                        'name': '申养EXCEL上传平台',
+                        'url': '/Suppliers/uploads_shenyang_23'
+                        },                                                           
+                    ]
+            },           
+             {
+                'name': '四团供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：   
+                        {
+                        'name': '四团供应商排行',
+                        'url': '/admin/Suppliers/situan_supplier_rank/'
+                        },     
+                        {
+                        'name': '四团供应商详情表',
+                        'url': '/admin/Suppliers/situan_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '四团产品排行',
+                        'url': '/admin/Suppliers/situan_product_rank/'
+                        },                     
+                        {
+                        'name': '四团EXCEL上传平台',
+                        'url': '/Suppliers/uploads_situan_23'
+                        },                                                           
+                    ]
+            },
+
+            {
+                'name': '四五五供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：   
+                        {
+                        'name': '四五五供应商排行',
+                        'url': '/admin/Suppliers/siwuwu_supplier_rank/'
+                        },     
+                        {
+                        'name': '四五五供应商详情表',
+                        'url': '/admin/Suppliers/siwuwu_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '四五五产品排行',
+                        'url': '/admin/Suppliers/siwuwu_product_rank/'
+                        },                     
+                        {
+                        'name': '四五五EXCEL上传平台',
+                        'url': '/Suppliers/uploads_siwuwu_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '亭林供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：   
+                        {
+                        'name': '亭林供应商排行',
+                        'url': '/admin/Suppliers/tinglin_supplier_rank/'
+                        },     
+                        {
+                        'name': '亭林供应商详情表',
+                        'url': '/admin/Suppliers/tinglin_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '亭林产品排行',
+                        'url': '/admin/Suppliers/tinglin_product_rank/'
+                        },                     
+                        {
+                        'name': '亭林EXCEL上传平台',
+                        'url': '/Suppliers/uploads_tinglin_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '西渡供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：   
+                        {
+                        'name': '西渡供应商排行',
+                        'url': '/admin/Suppliers/xidu_supplier_rank/'
+                        },     
+                        {
+                        'name': '西渡供应商详情表',
+                        'url': '/admin/Suppliers/xidu_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '西渡产品排行',
+                        'url': '/admin/Suppliers/xidu_product_rank/'
+                        },                     
+                        {
+                        'name': '西渡EXCEL上传平台',
+                        'url': '/Suppliers/uploads_xidu_23'
+                        },                                                           
+                    ]
+            },
+            {
+                'name': '直销供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        #三级菜单：    
+                        {
+                        'name': '直销供应商排行',
+                        'url': '/admin/Suppliers/zhixiao_supplier_rank/'
+                        },     
+                        {
+                        'name': '直销供应商详情表',
+                        'url': '/admin/Suppliers/zhixiao_supplier_product_summary/'
+                        },        
+                        {
+                        'name': '直销产品排行',
+                        'url': '/admin/Suppliers/zhixiao_product_rank/'
+                        },                     
+                        {
+                        'name': '直销EXCEL上传平台',
+                        'url': '/Suppliers/uploads_zhixiao_23'
+                        },                                                           
+                    ]
+            },
+
 
             ]
     

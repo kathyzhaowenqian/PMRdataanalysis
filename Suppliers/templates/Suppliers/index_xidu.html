@@ -14,7 +14,7 @@
 
   <div class="container">
     <div class="page-header">
-      <h1>徐二院数据处理平台</h1>
+      <h1>西渡数据处理平台</h1>
       <h3>（供应商采购量排序、存货供应商供货情况汇总）</h3>
     </div>
 
@@ -82,11 +82,11 @@
     <br><br>
     注意：
     <br>
-    1,上传的excel一定要按规定的表头，注意格式，不能有合并单元格。
+    1,上传的excel一定要按规定的表头(顺序可变)，注意格式，全篇不能有合并单元格
     <br>
-    2,excel的sheet名称改为： 徐二院
+    2,excel的sheet名称改为: 西渡 
     <br>
-    3,项目名称列为：徐二院
+    3,项目名称列为：西渡
     <br>
     4,若出现下载不了的情况，请先尝试刷新
     <br><br>
@@ -120,7 +120,7 @@
 
       var uploader = new ss.SimpleUpload({
         button: btn,
-        url: '/Suppliers/uploads_xey_23',
+        url: '/Suppliers/uploads_xidu_23',
         name: 'uploadfile23',
         multipart: true,
         hoverClass: 'hover',
@@ -175,7 +175,7 @@
 
       var uploader2 = new ss.SimpleUpload({
         button: btn2,
-        url: '/Suppliers/uploads_xey_24',
+        url: '/Suppliers/uploads_xidu_24',
         name: 'uploadfile24',
         multipart: true,
         hoverClass: 'hover',
@@ -231,14 +231,14 @@
         // 如果有文件就挑转到下载页面，如果没有那就提示先上传文件
         $.ajax({
           type: 'GET',
-          url: '/Suppliers/downloads_xey',
+          url: '/Suppliers/downloads_xidu',
           success: function (response) {
 
             // console.log(response)
             if (response.code != 404) {
               $('#msgBox3').html('<strong>' + '下载成功' + '</strong>').css('color', 'green');
               // jump to download url
-              window.location.href = '/Suppliers/downloads_xey'
+              window.location.href = '/Suppliers/downloads_xidu'
             } else {
               $('#msgBox3').html('<strong>' + response.data + '</strong>').css('color', 'red');
             }
