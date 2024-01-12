@@ -163,7 +163,9 @@ def TransformData(table2122,table23,table24,project,filename,Supplier_Rank_table
         suppliers_pivot_df=suppliers_pivot_df[['排序','供应商', '21年采购数量', '22年采购数量', '23年采购数量','采购总数量','21年采购金额','22年采购金额','23年采购金额','采购总金额']]
 
     #存货汇总
-    productprice_df = detail_total_df.groupby(['存货编码', '存货名称', '供应商','规格型号','主计量','品牌']).apply(lambda x: x.loc[x['发票日期'].idxmax()])[['存货编码', '存货名称', '供应商','规格型号','主计量','品牌','发票日期', '原币单价']].reset_index(drop=True)
+    productprice_df = detail_total_df.sort_values(by=['发票日期', '原币单价'], ascending=[False, True]).groupby(['存货编码', '存货名称', '规格型号','主计量','供应商','品牌']).head(1)
+    productprice_df=productprice_df.reset_index(drop=True)
+    # productprice_df = detail_total_df.groupby(['存货编码', '存货名称', '供应商','规格型号','主计量','品牌']).apply(lambda x: x.loc[x['发票日期'].idxmax()])[['存货编码', '存货名称', '供应商','规格型号','主计量','品牌','发票日期', '原币单价']].reset_index(drop=True)
     product_pivot_df = detail_total_df.pivot_table(index=['存货编码', '存货名称', '供应商','规格型号','主计量','品牌'], columns='年份', values=['数量','原币价税合计'], aggfunc='sum', fill_value=0)
     product_pivot_df.columns = ['_'.join(map(str, col)) for col in product_pivot_df.columns.values]
     product_pivot_df = product_pivot_df.reset_index()
