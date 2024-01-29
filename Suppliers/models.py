@@ -1411,3 +1411,66 @@ class SIWUWU_Product_Rank(models.Model):
         verbose_name_plural = '四五五产品排行'
     def __str__(self):
         return self.productname
+    
+
+#================================================================
+
+class Total_Supplier_Rank(models.Model):
+    # id = models.BigAutoField(primary_key=True)
+
+    rank = models.SmallIntegerField(verbose_name= '排行',null=False)
+    project = models.CharField(verbose_name= '项目',max_length=255)
+    supplier = models.CharField(verbose_name= '供应商',max_length=255)
+    qty21 = models.DecimalField(verbose_name= '21年数量',max_digits=25, decimal_places=2, null=True) 
+    qty22 = models.DecimalField(verbose_name= '22年数量',max_digits=25, decimal_places=2, null=True)
+    qty23 = models.DecimalField(verbose_name= '23年数量',max_digits=25, decimal_places=2, null=True)
+    qty24 = models.DecimalField(verbose_name= '24年数量',max_digits=25, decimal_places=2, default=0)
+    totalqty = models.DecimalField(verbose_name= '总数量',max_digits=25, decimal_places=2, null=True)
+    sum21 = models.DecimalField(verbose_name= '21年采购额',max_digits=25, decimal_places=2, null=True)
+    sum22 = models.DecimalField(verbose_name= '22年采购额',max_digits=25, decimal_places=2, null=True)
+    sum23 = models.DecimalField(verbose_name= '23年采购额',max_digits=25, decimal_places=2, null=True)
+    sum24 = models.DecimalField(verbose_name= '24年采购额',max_digits=25, decimal_places=2, default=0)
+    totalsum = models.DecimalField(verbose_name= '总采购额',max_digits=25, decimal_places=2, null=True)
+
+    
+    class Meta:
+        managed=False
+        db_table = 'SUPPLIERS\".\"supplierrankcombine'
+        verbose_name_plural = '所有项目供应商采购排行'
+    def __str__(self):
+        return self.supplier
+
+
+
+class Total_Product_Rank(models.Model):
+    # id = models.BigAutoField(primary_key=True)
+
+    rank = models.BigIntegerField(verbose_name= '排行',null=False)
+    project = models.CharField(verbose_name= '项目',max_length=255)
+    productcode = models.CharField(verbose_name= '产品编码',max_length=255)
+    productname = models.CharField(verbose_name= '产品名称',max_length=255)
+    spec = models.CharField(verbose_name= '规格',max_length=255)
+    unit = models.CharField(verbose_name= '单位',max_length=255)
+    supplier = models.CharField(verbose_name= '供应商',max_length=255)
+    brand = models.CharField(verbose_name= '品牌',max_length=255)
+    invoicedate = models.DateField(verbose_name= '最近发票日期')
+    price = models.DecimalField(verbose_name= '单价',max_digits=25, decimal_places=2)
+    qty21 = models.DecimalField(verbose_name= '21年数量',max_digits=25, decimal_places=2, null=True) 
+    qty22 = models.DecimalField(verbose_name= '22年数量',max_digits=25, decimal_places=2, null=True)
+    qty23 = models.DecimalField(verbose_name= '23年数量',max_digits=25, decimal_places=2, null=True)
+    qty24 = models.DecimalField(verbose_name= '24年数量',max_digits=25, decimal_places=2, default=0)
+    totalqty = models.DecimalField(verbose_name= '总数量',max_digits=25, decimal_places=2, null=True)
+    sum21 = models.DecimalField(verbose_name= '21年采购额',max_digits=25, decimal_places=2, null=True)
+    sum22 = models.DecimalField(verbose_name= '22年采购额',max_digits=25, decimal_places=2, null=True)
+    sum23 = models.DecimalField(verbose_name= '23年采购额',max_digits=25, decimal_places=2, null=True)
+    sum24 = models.DecimalField(verbose_name= '24年采购额',max_digits=25, decimal_places=2, default=0)
+    totalsum = models.DecimalField(verbose_name= '总采购额',max_digits=25, decimal_places=2, null=True)
+
+    
+    class Meta:
+        managed=False
+        db_table ='SUPPLIERS\".\"productrankcombine'
+        verbose_name_plural = '所有项目产品排行'
+
+    def __str__(self):
+        return self.productname    

@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Ajax Uploader</title>
+  <link href="{% static 'Suppliers/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'Suppliers/css/styles.css' %}" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>所有项目数据下载</h1>
+      <h3>（供应商采购量排序、存货供应商供货情况汇总）</h3>
+    </div>
+
+
+    <!-- 上传23年
+    <div class="row" style="padding-top:10px;">
+      <div class="col-xs-2">
+        <button id="uploadBtn" class="btn btn-large btn-primary">选择Excel文件(2023年数据)</button>
+      </div>
+
+      <div class="col-xs-10">
+        <div id="progressOuter" class="progress progress-striped active" style="display:none;">
+          <div id="progressBar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="45"
+            aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="padding-top:10px;">
+      <div class="col-xs-10">
+        <div id="msgBox">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- 上传24年 -->
+    <!-- <div class="row" style="padding-top:10px;">
+      <div class="col-xs-2">
+        <button id="uploadBtn2" class="btn btn-large btn-primary">选择Excel文件(2024年数据)</button>
+      </div>
+
+      <div class="col-xs-10">
+        <div id="progressOuter2" class="progress progress-striped active" style="display:none;">
+          <div id="progressBar2" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="45"
+            aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="padding-top:10px;">
+      <div class="col-xs-10">
+        <div id="msgBox2">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- 下载 -->
+    <div class="row" style="padding-top:10px;">
+      <div class="col-xs-2">
+        <button id="downloadBtn" class="btn btn-large btn-primary">下载Excel文件</button>
+      </div>
+
+      <!-- <div class="col-xs-10">
+        <div id="progressOuter3" class="progress progress-striped active" style="display:none;">
+          <div id="progressBar3" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="45"
+            aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+          </div>
+        </div>
+      </div> -->
+    </div>
+
+
+
+    <div class="row" style="padding-top:10px;">
+      <div class="col-xs-10">
+        <div id="msgBox3">
+        </div>
+      </div>
+    </div>
+
+    <br><br><br><br>
+  
+    由于文件较大，请等待片刻；在看到"下载成功"按钮后，还需等待片刻。
+    <br>
+    若出现错误或下载失败的情况，请先尝试刷新
+
+  </div>
+  <br><br>
+
+
+
+  <script src="{% static 'Suppliers/js3/jquery-2.1.4.min.js' %}"></script>
+
+  <script src="{% static 'Suppliers/js3/SimpleAjaxUploader.js' %}"></script>
+  <script>
+    function escapeTags(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    window.onload = function () {
+      
+
+      //  下载！！！！！！！！！！！
+
+      
+      $('#downloadBtn').click(function () {
+        // 如果有文件就挑转到下载页面，如果没有那就提示先上传文件
+        $.ajax({
+          type: 'GET',
+          url: '/Suppliers/downloads_total',
+          success: function (response) {
+
+            // console.log(response)
+            if (response.code != 404) {
+              $('#msgBox3').html('<strong>' + '下载成功' + '</strong>').css('color', 'green');
+              // jump to download url
+              window.location.href = '/Suppliers/downloads_total'
+            } else {
+              $('#msgBox3').html('<strong>' + response.data + '</strong>').css('color', 'red');
+            }
+          },
+          error: function (xhr, status, error) {
+            $('#msgBox3').html('<strong>' + '发生错误，' + error+ '</strong>').css('color', 'red');
+          }
+        });
+
+      });
+
+
+    };
+  </script>
+
+
+</body>
+
+</html>

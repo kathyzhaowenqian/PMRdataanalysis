@@ -670,6 +670,24 @@ SIMPLEUI_CONFIG = {
                 'url': '/admin/Suppliers/supplierinfo/'
             },  
             {
+                'name': '所有项目供应商数据',
+                'icon': 'fa-solid fa-list',
+                'models': [
+                        {
+                        'name': '所有项目供应商排行',
+                        'url': '/admin/Suppliers/total_supplier_rank/'
+                        },     
+                        {
+                        'name': '所有项目产品排行',
+                        'url': '/admin/Suppliers/total_product_rank/'
+                        },                     
+                        {
+                        'name': '所有项目EXCEL下载平台',
+                        'url': '/Suppliers/uploads_total'
+                        },                                                           
+                    ]
+            },
+            {
                 'name': '徐二院供应商数据',
                 'icon': 'fa-solid fa-list',
                 'models': [

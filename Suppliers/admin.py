@@ -2549,3 +2549,116 @@ class ZHIXIAO_Product_RankAdmin(admin.ModelAdmin):
         else:
             return obj.spec
 
+#=======total
+    
+@admin.register(Total_Supplier_Rank)
+class TOTAL_Supplier_RankAdmin(admin.ModelAdmin):
+    search_fields=('supplier',)
+    readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_display_links =('supplier',)
+    empty_value_display = '--'
+    list_per_page = 15
+    list_display = ('rank','project','supplier','display_qty21','display_qty22','display_qty23','display_qty24','display_totalqty','display_sum21','display_sum22','display_sum23','display_sum24','display_totalsum')
+    ordering = ('id',)
+    list_filter = ['project']
+    def has_delete_permission(self,request, obj=None):
+        return False
+
+    def has_add_permission(self,request,obj=None):
+        return False
+
+    def has_change_permission(self,request, obj=None):
+        return False
+    
+    @admin.display(ordering="rank",description='排行')
+    def display_rank(self, obj):
+        wrapped_name = textwrap.fill(obj.rank, width=5)
+        return  format_html('<div style="width:5px;">{}</div>', wrapped_name) 
+
+    @admin.display(ordering="qty21",description=format_html('21年数量'))
+    def display_qty21(self, obj):
+        return  '{:,.0f}'.format(obj.qty21)
+
+    @admin.display(ordering="qty22",description=format_html('22年数量'))
+    def display_qty22(self, obj):
+        return  '{:,.0f}'.format(obj.qty22)
+    
+    @admin.display(ordering="qty23",description=format_html('23年数量'))
+    def display_qty23(self, obj):
+        return  '{:,.0f}'.format(obj.qty23)
+
+    @admin.display(ordering="qty24",description=format_html('24年数量'))
+    def display_qty24(self, obj):
+        return  '{:,.0f}'.format(obj.qty24)
+
+    @admin.display(ordering="totalqty",description=format_html('总数量'))
+    def display_totalqty(self, obj):
+        return  '{:,.0f}'.format(obj.totalqty)
+
+    @admin.display(ordering="sum21",description=format_html('21年采购额'))
+    def display_sum21(self, obj):
+        return  '{:,.0f}'.format(obj.sum21)
+
+    @admin.display(ordering="sum22",description=format_html('22年采购额'))
+    def display_sum22(self, obj):
+        return  '{:,.0f}'.format(obj.sum22)
+    
+    @admin.display(ordering="sum23",description=format_html('23年采购额'))
+    def display_sum23(self, obj):
+        return  '{:,.0f}'.format(obj.sum23)
+    
+    @admin.display(ordering="sum24",description=format_html('24年采购额'))
+    def display_sum24(self, obj):
+        return  '{:,.0f}'.format(obj.sum24)
+    
+    @admin.display(ordering="totalsum",description=format_html('总采购额'))
+    def display_totalsum(self, obj):
+        return  '{:,.0f}'.format(obj.totalsum)
+    
+    
+@admin.register(Total_Product_Rank)
+class TOTAL_Product_RankAdmin(admin.ModelAdmin):
+    search_fields=('supplier','productcode','productname','brand')
+    readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'invoicedate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['project']
+    list_display_links =('productname',)
+    empty_value_display = '--'
+    list_per_page = 15
+    list_display = ('rank','project','productcode','productname','display_spec','unit','supplier','brand', 'invoicedate','price','display_sum21','display_sum22','display_sum23','display_sum24','display_totalsum')
+    ordering = ('id',)
+    def has_delete_permission(self,request, obj=None):
+        return False
+
+    def has_add_permission(self,request,obj=None):
+        return False
+
+    def has_change_permission(self,request, obj=None):
+        return False
+    
+    @admin.display(ordering="sum21",description=format_html('21年采购额'))
+    def display_sum21(self, obj):
+        return  '{:,.0f}'.format(obj.sum21)
+
+    @admin.display(ordering="sum22",description=format_html('22年采购额'))
+    def display_sum22(self, obj):
+        return  '{:,.0f}'.format(obj.sum22)
+    
+    @admin.display(ordering="sum23",description=format_html('23年采购额'))
+    def display_sum23(self, obj):
+        return  '{:,.0f}'.format(obj.sum23)
+    
+    @admin.display(ordering="sum24",description=format_html('24年采购额'))
+    def display_sum24(self, obj):
+        return  '{:,.0f}'.format(obj.sum24)
+    
+    @admin.display(ordering="totalsum",description=format_html('总采购额'))
+    def display_totalsum(self, obj):
+        return  '{:,.0f}'.format(obj.totalsum)
+    
+    @admin.display(ordering="spec",description='规格')
+    def display_spec(self, obj):
+        max_length = 15
+        if len(obj.spec) > max_length:
+            return obj.spec[:max_length] + '...'
+        else:
+            return obj.spec

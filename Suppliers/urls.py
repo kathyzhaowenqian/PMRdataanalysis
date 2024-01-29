@@ -58,4 +58,7 @@ urlpatterns = [
     path('uploads_zhixiao_23', Uploads_ZHIXIAO_23.as_view()),
     path('uploads_zhixiao_24', Uploads_ZHIXIAO_24.as_view()),
     path('downloads_zhixiao', Downloads_ZHIXIAO.as_view()),
+    #所有项目
+    path('uploads_total', Uploads_TOTAL.as_view()),
+    path('downloads_total', Downloads_TOTAL.as_view()),
 ]

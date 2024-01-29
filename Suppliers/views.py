@@ -16,7 +16,7 @@ import numpy as np
 from datetime import date,timedelta,datetime
 import re
 from sqlalchemy.types import *
-
+from .models import *
 
 today = date.today()
 
@@ -66,6 +66,9 @@ Upload_File_nanxiang = os.path.join(os.path.dirname(__file__), folder_name1, fol
 
 file_name_siwuwu = 'SiWuWu.xlsx'
 Upload_File_siwuwu = os.path.join(os.path.dirname(__file__), folder_name1, folder_name2,file_name_siwuwu)
+
+file_name_total = 'TOTALprojects.xlsx'
+Upload_File_total = os.path.join(os.path.dirname(__file__), folder_name1, folder_name2,file_name_total)
 
 
 
@@ -1625,4 +1628,50 @@ class Downloads_ZHIXIAO(View):
             return HttpResponse('您好，目前您暂无权限访问')  
         
 
-        
+########################################
+# 上传23年数据
+class Uploads_TOTAL(View):
+    def get(self,request):
+        if request.user.username=='admin' or  request.user.username=='syp' :#or  request.user.username=='cxy':               
+            # if os.path.exists(Upload_File_ZHIXIAO):  # 判断文件是否存在
+            #     os.remove(Upload_File_ZHIXIAO)       # 删除文件
+            return render(request,'Suppliers/index_total.html')
+        else:
+            return HttpResponse('您好，目前您暂无权限访问')
+
+# 下载
+class Downloads_TOTAL(View):
+    def get(self,request):
+        # login_user = request.user.chinesename
+        if request.user.username=='admin' or  request.user.username=='syp':# or  request.user.username=='cxy':  
+       
+            supplierrankcombine_df=Total_Supplier_Rank.objects.all()
+            productrankcombine_df=Total_Product_Rank.objects.all()
+            supplierrankcombine_df = pd.DataFrame(list(supplierrankcombine_df.values()))
+            productrankcombine_df = pd.DataFrame(list(productrankcombine_df.values()))
+            supplierrankcombine_df.rename(columns={ 'rank': '排序', 'supplier': '供应商', 'qty21': '21年采购数量', 'qty22': '22年采购数量', 'qty23': '23年采购数量', 'qty24': '24年采购数量', 'totalqty': '采购总数量', 'sum21': '21年采购金额', 'sum22': '22年采购金额', 'sum23': '23年采购金额', 'sum24': '24年采购金额', 'totalsum': '采购总金额' },inplace=True)
+            productrankcombine_df.rename(columns={},inplace=True)
+
+                #保存
+            result_list = [supplierrankcombine_df,productrankcombine_df]
+            sheet_name_list = ['所有项目供应商排行','所有项目存货信息汇总']
+            writer = pd.ExcelWriter(Upload_File_total)
+            for i in range(len(result_list)):
+                result_list[i]=result_list[i].style.set_properties(**{'text-align': 'center'}) ## 使excel表格中的数据居中对齐
+                result_list[i].to_excel(writer, sheet_name=sheet_name_list[i],index=False)
+                worksheet = writer.sheets[sheet_name_list[i]]
+            writer.close()
+            print('excel保存成功')
+            
+            try:
+                with open(Upload_File_total, 'rb') as f:
+                    response = HttpResponse(f.read())
+                    response['Content-Disposition'] = 'attachment; filename=ALL_PROJECTS_{}.xlsx'.format(today)
+                    response['Content-Type'] = 'application/vnd.ms-excel'
+
+                    return response              
+                    
+            except Exception as e:
+                return JsonResponse({'code':404,'data': '下载失败：' + str(e)})
+        else:
+            return HttpResponse('您好，目前您暂无权限访问')  
