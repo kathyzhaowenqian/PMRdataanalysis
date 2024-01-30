@@ -1649,10 +1649,17 @@ class Downloads_TOTAL(View):
             productrankcombine_df=Total_Product_Rank.objects.all()
             supplierrankcombine_df = pd.DataFrame(list(supplierrankcombine_df.values()))
             productrankcombine_df = pd.DataFrame(list(productrankcombine_df.values()))
-            supplierrankcombine_df.rename(columns={ 'rank': '排序', 'supplier': '供应商', 'qty21': '21年采购数量', 'qty22': '22年采购数量', 'qty23': '23年采购数量', 'qty24': '24年采购数量', 'totalqty': '采购总数量', 'sum21': '21年采购金额', 'sum22': '22年采购金额', 'sum23': '23年采购金额', 'sum24': '24年采购金额', 'totalsum': '采购总金额' },inplace=True)
-            productrankcombine_df.rename(columns={},inplace=True)
+            columns_to_round = ['qty21', 'qty22', 'qty23', 'qty24', 'totalqty', 'sum21', 'sum22', 'sum23', 'sum24', 'totalsum']
+            for column in columns_to_round:
+                supplierrankcombine_df[column] = supplierrankcombine_df[column].apply(lambda x: round(float(x) if x is not None else 0.0, 2))
+                productrankcombine_df[column] = productrankcombine_df[column].apply(lambda x: round(float(x) if x is not None else 0.0, 2))
+            productrankcombine_df['price'] = productrankcombine_df['price'].apply(lambda x: round(float(x) if x is not None else 0.0, 2))
 
-                #保存
+
+            supplierrankcombine_df.rename(columns={ 'rank': '排序','project': '项目', 'supplier': '供应商', 'qty21': '21年采购数量', 'qty22': '22年采购数量', 'qty23': '23年采购数量', 'qty24': '24年采购数量', 'totalqty': '采购总数量', 'sum21': '21年采购金额', 'sum22': '22年采购金额', 'sum23': '23年采购金额', 'sum24': '24年采购金额', 'totalsum': '采购总金额' },inplace=True)
+            productrankcombine_df.rename(columns={ 'rank': '排序','project': '项目','productcode':'存货编码','productname':'存货名称','spec':'规格型号','unit':'单位', 'supplier': '供应商', 'brand':'品牌','invoicedate':'最近发票日期','price':'单价','qty21': '21年采购数量', 'qty22': '22年采购数量', 'qty23': '23年采购数量', 'qty24': '24年采购数量', 'totalqty': '采购总数量', 'sum21': '21年采购金额', 'sum22': '22年采购金额', 'sum23': '23年采购金额', 'sum24': '24年采购金额', 'totalsum': '采购总金额' },inplace=True)
+                
+            #保存
             result_list = [supplierrankcombine_df,productrankcombine_df]
             sheet_name_list = ['所有项目供应商排行','所有项目存货信息汇总']
             writer = pd.ExcelWriter(Upload_File_total)
