@@ -97,31 +97,39 @@ WSGI_APPLICATION = 'PMRdataanalysisV2.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+PG_DBNAME=os.environ.get('POSTGRESQL_INTERNAL_DBNAME')
+PG_DBUSER= os.environ.get('POSTGRESQL_INTERNAL_USERNAME')
+PG_PASSWORD= os.environ.get('POSTGRESQL_INTERNAL_PASSWORD')
+PG_HOST= os.environ.get('POSTGRESQL_INTERNAL_HOST')
+PG_PORT=os.environ.get('POSTGRESQL_INTERNAL_PORT')
+
 
 DATABASES = {
 
     #'default':{},
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('POSTGRESQL_INTERNAL_DBNAME'),
-        'USER': os.environ.get('POSTGRESQL_INTERNAL_USERNAME'),
-        'PASSWORD': os.environ.get('POSTGRESQL_INTERNAL_PASSWORD'),
-        'HOST': os.environ.get('POSTGRESQL_INTERNAL_HOST'), 
-        'PORT': os.environ.get('POSTGRESQL_INTERNAL_PORT'),
+        'NAME': PG_DBNAME,
+        'USER': PG_DBUSER,
+        'PASSWORD': PG_PASSWORD,
+        'HOST': PG_HOST, 
+        'PORT': PG_PORT,
         'OPTIONS': {
             'options': '-c search_path="django_admin_v2","marketing_research_v2","PMR_U8_001","PMR_U8_009","PMR_U8_010","PMR_U8_011","PMR_U8_012"'
         }
     },
 }
+REDIS_LOCATION= "redis://{}:{}/2".format(os.environ.get('REDIS_INTERNAL_HOST'),os.environ.get('REDIS_INTERNAL_PORT'))
+REDIS_PASSWORD=os.environ.get('REDIS_PASSWORD')
 
 CACHES = {
 		"default": {
  					"BACKEND": "django_redis.cache.RedisCache",
- 					"LOCATION": "redis://{}:{}/2".format(os.environ.get('REDIS_INTERNAL_HOST'),os.environ.get('REDIS_INTERNAL_PORT')),		#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!数字代表使用redis哪个数据库
+ 					"LOCATION": REDIS_LOCATION,		#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!数字代表使用redis哪个数据库
  								"OPTIONS": 
             				  {
 								 "CLIENT_CLASS": "django_redis.client.DefaultClient",
- 								  "PASSWORD": os.environ.get('REDIS_PASSWORD'),
+ 								  "PASSWORD": REDIS_PASSWORD,
                                 }
 					}
 }
