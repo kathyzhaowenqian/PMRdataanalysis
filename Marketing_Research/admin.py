@@ -36,7 +36,7 @@ class ProjectFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        projects = Project.objects.filter(company_id=1)
+        projects = Project.objects.filter(company_id=1,is_active=True)
         return [(project.id, project.project) for project in projects]
 
         # projects = set([c.project for c in model_admin.model.objects.all()])#为什么这个方法可以直接过滤？？？
@@ -57,7 +57,7 @@ class ProjectFilterforDetail(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        projects = Project.objects.filter(company_id=1)
+        projects = Project.objects.filter(company_id=1,is_active=True)
         return [(project.id, project.project) for project in projects]
 
         # projects = set([c.project for c in model_admin.model.objects.all()])#为什么这个方法可以直接过滤？？？
@@ -82,76 +82,59 @@ class IfTargetCustomerFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-            return queryset.filter((Q(salestarget__q1target__gt= 0)|Q(salestarget__q2target__gt =0)|Q(salestarget__q3target__gt =0)|Q(salestarget__q4target__gt=0)) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+            return queryset.filter((Q(salestarget__q1target__gt= 0)|Q(salestarget__q2target__gt =0)|Q(salestarget__q3target__gt =0)|Q(salestarget__q4target__gt=0)) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
         if self.value() == '2':
-            return queryset.filter(Q(salestarget__q2target__gt= 0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+            return queryset.filter(Q(salestarget__q2target__gt= 0) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
         if self.value() == '3':
-            return queryset.filter(Q(salestarget__q3target__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+            return queryset.filter(Q(salestarget__q3target__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
         if self.value() == '4':
-            return queryset.filter(Q(salestarget__q4target__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+            return queryset.filter(Q(salestarget__q4target__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
   
         elif self.value() == '5':
-            return queryset.filter(Q(salestarget__is_active=True) & Q(salestarget__year='2023') & Q(salestarget__q1target = 0)& Q(salestarget__q2target =0) & Q(salestarget__q3target =0)& Q(salestarget__q4target=0))
+            return queryset.filter(Q(salestarget__is_active=True) & Q(salestarget__year='2024') & Q(salestarget__q1target = 0)& Q(salestarget__q2target =0) & Q(salestarget__q3target =0)& Q(salestarget__q4target=0))
+
 
 
 
 
 class CustomerProjectTypeFilter(SimpleListFilter):
-    title = '医院项目分类'
+    title = '23年是否开票'
     parameter_name = 'customerprojecttype'
 
     def lookups(self, request, model_admin):
-        return [(1, '老项目(22年已开票)'),(2, '丢失的项目(22年已开票、23年至今未开票)'), (3, 'Q1新项目(22年未开票、23Q1已开票)'), (4, 'Q2新项目(22-23Q1未开票、23Q2已开票)'),(5, 'Q3新项目(22-23Q2未开票、23Q3已开票)'),(6, 'Q4新项目(22-23Q3未开票、23Q4已开票)'),(7, '潜在项目(至今未曾开票)'),(8, '潜在项目和今年新项目(22年未开票)')]
+        return [(1, '23年已开票'),(2, '23年未开票')]
 
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':#老客户(去年已开票)
-            return queryset.filter(Q(detailcalculate__totalsumpermonth__gt = 0))
+            return queryset.filter((Q(salestarget__q1actualsales__gt= 0)|Q(salestarget__q2actualsales__gt =0)|Q(salestarget__q3actualsales__gt =0)|Q(salestarget__q4actualsales__gt=0)) & Q(salestarget__is_active=True) & Q(salestarget__year='2023'))
  
-        elif self.value() == '2':#丢失的老客户(22年已开票、23年至今未开票)
-            return queryset.filter(Q(detailcalculate__totalsumpermonth__gt = 0) &  Q(salestarget__is_active=True) & Q(salestarget__year='2023') & Q(salestarget__q1actualsales= 0) & Q(salestarget__q2actualsales= 0) & Q(salestarget__q3actualsales= 0) & Q(salestarget__q4actualsales= 0)) 
-
-        elif self.value() == '3': #Q1新客户(22年未开票、23Q1已开票)
-            return queryset.filter(Q(detailcalculate__totalsumpermonth = 0) & ( Q(salestarget__is_active=True) & Q(salestarget__year='2023') &  Q(salestarget__q1actualsales__gt= 0)) )
-        
-        elif self.value() == '4': #Q2新客户(22-23Q1未开票、23Q2已开票
-            return queryset.filter(Q(detailcalculate__totalsumpermonth = 0) & ( Q(salestarget__is_active=True) & Q(salestarget__year='2023') &  Q(salestarget__q1actualsales= 0) &  Q(salestarget__q2actualsales__gt= 0)) )
-        
-        elif self.value() == '5': #Q3新客户(22-23Q2未开票、23Q3已开票)'
-            return queryset.filter(Q(detailcalculate__totalsumpermonth = 0) & ( Q(salestarget__is_active=True) & Q(salestarget__year='2023') &  Q(salestarget__q1actualsales= 0) &  Q(salestarget__q2actualsales= 0) & Q(salestarget__q3actualsales__gt= 0)) )
-        
-        elif self.value() == '6': #Q4新客户(22-23Q3未开票、23Q4已开票)
-            return queryset.filter(Q(detailcalculate__totalsumpermonth = 0) & ( Q(salestarget__is_active=True) & Q(salestarget__year='2023') &  Q(salestarget__q1actualsales= 0) &  Q(salestarget__q2actualsales= 0) &  Q(salestarget__q3actualsales= 0) & Q(salestarget__q4actualsales__gt= 0)) )
-        
-        elif self.value() == '7': #潜在客户  
-            return queryset.filter(Q(salestarget__is_active=True) & Q(salestarget__year='2023') & Q(salestarget__q1actualsales = 0)& Q(salestarget__q2actualsales =0) & Q(salestarget__q3actualsales =0)& Q(salestarget__q4actualsales=0) & Q(detailcalculate__totalsumpermonth = 0) )
-        
-        elif self.value() == '8': #潜在客户 + 今年新客户， 22年未开票客户 
-            return queryset.filter(Q(detailcalculate__totalsumpermonth = 0))
+        elif self.value() == '2': #潜在客户 + 今年新客户， 22年未开票客户 
+            return queryset.filter(((Q(salestarget__q1actualsales= 0)&Q(salestarget__q2actualsales =0)&Q(salestarget__q3actualsales =0)&Q(salestarget__q4actualsales=0)) & Q(salestarget__is_active=True) & Q(salestarget__year='2023')))
 
 
 
 class IfActualSalesFilter(SimpleListFilter):
-    title = '23年是否开票'
+    title = '24年是否开票'
     parameter_name = 'ifactualsales'
     def lookups(self, request, model_admin):
-        return [(1, '23年已开票'), (2, 'Q1已开票'),(3, 'Q2已开票'),(4, 'Q3已开票'),(5, 'Q4已开票'),(6, '23年未开票')]
+        return [(1, '24年已开票'), (2, 'Q1已开票'),(3, 'Q1未开票,Q2已开票'),(4, 'Q1Q2未开票,Q3已开票'),(5, 'Q1-Q3未开票,Q4已开票'),(6, '24年未开票')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
-        if self.value() == '1':#23年已开票
-            return queryset.filter((Q(salestarget__q1actualsales__gt= 0)|Q(salestarget__q2actualsales__gt =0)|Q(salestarget__q3actualsales__gt =0)|Q(salestarget__q4actualsales__gt=0)) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+        if self.value() == '1':#24年已开票
+            return queryset.filter((Q(salestarget__q1actualsales__gt= 0)|Q(salestarget__q2actualsales__gt =0)|Q(salestarget__q3actualsales__gt =0)|Q(salestarget__q4actualsales__gt=0)) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
         if self.value() == '2': #Q1已开票
-            return queryset.filter(Q(salestarget__q1actualsales__gt= 0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+            return queryset.filter(Q(salestarget__q1actualsales__gt= 0) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
         if self.value() == '3':#Q2已开票
-            return queryset.filter(Q(salestarget__q2actualsales__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+            return queryset.filter(Q(salestarget__q1actualsales =0)&Q(salestarget__q2actualsales__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
         if self.value() == '4':#Q3已开票
-            return queryset.filter(Q(salestarget__q3actualsales__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
+            return queryset.filter(Q(salestarget__q1actualsales =0)&Q(salestarget__q2actualsales =0)&Q(salestarget__q3actualsales__gt =0) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
         if self.value() == '5':#Q4已开票
-            return queryset.filter(Q(salestarget__q4actualsales__gt=0) & Q(salestarget__is_active=True) & Q(salestarget__year='2023') )
-        elif self.value() == '6':#23年未开票
-            return queryset.filter(Q(salestarget__is_active=True) & Q(salestarget__year='2023') & Q(salestarget__q1actualsales = 0)& Q(salestarget__q2actualsales =0) & Q(salestarget__q3actualsales =0)& Q(salestarget__q4actualsales=0))
+            return queryset.filter(Q(salestarget__q1actualsales =0)&Q(salestarget__q2actualsales =0)&Q(salestarget__q3actualsales =0)&Q(salestarget__q4actualsales__gt=0) & Q(salestarget__is_active=True) & Q(salestarget__year='2024') )
+        elif self.value() == '6':#24年未开票
+            return queryset.filter(Q(salestarget__is_active=True) & Q(salestarget__year='2024') & Q(salestarget__q1actualsales = 0)& Q(salestarget__q2actualsales =0) & Q(salestarget__q3actualsales =0)& Q(salestarget__q4actualsales=0))
 
 class IfSalesChannelFilter(SimpleListFilter):
     title = '销售路径/所需支持/进展'
@@ -506,7 +489,7 @@ class DetailCalculateInline(admin.StackedInline):
     extra = 0
     readonly_fields =  ('totalmachinenumber','ownmachinenumber','ownmachinepercent','newold','totalsumpermonth')#,'detailedprojectcombine','ownbusinesscombine','brandscombine','machinenumbercombine','machinemodelcombine','machineseriescombine','installdatescombine','competitionrelationcombine',)                    
     verbose_name = verbose_name_plural = ('仪器情况汇总')
-    fields =  (('totalmachinenumber','ownmachinenumber','ownmachinepercent','totalsumpermonth','newold'),
+    fields =  (('totalmachinenumber','ownmachinenumber','ownmachinepercent','newold'),
             #    ('detailedprojectcombine'),
             #    ('ownbusinesscombine'),
             #    ('brandscombine'),
@@ -609,7 +592,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                     ),
                 'hospital__hospitalname','salesman1','project',) #('-id',)#
     
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,CustomerProjectTypeFilter]
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,'detailcalculate__newold',IfTargetCustomerFilter,CustomerProjectTypeFilter,IfActualSalesFilter,IfSalesChannelFilter,]
     search_fields = ['hospital__hospitalname','pmrresearchdetail__brand__brand','pmrresearchdetail__machinemodel']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),

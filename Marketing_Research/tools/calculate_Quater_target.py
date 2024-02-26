@@ -30,7 +30,7 @@ def result_of_Quatar_display(advanced_days,delayed_days):
     this_year =datetime.now().year
 
     #PMRresearchlist的list显示：
-    list_display = ('hospital_district','hospital_hospitalclass','hospital','colored_project','salesman1_chinesename','salesman2_chinesename',                    
+    list_display = ('hospital_district','hospital_hospitalclass','hospital','colored_project','salesman1_chinesename',#'salesman2_chinesename',                    
                    'testspermonth','owntestspermonth','salesmode','saleschannel','support','progress','detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent','actualsales_2023', )
             
     # list_editable = ('saleschannel','support')

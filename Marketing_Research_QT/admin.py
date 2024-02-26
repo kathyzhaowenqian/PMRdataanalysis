@@ -42,7 +42,7 @@ class ProjectFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        projects = Project.objects.filter(company_id=2)
+        projects = Project.objects.filter(company_id=2,is_active=True)
         return [(project.id, project.project) for project in projects]
 
         # projects = set([c.project for c in model_admin.model.objects.all()])#为什么这个方法可以直接过滤？？？
@@ -63,7 +63,7 @@ class ProjectFilterforDetail(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        projects = Project.objects.filter(company_id=2)
+        projects = Project.objects.filter(company_id=2,is_active=True)
         return [(project.id, project.project) for project in projects]
 
         # projects = set([c.project for c in model_admin.model.objects.all()])#为什么这个方法可以直接过滤？？？
@@ -88,74 +88,57 @@ class IfTargetCustomerFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':
-            return queryset.filter((Q(salestarget3__q1target__gt= 0)|Q(salestarget3__q2target__gt =0)|Q(salestarget3__q3target__gt =0)|Q(salestarget3__q4target__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter((Q(salestarget3__q1target__gt= 0)|Q(salestarget3__q2target__gt =0)|Q(salestarget3__q3target__gt =0)|Q(salestarget3__q4target__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
         if self.value() == '2':
-            return queryset.filter(Q(salestarget3__q2target__gt= 0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(salestarget3__q2target__gt= 0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
         if self.value() == '3':
-            return queryset.filter(Q(salestarget3__q3target__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(salestarget3__q3target__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
         if self.value() == '4':
-            return queryset.filter(Q(salestarget3__q4target__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(salestarget3__q4target__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
   
         elif self.value() == '5':
-            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1target = 0)& Q(salestarget3__q2target =0) & Q(salestarget3__q3target =0)& Q(salestarget3__q4target=0))
+            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') & Q(salestarget3__q1target = 0)& Q(salestarget3__q2target =0) & Q(salestarget3__q3target =0)& Q(salestarget3__q4target=0))
 
 
 
 class CustomerProjectTypeFilter(SimpleListFilter):
-    title = '医院项目分类'
+    title = '23年是否开票'
     parameter_name = 'customerprojecttype'
 
     def lookups(self, request, model_admin):
-        return [(1, '老项目(22年已开票)'),(2, '丢失的项目(22年已开票、23年至今未开票)'), (3, 'Q1新项目(22年未开票、23Q1已开票)'), (4, 'Q2新项目(22-23Q1未开票、23Q2已开票)'),(5, 'Q3新项目(22-23Q2未开票、23Q3已开票)'),(6, 'Q4新项目(22-23Q3未开票、23Q4已开票)'),(7, '潜在项目(至今未曾开票)'),(8, '潜在项目和今年新项目(22年未开票)')]
+        return [(1, '23年已开票'),(2, '23年未开票')]
 
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
         if self.value() == '1':#老客户(去年已开票)
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth__gt = 0))
+            return queryset.filter((Q(salestarget3__q1actualsales__gt= 0)|Q(salestarget3__q2actualsales__gt =0)|Q(salestarget3__q3actualsales__gt =0)|Q(salestarget3__q4actualsales__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023'))
  
-        elif self.value() == '2':#丢失的老客户(22年已开票、23年至今未开票)
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth__gt = 0) &  Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales= 0) & Q(salestarget3__q2actualsales= 0) & Q(salestarget3__q3actualsales= 0) & Q(salestarget3__q4actualsales= 0)) 
-
-        elif self.value() == '3': #Q1新客户(22年未开票、23Q1已开票)
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales__gt= 0)) )
-        
-        elif self.value() == '4': #Q2新客户(22-23Q1未开票、23Q2已开票
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales__gt= 0)) )
-        
-        elif self.value() == '5': #Q3新客户(22-23Q2未开票、23Q3已开票)'
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales= 0) & Q(salestarget3__q3actualsales__gt= 0)) )
-        
-        elif self.value() == '6': #Q4新客户(22-23Q3未开票、23Q4已开票)
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0) & ( Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') &  Q(salestarget3__q1actualsales= 0) &  Q(salestarget3__q2actualsales= 0) &  Q(salestarget3__q3actualsales= 0) & Q(salestarget3__q4actualsales__gt= 0)) )
-        
-        elif self.value() == '7': #潜在客户  
-            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0) & Q(detailcalculate3__totalsumpermonth = 0) )
-        elif self.value() == '8': #潜在客户 + 今年新客户， 22年未开票客户 
-            return queryset.filter(Q(detailcalculate3__totalsumpermonth = 0))
+        elif self.value() == '2': #潜在客户 + 今年新客户， 22年未开票客户 
+            return queryset.filter(((Q(salestarget3__q1actualsales= 0)&Q(salestarget3__q2actualsales =0)&Q(salestarget3__q3actualsales =0)&Q(salestarget3__q4actualsales=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023')))
 
 
 
 class IfActualSalesFilter(SimpleListFilter):
-    title = '23年是否开票'
+    title = '24年是否开票'
     parameter_name = 'ifactualsales'
     def lookups(self, request, model_admin):
-        return [(1, '23年已开票'), (2, 'Q1已开票'),(3, 'Q2已开票'),(4, 'Q3已开票'),(5, 'Q4已开票'),(6, '23年未开票')]
+        return [(1, '24年已开票'), (2, 'Q1已开票'),(3, 'Q1未开票,Q2已开票'),(4, 'Q1Q2未开票,Q3已开票'),(5, 'Q1-Q3未开票,Q4已开票'),(6, '24年未开票')]
 
     def queryset(self, request, queryset):
         # pdb.set_trace()
-        if self.value() == '1':#23年已开票
-            return queryset.filter((Q(salestarget3__q1actualsales__gt= 0)|Q(salestarget3__q2actualsales__gt =0)|Q(salestarget3__q3actualsales__gt =0)|Q(salestarget3__q4actualsales__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+        if self.value() == '1':#24年已开票
+            return queryset.filter((Q(salestarget3__q1actualsales__gt= 0)|Q(salestarget3__q2actualsales__gt =0)|Q(salestarget3__q3actualsales__gt =0)|Q(salestarget3__q4actualsales__gt=0)) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
         if self.value() == '2': #Q1已开票
-            return queryset.filter(Q(salestarget3__q1actualsales__gt= 0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(salestarget3__q1actualsales__gt= 0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
         if self.value() == '3':#Q2已开票
-            return queryset.filter(Q(salestarget3__q2actualsales__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(salestarget3__q1actualsales =0)&Q(salestarget3__q2actualsales__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
         if self.value() == '4':#Q3已开票
-            return queryset.filter(Q(salestarget3__q3actualsales__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
+            return queryset.filter(Q(salestarget3__q1actualsales =0)&Q(salestarget3__q2actualsales =0)&Q(salestarget3__q3actualsales__gt =0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
         if self.value() == '5':#Q4已开票
-            return queryset.filter(Q(salestarget3__q4actualsales__gt=0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') )
-        elif self.value() == '6':#23年未开票
-            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2023') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0))
+            return queryset.filter(Q(salestarget3__q1actualsales =0)&Q(salestarget3__q2actualsales =0)&Q(salestarget3__q3actualsales =0)&Q(salestarget3__q4actualsales__gt=0) & Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') )
+        elif self.value() == '6':#24年未开票
+            return queryset.filter(Q(salestarget3__is_active=True) & Q(salestarget3__year='2024') & Q(salestarget3__q1actualsales = 0)& Q(salestarget3__q2actualsales =0) & Q(salestarget3__q3actualsales =0)& Q(salestarget3__q4actualsales=0))
 
 class IfSalesChannelFilter(SimpleListFilter):
     title = '销售路径/所需支持/进展'
@@ -194,7 +177,7 @@ class SalesmanFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy','hfj','cy']))
+        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','wh','zjm','gsj','jll','yy']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -212,7 +195,7 @@ class SalesmanFilter2(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy','hfj','cy']))
+        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','wh','zjm','gsj','jll','yy']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -230,7 +213,7 @@ class SalesmanFilterforDetail(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll','yy','hfj','cy']))
+        salesmans = UserInfo3.objects.filter(Q(username__in= ['ybb', 'fzj','wh','zjm','gsj','jll','yy']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -374,9 +357,9 @@ class PMRResearchDetailInline(admin.TabularInline):
     #在inline中显示isactive的detail的表
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        print('我在PMRResearchDetailInline-get_queryset')
+        # print('我在PMRResearchDetailInline-get_queryset')
         if request.user.is_superuser :
-            print('我在PMRResearchDetailInline-get_queryset-筛选active的')
+            # print('我在PMRResearchDetailInline-get_queryset-筛选active的')
             return qs.filter(is_active=True)
         
         user_in_group_list = request.user.groups.values('name')
@@ -505,7 +488,7 @@ class DetailCalculateInline(admin.StackedInline):
     extra = 0
     readonly_fields =  ('totalmachinenumber','ownmachinenumber','ownmachinepercent','newold','totalsumpermonth')#,'detailedprojectcombine','ownbusinesscombine','brandscombine','machinenumbercombine','machinemodelcombine','machineseriescombine','installdatescombine','competitionrelationcombine',)                    
     verbose_name = verbose_name_plural = ('仪器情况汇总')
-    fields =  (('totalmachinenumber','ownmachinenumber','ownmachinepercent','totalsumpermonth','newold'),
+    fields =  (('totalmachinenumber','ownmachinenumber','ownmachinepercent','newold'),
             #    ('detailedprojectcombine'),
             #    ('ownbusinesscombine'),
             #    ('brandscombine'),
@@ -589,7 +572,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                     ),
                 'hospital__hospitalname','salesman1','project',)
     # ordering = ('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',) #('-id',)#
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate3__newold',IfTargetCustomerFilter,IfActualSalesFilter,IfSalesChannelFilter,CustomerProjectTypeFilter]
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,'detailcalculate3__newold',IfTargetCustomerFilter,CustomerProjectTypeFilter,IfActualSalesFilter,IfSalesChannelFilter]
     search_fields = ['hospital__hospitalname','pmrresearchdetail3__brand__brand','pmrresearchdetail3__machinemodel','pmrresearchdetail3__machineseries']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),
@@ -601,32 +584,6 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                               'classes': ('wide',)}),                
                 )
     QT_view_group_list = ['boss','pmrmanager','QTmanager','allviewonly']
-
-
-    # def has_export_permission(self, request):
-    #     if request.user.is_superuser:
-    #         return True
-    #     user_in_group_list = request.user.groups.values('name')
-    #     for user_in_group_dict in user_in_group_list:
-    #         if user_in_group_dict['name'] in ['pmrdirectsales','pmrmanager','QTmanager','WDmanager']:
-    #             return True
-    #         else:
-    #             return False
-    
-
-    # def get_export_formats(self):
-    #     return [base_formats.XLSX]
-    
-
-    # def get_export_queryset(self, request):
-    #     queryset = super().get_export_queryset(request)
-    #     if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
-    #         queryset = queryset
-    #     else: 
-    #         queryset = queryset.filter(Q(salesman1=request.user) | Q(salesman2=request.user))
-    #     return queryset
-
-
 
 
     # 新增或修改数据时，设置外键可选值，
@@ -699,25 +656,7 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             print('我在PmrResearchListAdmin has change permission else else else',False)
             return False
 
-    # def has_add_permission(self,request):#,obj=None):
-        
-    #     if request.user.groups.values():
-    #         if request.user.groups.values()[0]['name'] =='pmronlyview' or request.user.groups.values()[0]['name'] == 'allviewonly':
-    #             return False
-    #     if request.POST.get('salesman1'):
-    #         if request.user.is_superuser or request.user.groups.values()[0]['name'] =='boss':
-    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 True SUPERUSER!!)',request.POST.get('salesman1'))
-    #             return True
-    #         if request.POST.get('salesman1')!=str(request.user.id):
-    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 false!!)',request.POST.get('salesman1'),request.user.id)
-    #             raise PermissionDenied('Forbidden ++++++++++++++++++++++')
-    #             #return False
-    #         else:
-    #             print('我在PmrResearchListAdmin has add permission  request.POST.get(salesman1 true!!)',request.POST.get('salesman1'))
-    #             return True
-    #     else:
-    #         print('我在PmrResearchListAdmin has add permission else else',True)
-    #         return True
+
 
     def has_add_permission(self,request):
         if  request.user.is_superuser:
@@ -1086,10 +1025,10 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
         elif obj.project.project=='血球':
             color_code='orange'    
 
-        elif obj.project.project=='流式':
+        elif obj.project.project=='诺唯赞':
             color_code='green'   
 
-        elif obj.project.project=='生化免疫':
+        elif obj.project.project=='糖化':
             color_code='blue'
  
         else:
