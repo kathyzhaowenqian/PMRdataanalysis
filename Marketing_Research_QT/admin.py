@@ -687,11 +687,15 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
             print('我在PMRResearchListAdmin-get_queryset-筛选active的')            
             qs= qs.filter(is_active=True,company_id=2)
             qs = qs.annotate(
-            actualsales_2023=Sum('salestarget3__q1actualsales') +
-                         Sum('salestarget3__q2actualsales') +
-                         Sum('salestarget3__q3actualsales') +
-                         Sum('salestarget3__q4actualsales'),
-            )          
+            actualsales_2023=Sum('salestarget3__q1actualsales', filter=Q(salestarget3__year='2023')) +
+                         Sum('salestarget3__q2actualsales', filter=Q(salestarget3__year='2023')) +
+                         Sum('salestarget3__q3actualsales', filter=Q(salestarget3__year='2023')) +
+                         Sum('salestarget3__q4actualsales', filter=Q(salestarget3__year='2023')),
+            actualsales_24_q1=Sum('salestarget3__q1actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+            actualsales_24_q2=Sum('salestarget3__q2actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+            actualsales_24_q3=Sum('salestarget3__q3actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+            actualsales_24_q4=Sum('salestarget3__q4actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+            )           
             return qs   
 
                 
@@ -703,20 +707,28 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
                  # print('我在模型里')
                 qs= qs.filter(is_active=True,company_id=2)
                 qs = qs.annotate(
-                actualsales_2023=Sum('salestarget3__q1actualsales') +
-                            Sum('salestarget3__q2actualsales') +
-                            Sum('salestarget3__q3actualsales') +
-                            Sum('salestarget3__q4actualsales'),
-                )          
+                actualsales_2023=Sum('salestarget3__q1actualsales', filter=Q(salestarget3__year='2023')) +
+                            Sum('salestarget3__q2actualsales', filter=Q(salestarget3__year='2023')) +
+                            Sum('salestarget3__q3actualsales', filter=Q(salestarget3__year='2023')) +
+                            Sum('salestarget3__q4actualsales', filter=Q(salestarget3__year='2023')),
+                actualsales_24_q1=Sum('salestarget3__q1actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+                actualsales_24_q2=Sum('salestarget3__q2actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+                actualsales_24_q3=Sum('salestarget3__q3actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+                actualsales_24_q4=Sum('salestarget3__q4actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+                )         
                 return qs   
                 
        #普通销售的话:
         qs= qs.filter((Q(is_active=True)&Q(salesman1=request.user)&Q(company_id=2))|(Q(is_active=True)&Q(salesman2=request.user)&Q(company_id=2)))
         qs = qs.annotate(
-            actualsales_2023=Sum('salestarget3__q1actualsales') +
-                         Sum('salestarget3__q2actualsales') +
-                         Sum('salestarget3__q3actualsales') +
-                         Sum('salestarget3__q4actualsales'),
+            actualsales_2023=Sum('salestarget3__q1actualsales', filter=Q(salestarget3__year='2023')) +
+                         Sum('salestarget3__q2actualsales', filter=Q(salestarget3__year='2023')) +
+                         Sum('salestarget3__q3actualsales', filter=Q(salestarget3__year='2023')) +
+                         Sum('salestarget3__q4actualsales', filter=Q(salestarget3__year='2023')),
+            actualsales_24_q1=Sum('salestarget3__q1actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+            actualsales_24_q2=Sum('salestarget3__q2actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+            actualsales_24_q3=Sum('salestarget3__q3actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
+            actualsales_24_q4=Sum('salestarget3__q4actualsales', filter=Q(salestarget3__year='2024',is_active=True)),
             )          
         return qs                 
 
@@ -1218,22 +1230,22 @@ class PMRResearchListAdmin(GlobalAdmin): #ExportMixin,
     @admin.display(description='24/Q1实际')
     def actualsales_24_q1(self, obj):
         return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2024',is_active=True)[0].q1actualsales)
-    actualsales_24_q1.admin_order_field = '-salestarget3__q1actualsales'
+    actualsales_24_q1.admin_order_field = '-actualsales_24_q1'
 
     @admin.display(description='24/Q2实际')
     def actualsales_24_q2(self, obj):
         return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2024',is_active=True)[0].q2actualsales)
-    actualsales_24_q2.admin_order_field = '-salestarget3__q2actualsales'
+    actualsales_24_q2.admin_order_field = '-actualsales_24_q2'
     
     @admin.display(description='24/Q3实际')
     def actualsales_24_q3(self, obj):
         return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2024',is_active=True)[0].q3actualsales)
-    actualsales_24_q3.admin_order_field = '-salestarget3__q3actualsales'
+    actualsales_24_q3.admin_order_field = '-actualsales_24_q3'
 
     @admin.display(description='24/Q4实际')
     def actualsales_24_q4(self, obj):
         return '{:,.0f}'.format(obj.salestarget3_set.filter(year='2024',is_active=True)[0].q4actualsales)
-    actualsales_24_q4.admin_order_field = '-salestarget3__q4actualsales'
+    actualsales_24_q4.admin_order_field = '-actualsales_24_q4'
 
 
 #每季度实际完成率

@@ -57,7 +57,7 @@ class WDANALYSISDETAIL(View):
 
         Wholeresearchlist_queryset = Wholeresearchlist.objects.all()#从视图中拿出所有
         Wholeresearchlist_df = Wholeresearchlist_queryset.to_dataframe()
-        year='2023'
+        year='2024'
         company='卫顿'
         raw_data=InitData(Wholeresearchlist_df,year,company)
 
