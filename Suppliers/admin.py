@@ -47,6 +47,7 @@ class XEY_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -112,7 +113,7 @@ class XEY_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -153,7 +154,7 @@ class XEY_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -229,6 +230,7 @@ class NQ_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -294,7 +296,7 @@ class NQ_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -334,7 +336,7 @@ class NQ_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -413,6 +415,7 @@ class PZX_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -478,7 +481,7 @@ class PZX_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -518,7 +521,7 @@ class PZX_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -597,6 +600,7 @@ class XINYI_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -662,7 +666,7 @@ class XINYI_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -702,7 +706,7 @@ class XINYI_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -778,6 +782,7 @@ class PIZHOU_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -843,7 +848,7 @@ class PIZHOU_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -883,7 +888,7 @@ class PIZHOU_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -962,6 +967,7 @@ class ANTING_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1027,7 +1033,7 @@ class ANTING_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1067,7 +1073,7 @@ class ANTING_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1142,6 +1148,7 @@ class NANXIANG_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1207,7 +1214,7 @@ class NANXIANG_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1247,7 +1254,7 @@ class NANXIANG_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1325,6 +1332,7 @@ class QIXIAN_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1390,7 +1398,7 @@ class QIXIAN_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1430,7 +1438,7 @@ class QIXIAN_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1506,6 +1514,7 @@ class SHENYANG_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1571,7 +1580,7 @@ class SHENYANG_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1611,7 +1620,7 @@ class SHENYANG_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1685,6 +1694,7 @@ class SITUAN_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1750,7 +1760,7 @@ class SITUAN_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1790,7 +1800,7 @@ class SITUAN_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1864,6 +1874,7 @@ class SIWUWU_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1929,7 +1940,7 @@ class SIWUWU_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -1969,7 +1980,7 @@ class SIWUWU_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -2042,6 +2053,7 @@ class TINGLIN_Supplier_RankAdmin(admin.ModelAdmin):
     inlines=[TINGLIN_Supplier_Product_SummaryInline]
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
+    list_filter = ['supplier']
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
     list_display_links =('supplier',)
     empty_value_display = '--'
@@ -2108,7 +2120,7 @@ class TINGLIN_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -2148,7 +2160,7 @@ class TINGLIN_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -2221,6 +2233,7 @@ class XIDU_Supplier_RankAdmin(admin.ModelAdmin):
     inlines=[XIDU_Supplier_Product_SummaryInline]
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
+    list_filter = ['supplier']
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
     list_display_links =('supplier',)
     empty_value_display = '--'
@@ -2287,7 +2300,7 @@ class XIDU_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -2327,7 +2340,7 @@ class XIDU_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -2401,6 +2414,7 @@ class ZHIXIAO_Supplier_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier',)
     readonly_fields= ('project','rank','supplier','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
+    list_filter = ['supplier']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -2466,7 +2480,7 @@ class ZHIXIAO_Supplier_Product_SummaryAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname')
     readonly_fields = ('supplierrank','project','rank','supplier','contact','payterm','tax','delivery','productcode','productname','spec','unit','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('supplier',)
     empty_value_display = '--'
     list_per_page = 15
@@ -2506,7 +2520,7 @@ class ZHIXIAO_Product_RankAdmin(admin.ModelAdmin):
     exclude = ('id','createtime','updatetime')
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'recentdate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-
+    list_filter = ['supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
@@ -2560,7 +2574,7 @@ class TOTAL_Supplier_RankAdmin(admin.ModelAdmin):
     list_per_page = 15
     list_display = ('rank','project','supplier','display_qty21','display_qty22','display_qty23','display_qty24','display_totalqty','display_sum21','display_sum22','display_sum23','display_sum24','display_totalsum')
     ordering = ('id',)
-    list_filter = ['project']
+    list_filter = ['project','supplier']
     def has_delete_permission(self,request, obj=None):
         return False
 
@@ -2620,7 +2634,7 @@ class TOTAL_Supplier_RankAdmin(admin.ModelAdmin):
 class TOTAL_Product_RankAdmin(admin.ModelAdmin):
     search_fields=('supplier','productcode','productname','brand')
     readonly_fields = ('project','rank','productcode','productname','spec','unit','supplier','brand', 'invoicedate','price','qty21','qty21','qty22','qty23','qty24','totalqty','sum21','sum22','sum23','sum24','totalsum')
-    list_filter = ['project']
+    list_filter = ['project','supplier','brand']
     list_display_links =('productname',)
     empty_value_display = '--'
     list_per_page = 15
