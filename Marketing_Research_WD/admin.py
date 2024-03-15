@@ -163,7 +163,7 @@ class SalesmanFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo2.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll']))
+        salesmans = UserInfo2.objects.filter(Q(username__in= ['gsj','jll','hfj']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -181,7 +181,7 @@ class SalesmanFilter2(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo2.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll']))
+        salesmans = UserInfo2.objects.filter(Q(username__in= ['gsj','jll','hfj']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -199,7 +199,7 @@ class SalesmanFilterforDetail(SimpleListFilter):
 
     def lookups(self, request, model_admin):
 
-        salesmans = UserInfo2.objects.filter(Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll']))
+        salesmans = UserInfo2.objects.filter(Q(username__in= ['gsj','jll','hfj']))
         # print([(salesman.id, salesman.chinesename) for salesman in salesmans])
         return [(salesman.id, salesman.chinesename) for salesman in salesmans]
     
@@ -556,7 +556,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                 'hospital__hospitalname','salesman1','project',)
 
     # ordering = ('-hospital__district','hospital__hospitalclass','hospital__hospitalname','salesman1','project',)#('-id',)#
-    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,SalesmanFilter2,'detailcalculate2__newold',IfTargetCustomerFilter,CustomerProjectTypeFilter,IfActualSalesFilter,IfSalesChannelFilter,]
+    list_filter = [ProjectFilter,'hospital__district','hospital__hospitalclass',SalesmanFilter,'detailcalculate2__newold',IfTargetCustomerFilter,CustomerProjectTypeFilter,IfActualSalesFilter,IfSalesChannelFilter,]
     search_fields = ['hospital__hospitalname','pmrresearchdetail2__brand__brand','pmrresearchdetail2__machinemodel']
     fieldsets = (('作战背景', {'fields': ('company','hospital','project','salesman1','salesman2',
                                         'testspermonth','owntestspermonth','contactname','contactmobile','salesmode',),
@@ -579,9 +579,9 @@ class PMRResearchListAdmin(GlobalAdmin):
             kwargs["queryset"] = Project.objects.filter(is_active=True,company_id=3) 
         if db_field.name == 'salesman1': 
             # kwargs['initial'] = #设置默认值
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll']))
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['gsj','jll','hfj']))
         if db_field.name == 'salesman2':  
-            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['ybb', 'fzj','zxl','wh','zjm','gjb','gsj','jll'])) 
+            kwargs["queryset"] = UserInfo.objects.filter(Q(is_active=True) & Q(username__in= ['gsj','jll','hfj'])) 
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 

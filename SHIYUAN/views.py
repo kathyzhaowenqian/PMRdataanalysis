@@ -15,7 +15,7 @@ import io
 from SHIYUAN.tools.CalculateAPI import *
 import os
 from django.http import FileResponse
-
+today = date.today()
 # Upload_File_2 = os.path.join(os.path.dirname(__file__), './file/sy', 'ShiYuan.xlsx')
 folder_name1 = 'file'
 folder_name2 = 'sy'
@@ -142,9 +142,9 @@ class Upload2(View):
     def get(self,request):
         if request.user.username=='admin' or  request.user.username=='syp' or  request.user.username=='cxy':               
 
-            # login_user = request.user.chinesename
-            if os.path.exists(Upload_File_2):  # 判断文件是否存在
-                os.remove(Upload_File_2)       # 删除文件
+            # # login_user = request.user.chinesename
+            # if os.path.exists(Upload_File_2):  # 判断文件是否存在
+            #     os.remove(Upload_File_2)       # 删除文件
 
             return render(request,'SY/index.html')
         else:
@@ -159,19 +159,11 @@ class Upload2(View):
             try:
                 print('看一下格式excel_file',uploaded_file)
                 file_name = Upload_File_2
-                if os.path.exists(file_name):  # 判断文件是否存在
-                    os.remove(file_name)       # 删除文件
+                # if os.path.exists(file_name):  # 判断文件是否存在
+                #     os.remove(file_name)       # 删除文件
 
-                sheet_name_list = ['订单统计','订单明细(上传的)','直送入库和康意路出入库明细(上传的)','康意路库存','康意路库存(带批次)','医院端的库存和领用汇总','医院端的库存和领用汇总(带批次)','领用明细(上传的)']
-                
-                writer = pd.ExcelWriter(file_name)
-                result_list=SHIYUAN(uploaded_file)
+                SHIYUAN(uploaded_file,file_name)
 
-                for i in range(len(result_list)):
-                    result_list[i]=result_list[i].style.set_properties(**{'text-align': 'center'}) ## 使excel表格中的数据居中对齐
-                    result_list[i].to_excel(writer, sheet_name=sheet_name_list[i],index=False)
-                    worksheet = writer.sheets[sheet_name_list[i]]
-                writer.close()
                 return JsonResponse({'success': True, 'msg': '文件上传成功'})
 
             except Exception as e:
@@ -192,7 +184,7 @@ class Download2(View):
             try:
                 with open(file_path, 'rb') as f:
                     response = HttpResponse(f.read())
-                    response['Content-Disposition'] = 'attachment; filename=ShiYuanCalculate.xlsx'
+                    response['Content-Disposition'] = 'attachment; filename=ShiYuanCalculate_{}.xlsx'.format(today)
                     response['Content-Type'] = 'application/vnd.ms-excel'
 
                     return response              
