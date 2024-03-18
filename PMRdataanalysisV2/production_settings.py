@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'XUERYUAN',
     'PMRKA',
     'SHIYUAN',
+    'GONGWEI',
     'Suppliers',
     'nested_admin',
 ]
@@ -654,7 +655,19 @@ SIMPLEUI_CONFIG = {
                     ]                
                 } ,
 
-
+                #二级菜单：公卫
+                {
+                    'name': '公卫',
+                    'icon': 'fab fa-github',
+                    'models': [
+                   
+                            {
+                            'name': '公卫数据处理平台',
+                            'url': '/GONGWEI/uploads2'
+                            },                        
+                                                      
+                    ]                
+                } ,
 
                 {
                 # 第二级菜单                

@@ -3,7 +3,6 @@ from django.shortcuts import render,redirect
 # Create your views here.
 from django.views import View
 from django.http import JsonResponse,HttpResponse,HttpResponseRedirect
-from PUZHONGXIN.models import *
 import numpy as np
 import json
 from json.encoder import JSONEncoder
@@ -15,6 +14,7 @@ import io
 from SHIYUAN.tools.CalculateAPI import *
 import os
 from django.http import FileResponse
+
 today = date.today()
 # Upload_File_2 = os.path.join(os.path.dirname(__file__), './file/sy', 'ShiYuan.xlsx')
 folder_name1 = 'file'
@@ -184,7 +184,7 @@ class Download2(View):
             try:
                 with open(file_path, 'rb') as f:
                     response = HttpResponse(f.read())
-                    response['Content-Disposition'] = 'attachment; filename=ShiYuanCalculate_{}.xlsx'.format(today)
+                    response['Content-Disposition'] = 'attachment; filename=ShiYuanCalculate.xlsx'
                     response['Content-Type'] = 'application/vnd.ms-excel'
 
                     return response              

@@ -34,6 +34,7 @@ urlpatterns = [
     path('XUERYUAN/',include('XUERYUAN.urls')),
     # path('PIZHOU/',include('PIZHOU.urls')),
     path('SHIYUAN/',include('SHIYUAN.urls')),
+    path('GONGWEI/',include('GONGWEI.urls')),
     path('Suppliers/',include('Suppliers.urls')),
 
     path('favicon.ico', favicon_view)
