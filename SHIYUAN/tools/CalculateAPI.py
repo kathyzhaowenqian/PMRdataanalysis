@@ -160,7 +160,7 @@ def SHIYUAN(rawdata,filename):
     in_out_df['商品编码'] = in_out_df['商品编码'].astype(str)
     in_out_df['批号'] = in_out_df['批号'].astype(str)
     in_out_df['数量'] = in_out_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
-    in_out_df=in_out_df[["订货抬头", "入库日期", "订单号", "科室", "商品编码", "商品名称", "规格", "单位", "品牌", "供应商", "采购单价", "税价总金额", "数量", "批号", "有效期至", "备注"]]
+    in_out_df=in_out_df[["订货抬头", "入库日期", "订单号", "科室", "商品编码", "商品名称", "规格", "单位", "品牌", "供应商", "采购单价", "税价总金额", "数量", "批号", "有效期至", "备注", "备注2"]]
 
     consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细') 
     consumption_df['编码'] = consumption_df['编码'].astype(str)
@@ -300,7 +300,7 @@ def SHIYUAN(rawdata,filename):
     order_to_sql_df.rename(columns={'订单日期':'orderdate','使用科室':'department','订单编号':'ordercode','货号':'itemcode','物料编码':'productcode','智检编码':'zhijiancode','名称':'productname','规格':'spec','品牌':'brand','单位':'unit','供应商':'supplier','进价':'purchaseprice','销价':'sellprice','数量':'quantity','备注':'comment'},inplace=True)
     #直送入库和康意路出入库明细(上传的)
     in_out_to_sql_df=in_out_df
-    in_out_to_sql_df.rename(columns={'订货抬头':'ordertitle','入库日期':'indate','订单号':'ordercode','科室':'department','商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','采购单价':'purchaseprice','税价总金额':'sum','数量':'quantity','批号':'batchcode','有效期至':'expiredate','备注':'comment'},inplace=True)
+    in_out_to_sql_df.rename(columns={'订货抬头':'ordertitle','入库日期':'indate','订单号':'ordercode','科室':'department','商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','采购单价':'purchaseprice','税价总金额':'sum','数量':'quantity','批号':'batchcode','有效期至':'expiredate','备注':'comment','备注2':'comment2'},inplace=True)
     #康意路库存
     str_kyl_to_sql_df=str_kyl_df
     str_kyl_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','入库总数量':'inquantity','入库数量明细':'inqtydetail','入库日期明细':'indatedetail','入库批号明细':'inbatchdetail','出库总数量':'outquantity','出库数量明细':'outqtydetail','出库日期明细':'outdatedetail','出库批号明细':'outbatchdetail','剩余库存':'leftqty'},inplace=True)
