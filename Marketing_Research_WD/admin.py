@@ -534,7 +534,7 @@ class PMRResearchListAdmin(GlobalAdmin):
     list_display_links =('hospital',)
     exclude = ('operator','is_active')
     search_fields=['uniquestring']
-    list_per_page = 10
+    list_per_page = 16
     list_display = result_of_Quatar_display(settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS,settings.MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS)[0]#+('detail_qtysum','detail_own_qtysum','detail_ownbusiness','detail_brands','detail_machinemodel','detail_machineseries','detail_installdate','detail_competitor',)
     # ('hospital_district','hospital_hospitalclass','hospital','colored_project','salesman1_chinesename','salesman2_chinesename',
     #                 'detailcalculate_totalmachinenumber','detailcalculate_ownmachinenumberpercent','detailcalculate_newold',
@@ -972,6 +972,14 @@ class PMRResearchListAdmin(GlobalAdmin):
         elif obj.project.project=='真菌G':
             color_code='darkviolet'
 
+        elif obj.project.project=='血培养':
+            color_code='pink'
+
+        elif obj.project.project=='细菌药敏':
+            color_code='brown'
+
+        elif obj.project.project=='真菌药敏':
+            color_code='purple'                        
         else:
             color_code='black' 
         return format_html(
@@ -1721,7 +1729,7 @@ class PMRResearchDetailAdmin(GlobalAdmin):
 
     list_display_links =('list_hospitalname',)
     empty_value_display = '--'
-    list_per_page = 15
+    list_per_page = 16
     list_display = ('list_district','list_hospitalclass','list_hospitalname','list_salesman1','list_project', 
                     'renamed_detailedproject','ownbusiness','brand','machinemodel','renamed_machineseries','machinenumber','installdate','colored_expiration','testprice','endsupplier','colored_competitionrelation')
     autocomplete_fields=['researchlist','brand']
@@ -1854,7 +1862,15 @@ class PMRResearchDetailAdmin(GlobalAdmin):
 
         elif obj.researchlist.project.project=='真菌G':
             color_code='darkviolet'    
-                                   
+
+        elif obj.researchlist.project.project=='血培养':
+            color_code='pink'
+
+        elif obj.researchlist.project.project=='细菌药敏':
+            color_code='brown'
+
+        elif obj.researchlist.project.project=='真菌药敏':
+            color_code='purple'                                        
         else:
             color_code='black' 
         return format_html(
