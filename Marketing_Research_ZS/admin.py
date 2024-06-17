@@ -422,6 +422,7 @@ class SalesTargetInline(admin.StackedInline):
     
     verbose_name = verbose_name_plural = ('作战计划和成果 （仅针对新项目）')
     GSMR_view_group_list = ['boss','GSMRmanager','GSMR','gsmronlyview','allviewonly']
+
     def field_q1finishrate(self, obj):
         value = float(obj.q1finishrate) if obj.q1finishrate else 0
         style = 'width: 6ch'#; background-color: #f2f2f2;'
@@ -469,17 +470,17 @@ class SalesTargetInline(admin.StackedInline):
             return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user)&Q(year='2023'))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)&Q(year='2023')))
         
         #如果大于2024.1.1减掉30天
-        if today > calculate_quarter_start_end_day(1,thisyear+1)[0]-timedelta(days=settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS):
-            if request.user.is_superuser :
-                return qs.filter(is_active=True)  
-              
-            user_in_group_list = request.user.groups.values('name')
-            for user_in_group_dict in user_in_group_list:
-                if user_in_group_dict['name'] in self.GSMR_view_group_list:
-                    return qs.filter(is_active=True)
+        # if today > calculate_quarter_start_end_day(1,thisyear+1)[0]-timedelta(days=settings.MARKETING_RESEARCH_TARGET_AUTO_ADVANCED_DAYS):
+        if request.user.is_superuser :
+            return qs.filter(is_active=True,year='2024')  
+            
+        user_in_group_list = request.user.groups.values('name')
+        for user_in_group_dict in user_in_group_list:
+            if user_in_group_dict['name'] in self.GSMR_view_group_list:
+                return qs.filter(is_active=True,year='2024')
 
-            #普通销售的话:
-            return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)))
+        #普通销售的话:
+        return qs.filter((Q(is_active=True)&Q(researchlist__salesman1=request.user)&Q(year='2024'))|(Q(is_active=True)&Q(researchlist__salesman2=request.user)&Q(year='2024')))
 
     #普通销售不允许删除目标inline
     def has_delete_permission(self,request, obj=None):

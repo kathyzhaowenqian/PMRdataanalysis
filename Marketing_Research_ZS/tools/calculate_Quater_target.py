@@ -122,7 +122,7 @@ def result_of_Quatar_display(advanced_days,delayed_days):
         readonly_fields = readonly_fields + ('q4target','q4completemonth','q4actualsales')
 
 
-    speicial_case_date = date(2023,8,30)
+    speicial_case_date = date(2024,1,31)
     if today <= speicial_case_date:
         return ( # list_display
                     ('hospital_district','hospital','hospital_hospitalclass','colored_project','salesman1_chinesename','salesman2_chinesename',                    

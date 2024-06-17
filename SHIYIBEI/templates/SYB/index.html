@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Ajax Uploader</title>
+    <link href="{% static 'SYB/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'SYB/css/styles.css' %}" rel="stylesheet">
+  </head>
+  <body>
+
+      <div class="container">
+        <div class="page-header">
+          <h1>市一北数据处理平台</h1>
+          <h3>（订单跟踪/库存及领用情况汇总）</h3>
+        </div>
+          <div class="row" style="padding-top:10px;">
+            <div class="col-xs-2">
+              <button id="uploadBtn" class="btn btn-large btn-primary">选择Excel文件</button>
+            </div>
+            <div class="col-xs-10">
+          <div id="progressOuter" class="progress progress-striped active" style="display:none;">
+            <div id="progressBar" class="progress-bar progress-bar-success"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+            </div>
+          </div>
+            </div>
+          </div>
+          <div class="row" style="padding-top:10px;">
+            <div class="col-xs-10">
+              <div id="msgBox">
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="padding-top:10px;">
+            <div class="col-xs-2">
+              <button id="downloadBtn" class="btn btn-large btn-primary">下载Excel文件</button>
+            </div>
+
+          </div>
+          <div class="row" style="padding-top:10px;">
+            <div class="col-xs-10">
+              <div id="msgBox2">
+              </div>
+            </div>
+          </div>
+          <br><br><br><br>
+          步骤：刷新页面  ——  选择Excel文件  ——   等待"成功上传"信息  —— 下载Excel文件
+          <br>
+          注意：
+          <br>
+          1，上传的文件一定要按规定的表头，不能有合并单元格
+          <br>
+          2，下载后的文件需要人工比对，如果有问题的话，请重新修改原始文件，然后再重新上传
+          <br>
+          3，每次上传前请刷新页面
+
+      </div>
+
+    
+
+  <script src="{% static 'SYB/js3/jquery-2.1.4.min.js' %}"></script>
+
+  <script src="{% static 'SYB/js3/SimpleAjaxUploader.js' %}"></script>
+<script>
+function escapeTags( str ) {
+  return String( str )
+           .replace( /&/g, '&amp;' )
+           .replace( /"/g, '&quot;' )
+           .replace( /'/g, '&#39;' )
+           .replace( /</g, '&lt;' )
+           .replace( />/g, '&gt;' );
+}
+
+window.onload = function() {
+
+  var btn = document.getElementById('uploadBtn'),
+      progressBar = document.getElementById('progressBar'),
+      progressOuter = document.getElementById('progressOuter'),
+      msgBox = document.getElementById('msgBox');
+
+  var uploader = new ss.SimpleUpload({
+        button: btn,
+        url: '/SHIYIBEI/uploads2',
+        name: 'uploadfile',
+        multipart: true,
+        hoverClass: 'hover',
+        focusClass: 'focus',
+        responseType: 'json',
+        allowedExtensions: ['xlsx', 'xls'],
+        startXHR: function() {
+            progressOuter.style.display = 'block'; // make progress bar visible
+            this.setProgressBar( progressBar );
+        },
+        onSubmit: function() {
+            msgBox.innerHTML = ''; // empty the message box
+            btn.innerHTML = '上传中...'; // change button text to "Uploading..."
+          },
+        onComplete: function( filename, response ) {
+            btn.innerHTML = '请选择文件';
+            progressOuter.style.display = 'none'; // hide progress bar when upload is completed
+
+            if ( !response ) {
+                msgBox.innerHTML ='<strong>' + '上传失败' + '</strong>';
+                msgBox.style.color = 'red';
+                return;
+            }
+
+            if ( response.success === true ) {
+                msgBox.innerHTML = '<strong>' + escapeTags( filename ) + '</strong>' + ' 已成功上传';
+                msgBox.style.color = 'green';
+
+            } else {
+                if ( response.msg )  {
+                    msgBox.innerHTML ='<strong>' + escapeTags( response.msg )  + '</strong>';
+                    msgBox.style.color = 'red';
+                } else {
+                    msgBox.innerHTML = '<strong>' +'上传失败'+ '</strong>';
+                    msgBox.style.color = 'red';
+                }
+            }
+          },
+        onError: function() {
+            progressOuter.style.display = 'none';
+            msgBox.innerHTML = '<strong>' + '上传失败，错误：'+error + '</strong>';
+            msgBox.style.color = 'red';
+          }
+	});
+
+
+  $('#downloadBtn').click(function () {
+            // 如果有文件就挑转到下载页面，如果没有那就提示先上传文件
+            $.ajax({
+                type: 'GET',
+                url: '/SHIYIBEI/downloads2',
+                success: function (response) {
+
+                    // console.log(response)
+                    if (response.code != 404) {
+                        $('#msgBox2').html('<strong>' + '下载成功' + '</strong>').css('color', 'green');
+                        // jump to download url
+                        window.location.href = '/SHIYIBEI/downloads2'
+                    } else {
+                        $('#msgBox2').html('<strong>' + response.data + '</strong>').css('color', 'red'); 
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#msgBox2').html('<strong>' + '发生错误，请重新上传文件！' + '</strong>').css('color', 'red');
+                }
+            });
+
+        });
+
+
+};
+</script>
+
+
+  </body>
+</html>

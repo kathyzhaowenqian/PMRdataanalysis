@@ -668,7 +668,33 @@ SIMPLEUI_CONFIG = {
                                                       
                     ]                
                 } ,
-
+                
+                #二级菜单：市一北
+                {
+                    'name': '市一北',
+                    'icon': 'fab fa-github',
+                    'models': [
+                   
+                            {
+                            'name': '市一北数据处理平台',
+                            'url': '/SHIYIBEI/uploads2'
+                            },                        
+                                                      
+                    ]                
+                } ,
+                #二级菜单：市一南
+                {
+                    'name': '市一南',
+                    'icon': 'fab fa-github',
+                    'models': [
+                   
+                            {
+                            'name': '市一南数据处理平台',
+                            'url': '/SHIYINAN/uploads2'
+                            },                        
+                                                      
+                    ]                
+                } ,
                 {
                 # 第二级菜单                
                 'name': '潜在医院调研表',
