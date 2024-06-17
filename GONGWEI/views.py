@@ -61,7 +61,7 @@ class Download2(View):
         # login_user = request.user.chinesename
         if request.user.username=='admin' or  request.user.username=='syp' or  request.user.username=='cxy':  
             file_path = Upload_File_2
-
+            
             if not os.path.exists(file_path):
                 return JsonResponse({'code':404,'data': '请先上传文件'})
                
