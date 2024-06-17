@@ -61,6 +61,8 @@ INSTALLED_APPS = [
     'PMRKA',
     'SHIYUAN',
     'GONGWEI',
+    'SHIYIBEI',
+    'SHIYINAN',
     'Suppliers',
     'nested_admin',
 ]
