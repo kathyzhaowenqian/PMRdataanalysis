@@ -140,7 +140,16 @@ def SHIYINAN(rawdata,filename):
     product_in_consumption_df['剩余库存']=product_in_consumption_df['总库存']-product_in_consumption_df['领用数量']
     #合并
     # return result_list
-                        
+                    #####################商品编码	商品名称	规格	单位	品牌	供应商	科室	直送入库总数量	直送数量明细	直送日期明细	直送订单号明细	直送批号明细	直送效期明细	康意路来货总数量	康意路来货数量明细	康意路来货日期明细	康意路来货订单号明细	康意路来货批号明细	康意路来货效期明细	总库存	领用数量	领用数量明细	领用批号明细	剩余库存
+    product_in_consumption_df=product_in_consumption_df[['商品编码','商品名称','规格','单位','品牌','供应商','科室','直送入库总数量','康意路来货总数量','总库存','领用数量','剩余库存']]
+
+    # #商品编码	批号	商品名称	规格	单位	品牌	供应商	科室	有效期至	直送入库总数量	直送数量明细	直送日期明细	直送订单号明细	康意路来货总数量	康意路来货数量明细	康意路来货日期明细	康意路来货订单号明细	总库存	领用数量	剩余库存
+    product_batch_in_consumption_df =  product_batch_in_consumption_df[['商品编码','批号','商品名称','规格','单位','品牌','供应商','科室','有效期至','直送入库总数量','康意路来货总数量','总库存','领用数量','剩余库存']]
+
+    str_kyl_df=str_kyl_df[['商品编码','商品名称','入库总数量','出库总数量','剩余库存']]
+    #######################   
+    # 
+    #         
    #保存excel
     result_list = [order_all_df,order_df,in_out_df,str_kyl_df,product_batch_kyl_df,product_in_consumption_df,product_batch_in_consumption_df,consumption_df]
     sheet_name_list = ['订单统计','订单明细(上传的)','直送入库和康意路出入库明细(上传的)','康意路库存','康意路库存(带批次)','医院端的库存和领用汇总','医院端的库存和领用汇总(带批次)','领用明细(上传的)']
@@ -163,18 +172,36 @@ def SHIYINAN(rawdata,filename):
     #直送入库和康意路出入库明细(上传的)
     in_out_to_sql_df=in_out_df
     in_out_to_sql_df.rename(columns={'订货抬头':'ordertitle','入库日期':'indate','订单号':'ordercode','科室':'department','商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','采购单价':'purchaseprice','税价总金额':'sum','数量':'quantity','批号':'batchcode','有效期至':'expiredate','备注':'comment','备注2':'comment2'},inplace=True)
+
+    ##########################
     #康意路库存
     str_kyl_to_sql_df=str_kyl_df
-    str_kyl_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','入库总数量':'inquantity','入库数量明细':'inqtydetail','入库日期明细':'indatedetail','入库批号明细':'inbatchdetail','出库总数量':'outquantity','出库数量明细':'outqtydetail','出库日期明细':'outdatedetail','出库批号明细':'outbatchdetail','剩余库存':'leftqty'},inplace=True)
+    # str_kyl_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','入库总数量':'inquantity','入库数量明细':'inqtydetail','入库日期明细':'indatedetail','入库批号明细':'inbatchdetail','出库总数量':'outquantity','出库数量明细':'outqtydetail','出库日期明细':'outdatedetail','出库批号明细':'outbatchdetail','剩余库存':'leftqty'},inplace=True)
+    str_kyl_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','入库总数量':'inquantity','出库总数量':'outquantity','剩余库存':'leftqty'},inplace=True)
+   ############################
+
+
     #康意路库存(带批次)
     product_batch_kyl_to_sql_df=product_batch_kyl_df
     product_batch_kyl_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','入库数量':'inquantity','出库数量':'outquantity','剩余库存':'leftqty'},inplace=True)
+    
+    
+    ################################
     #医院端的库存和领用汇总
     product_in_consumption_to_sql_df=product_in_consumption_df
-    product_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','直送入库总数量':'directinqty','直送数量明细':'directinqtydetail','直送日期明细':'directindatedetail','直送订单号明细':'directinorderdetail','直送批号明细':'directinbatchdetail','直送效期明细':'directinexpdetail','康意路来货总数量':'kylqty','康意路来货数量明细':'kylqtydetail','康意路来货日期明细':'kyldatedetail','康意路来货订单号明细':'kylorderdetail','康意路来货批号明细':'kylbatchdetail','康意路来货效期明细':'kylexpdetail','总库存':'ttlqty','领用数量':'takeoutqty','领用数量明细':'takeoutqtydetail','领用批号明细':'takeoutbatchdetail','剩余库存':'leftqty'},inplace=True)
+    # product_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','直送入库总数量':'directinqty','直送数量明细':'directinqtydetail','直送日期明细':'directindatedetail','直送订单号明细':'directinorderdetail','直送批号明细':'directinbatchdetail','直送效期明细':'directinexpdetail','康意路来货总数量':'kylqty','康意路来货数量明细':'kylqtydetail','康意路来货日期明细':'kyldatedetail','康意路来货订单号明细':'kylorderdetail','康意路来货批号明细':'kylbatchdetail','康意路来货效期明细':'kylexpdetail','总库存':'ttlqty','领用数量':'takeoutqty','领用数量明细':'takeoutqtydetail','领用批号明细':'takeoutbatchdetail','剩余库存':'leftqty'},inplace=True)
+    product_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','直送入库总数量':'directinqty','康意路来货总数量':'kylqty','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
+
+    
     #医院端的库存和领用汇总(带批次)
     product_batch_in_consumption_to_sql_df=product_batch_in_consumption_df
-    product_batch_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','有效期至':'expiredate','直送入库总数量':'directinqty','直送数量明细':'directinqtydetail','直送日期明细':'directindatedetail','直送订单号明细':'directinorderdetail','康意路来货总数量':'kylqty','康意路来货数量明细':'kylqtydetail','康意路来货日期明细':'kyldatedetail','康意路来货订单号明细':'kylorderdetail','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
+    # product_batch_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','有效期至':'expiredate','直送入库总数量':'directinqty','直送数量明细':'directinqtydetail','直送日期明细':'directindatedetail','直送订单号明细':'directinorderdetail','康意路来货总数量':'kylqty','康意路来货数量明细':'kylqtydetail','康意路来货日期明细':'kyldatedetail','康意路来货订单号明细':'kylorderdetail','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
+    product_batch_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','有效期至':'expiredate','直送入库总数量':'directinqty','康意路来货总数量':'kylqty','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
+    ################################
+
+
+    
+    
     #领用明细(上传的)
     consumption_to_sql_df=consumption_df
     consumption_to_sql_df.rename(columns={'日期':'date','科室':'department','编码':'productcode','产品名称':'productname','规格':'spec','单位':'unit','厂商':'brand','批号':'batchcode','有效期':'expiredate','数量':'quantity','是否签回':'signback','送货人':'deliverperson'}, inplace=True)
