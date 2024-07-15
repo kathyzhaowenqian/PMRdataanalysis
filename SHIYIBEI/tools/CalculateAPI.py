@@ -11,20 +11,20 @@ from sqlalchemy.types import *
 from django.conf import settings
 
 def SHIYIBEI(rawdata,filename):
-    order_df = pd.read_excel(rawdata, sheet_name = '订单') #要保证订单编号和物料编码联合只出现一次
+    order_df = pd.read_excel(rawdata, sheet_name = '订单',dtype={'订单编号':str,'物料编码':str}) #要保证订单编号和物料编码联合只出现一次
     order_df['订单编号'] = order_df['订单编号'].astype(str)
     order_df['物料编码'] = order_df['物料编码'].astype(str)
     order_df['数量'] = order_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
     order_df=order_df[["订单日期","使用科室","订单编号","货号","物料编码","智检编码","名称","规格","品牌","单位","供应商","进价","销价","数量","备注"]]
 
-    in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细') 
+    in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细',dtype={'订单号':str,'商品编码':str,'批号':str}) 
     in_out_df['订单号'] = in_out_df['订单号'].astype(str)
     in_out_df['商品编码'] = in_out_df['商品编码'].astype(str)
     in_out_df['批号'] = in_out_df['批号'].astype(str)
     in_out_df['数量'] = in_out_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
     in_out_df=in_out_df[["订货抬头", "入库日期", "订单号", "科室", "商品编码", "商品名称", "规格", "单位", "品牌", "供应商", "采购单价", "税价总金额", "数量", "批号", "有效期至", "备注", "备注2"]]
 
-    consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细') 
+    consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细',dtype={'编码':str,'批号':str}) 
     consumption_df['编码'] = consumption_df['编码'].astype(str)
     consumption_df['批号'] = consumption_df['批号'].astype(str)
     consumption_df['数量'] = consumption_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
@@ -264,8 +264,8 @@ def SHIYIBEI(rawdata,filename):
 
 
 if __name__=='__main__':
-    rawdata = 'C:\\Users\\赵文茜\\Desktop\\testshiyibei.xlsx'  
-    filename= 'C:\\Users\\赵文茜\\Desktop\\testshiyibei_result.xlsx'  
+    rawdata = 'C:\\Users\\赵文茜\\Desktop\\市一北院明细6.13.xlsx'  
+    filename= 'C:\\Users\\赵文茜\\Desktop\\市一北院明细6.13_result.xlsx'  
     SHIYIBEI(rawdata,filename)
     print('原始数据已上传')
 
