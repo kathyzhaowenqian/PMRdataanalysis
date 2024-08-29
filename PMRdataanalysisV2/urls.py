@@ -41,5 +41,8 @@ urlpatterns = [
 
     path('Suppliers/',include('Suppliers.urls')),
 
+    path('SALESREPORT/',include('SALESREPORT.urls')),
+
+    
     path('favicon.ico', favicon_view)
 ]

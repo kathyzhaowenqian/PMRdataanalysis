@@ -15,7 +15,7 @@ def GONGWEI(rawdata,filename):
     order_df['订单编号'] = order_df['订单编号'].astype(str)
     order_df['物料编码'] = order_df['物料编码'].astype(str)
     order_df['数量'] = order_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
-    order_df=order_df[["订单日期","使用科室","订单编号","货号","物料编码","智检编码","名称","规格","品牌","单位","供应商","进价","销价","数量","备注","备注2"]]
+    order_df=order_df[["订单日期","使用科室","订单编号","货号","物料编码","智检编码","名称","规格","品牌","单位","供应商","进价","销价","数量","备注","备注2","备注3"]]
 
     in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细') 
     in_out_df['订单号'] = in_out_df['订单号'].astype(str)
@@ -168,7 +168,7 @@ def GONGWEI(rawdata,filename):
     order_all_to_sql_df.rename(columns={'订单日期':'orderdate','使用科室':'department','订单编号':'ordercode','货号':'itemcode','物料编码':'productcode','智检编码':'zhijiancode','名称':'productname','规格':'spec','品牌':'brand','单位':'unit','供应商':'supplier','进价':'purchaseprice','销价':'sellprice','备注':'comment','订单总数量':'ttlquantity','康意路入库总数量':'kylquantity','康意路数量明细':'kylqtydetail','康意路入库日期明细':'kyldatedetail','直送入库总数量':'directquantity','直送数量明细':'directqtydetail','直送日期明细':'directdatedetail','合计入库':'ttlinqty','欠货数量':'quantityowed'},inplace=True)
     #订单明细(上传的)
     order_to_sql_df=order_df
-    order_to_sql_df.rename(columns={'订单日期':'orderdate','使用科室':'department','订单编号':'ordercode','货号':'itemcode','物料编码':'productcode','智检编码':'zhijiancode','名称':'productname','规格':'spec','品牌':'brand','单位':'unit','供应商':'supplier','进价':'purchaseprice','销价':'sellprice','数量':'quantity','备注':'comment','备注2':'comment2'},inplace=True)
+    order_to_sql_df.rename(columns={'订单日期':'orderdate','使用科室':'department','订单编号':'ordercode','货号':'itemcode','物料编码':'productcode','智检编码':'zhijiancode','名称':'productname','规格':'spec','品牌':'brand','单位':'unit','供应商':'supplier','进价':'purchaseprice','销价':'sellprice','数量':'quantity','备注':'comment','备注2':'comment2','备注3':'comment3'},inplace=True)
     #直送入库和康意路出入库明细(上传的)
     in_out_to_sql_df=in_out_df
     in_out_to_sql_df.rename(columns={'订货抬头':'ordertitle','入库日期':'indate','订单号':'ordercode','科室':'department','商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','采购单价':'purchaseprice','税价总金额':'sum','数量':'quantity','批号':'batchcode','有效期至':'expiredate','备注':'comment','备注2':'comment2','备注3':'comment3'},inplace=True)

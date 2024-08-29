@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.6.3/lib/theme-chalk/index.css" />
+    <title>销售工作日报</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style scoped>
+        .el-form-item__label {
+            font-weight: bold; /* 设置标签加粗 */
+         }
+        .form-container {
+            margin-left: 20px;
+        }
+
+        
+        </style>
+        
+</head>
+
+<body>
+
+    
+    <div id="app">
+        <div class="form-container">
+        <el-form  label-position="top"  :rules="rules" :model="form" label-width="80px"  size="mini" ref="ruleForm">
+            <el-form-item label="填报日期:" required>
+                <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 90%;" readonly></el-date-picker>
+            </el-form-item>
+            <el-form-item label="项目:" prop="project">
+                <el-input v-model="form.project" style="width: 90%;" :required="true"></el-input>
+            </el-form-item>
+            <el-form-item label="主要人员:" prop="name">
+                <el-input v-model="form.name" style="width: 90%;" required></el-input>
+            </el-form-item>
+            <el-form-item label="工作简述:" prop="desc">
+                <el-input type="textarea" v-model="form.desc" style="width: 90%;"></el-input>
+            </el-form-item>
+            <el-form-item label="工作类型:" prop="type">
+                <el-input v-model="form.type" style="width: 90%;"></el-input>
+            </el-form-item>
+            <el-form-item label="最新推进状态:" prop="state">
+                <el-input v-model="form.state" style="width: 90%;"></el-input>
+            </el-form-item>
+            <el-form-item label="已完成阶段:" prop="stage">
+                <el-input v-model="form.stage" style="width: 90%;"></el-input>
+            </el-form-item>
+            <el-form-item label="上一阶段反馈时间:" prop="date2">
+                <el-date-picker type="date" placeholder="选择日期" v-model="form.date2" style="width: 90%;"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="最近计划反馈时间:" prop="date3">
+                <el-date-picker type="date" placeholder="选择日期" v-model="form.date3" style="width: 90%;"></el-date-picker>
+            </el-form-item>
+            <!-- <el-form-item> -->
+                <!-- <el-button type="primary" @click="onSubmit">提交</el-button> -->
+            <!-- </el-form-item> -->
+            <el-form-item>
+                <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+            </el-form-item>
+        </el-form>
+             
+
+    </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@2.6.3/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.6.3/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            delimiters: ['[[', ']]'],
+            data() {
+                return {
+                    form: {
+                        date1: '',
+                        project: '',
+                        name: '',
+                        desc: '',
+                        type: '',
+                        state: '',
+                        stage: '',
+                        date2: '',
+                        date3: '',
+                        ii:''
+                    },
+                    rules: {
+                    name: [
+                        { required: true, message: '请输入主要人员', trigger: 'blur' },                   
+                    ],
+                    project: [
+                        { required: true, message: '请输入具体项目', trigger: 'blur' }
+                    ],
+                    desc: [
+                        { required: true, message: '请输入工作简述', trigger: 'blur' }
+                    ],
+                    type: [
+                        { required: true, message: '请输入工作类型', trigger: 'blur' }
+                    ],
+                    state: [
+                        { required: true, message: '请输入最新推进状态', trigger: 'blur' }
+                    ],
+                    stage: [
+                        { required: true, message: '请输入已完成阶段', trigger: 'blur' }
+                    ],
+                    date2: [
+                        { type: 'date', required: true, message: '请选择上一阶段反馈时间', trigger: 'change' }
+                    ],
+                    date3: [
+                        { type: 'date', required: true, message: '请选择最近计划反馈时间', trigger: 'change' }
+                    ],
+                },
+                }
+                
+            },
+            
+            methods: {
+                // getChinaTodayDate() {
+                //     // 获取当前日期在中国时区（UTC+8）
+                //     const today = new Date();
+                //     const chinaOffset = 8 * 60; // UTC+8 转换为分钟
+                //     const utcDate = new Date(today.getTime() + (today.getTimezoneOffset() * 60 * 1000)); // 转换为 UTC 时间
+
+                //     // 获取中国时间
+                //     const chinaDate = new Date(utcDate.getTime() + (chinaOffset * 60 * 1000));
+                //     // 返回日期部分（YYYY-MM-DD）
+                //     return chinaDate.toISOString().split('T')[0];
+                // },
+
+            //     async onSubmit() {
+            //         try {
+            //             await this.$confirm('您确定要提交吗？', '提示', {
+            //                 confirmButtonText: '确定',
+            //                 cancelButtonText: '取消',
+            //                 type: 'warning'
+            //             });
+                        
+            //             // 用户点击确定，发送POST请求
+            //             const response = await axios.post('/SALESREPORT/reportsubmit', this.form);
+            //             this.$message({
+            //                 type: 'success',
+            //                 message: '提交成功！'
+            //             });
+            //             this.resetForm();
+            //         } catch (error) {
+            //             if (error.message.includes('已取消提交')) {
+            //                 this.$message({
+            //                     type: 'info',
+            //                     message: '已取消提交'
+            //                 });
+            //             } else {
+            //                 this.$message.error('提交失败！');
+            //                 console.error(error);
+            //             }
+            //         }
+            //     },
+            //     resetForm() {
+            //         this.form = {
+            //             date1:'',
+            //             project: '',
+            //             name: '',
+            //             desc: '',
+            //             type: '',
+            //             state: '',
+            //             stage: '',
+            //             date2: '',
+            //             date3: ''
+            //         };
+            //     }
+            // },
+            submitForm(formName) {
+                this.$refs[formName].validate(async (valid) => {
+                    if (valid) {
+                        try {
+                            await this.$confirm('您确定要提交吗？', '提示', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            });
+
+                            // 用户点击确定，发送POST请求
+                            const response = await axios.post('/SALESREPORT/reportsubmit', this.form);
+                            this.$message({
+                                type: 'success',
+                                message: '提交成功！'
+                            });
+                            this.resetForm(formName);
+                        } catch (error) {
+                            // if (error.message && error.message.includes('已取消提交')) {
+                                this.$message({
+                                    type: 'info',
+                                    message: '已取消提交'
+                                });
+                            // } else {
+                            //     this.$message.error('已取消提交！');
+                            //     console.error(error);
+                            // }
+                        }
+                    } else {
+                        console.log('提交失败!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
+        },
+
+       
+            mounted() {
+                var contextDate;
+                    try {
+                        contextDate = new Date('{{today|safe}}');
+                        console.log(contextDate,typeof(contextDate))
+                        this.form.date1 = contextDate; 
+                    } catch (e) {
+                        console.error("解析 JSON 数据时出现错误:", e);
+                    }
+            },
+
+    });
+    </script>
+</body>
+
+</html>
