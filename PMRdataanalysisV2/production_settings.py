@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'SHIYIBEI',
     'SHIYINAN',
     'Suppliers',
+    'SALESREPORT',
     'nested_admin',
 ]
 
