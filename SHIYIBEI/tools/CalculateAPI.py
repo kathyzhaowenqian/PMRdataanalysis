@@ -207,56 +207,56 @@ def SHIYIBEI(rawdata,filename):
     consumption_to_sql_df=consumption_df
     consumption_to_sql_df.rename(columns={'日期':'date','科室':'department','编码':'productcode','产品名称':'productname','规格':'spec','单位':'unit','厂商':'brand','批号':'batchcode','有效期':'expiredate','数量':'quantity','是否签回':'signback','送货人':'deliverperson'}, inplace=True)
  
-    #【【【【【【【【【【【【链接数据库！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-    to_sql_connect = create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
-    # to_sql_connect = create_engine('postgresql+psycopg2://' + 'postgres' + ':' + 'Kathy83305136' + '@139.224.61.6' + ':'+'5432'+'/'+'postgres')
+    # #【【【【【【【【【【【【链接数据库！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+    # to_sql_connect = create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
+    # # to_sql_connect = create_engine('postgresql+psycopg2://' + 'postgres' + ':' + 'Kathy83305136' + '@139.224.61.6' + ':'+'5432'+'/'+'postgres')
 
-    # print('settings.PG_DBNAME',settings.PG_DBNAME)
-    to_sql_connect_conn = to_sql_connect.connect()
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+    # # print('settings.PG_DBNAME',settings.PG_DBNAME)
+    # to_sql_connect_conn = to_sql_connect.connect()
+    # #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
 
-    #订单统计
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_order_calculate"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeiordercalculate_id_seq" RESTART WITH 1')
-    #订单明细(上传的)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_order_detail"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeiorderdetail_id_seq" RESTART WITH 1')
-    #直送入库和康意路出入库明细(上传的)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_in_out_detail"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeiinoutdetail_id_seq" RESTART WITH 1')
-    #康意路库存
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_kyl_stock"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeikylstock_id_seq" RESTART WITH 1')
-    #康意路库存(带批次)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_kyl_stock_batch"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeikylstockbatch_id_seq" RESTART WITH 1')
-    #医院端的库存和领用汇总
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_hospital_in_out"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeihospitalinout_id_seq" RESTART WITH 1')
-    #医院端的库存和领用汇总(带批次)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_hospital_in_out_batch"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeihospitalinoutbatch_id_seq" RESTART WITH 1')
-    #领用明细(上传的)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_comsumption_detail"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeiconsumptiondetail_id_seq" RESTART WITH 1')
+    # #订单统计
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_order_calculate"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeiordercalculate_id_seq" RESTART WITH 1')
+    # #订单明细(上传的)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_order_detail"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeiorderdetail_id_seq" RESTART WITH 1')
+    # #直送入库和康意路出入库明细(上传的)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_in_out_detail"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeiinoutdetail_id_seq" RESTART WITH 1')
+    # #康意路库存
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_kyl_stock"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeikylstock_id_seq" RESTART WITH 1')
+    # #康意路库存(带批次)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_kyl_stock_batch"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeikylstockbatch_id_seq" RESTART WITH 1')
+    # #医院端的库存和领用汇总
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_hospital_in_out"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeihospitalinout_id_seq" RESTART WITH 1')
+    # #医院端的库存和领用汇总(带批次)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_hospital_in_out_batch"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeihospitalinoutbatch_id_seq" RESTART WITH 1')
+    # #领用明细(上传的)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYIBEI_comsumption_detail"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyibeiconsumptiondetail_id_seq" RESTART WITH 1')
 
-    try:
-        order_all_to_sql_df.to_sql("SHIYIBEI_order_calculate", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        order_to_sql_df.to_sql("SHIYIBEI_order_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        in_out_to_sql_df.to_sql("SHIYIBEI_in_out_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        str_kyl_to_sql_df.to_sql("SHIYIBEI_kyl_stock", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        product_batch_kyl_to_sql_df.to_sql("SHIYIBEI_kyl_stock_batch", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        product_in_consumption_to_sql_df.to_sql("SHIYIBEI_hospital_in_out", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        product_batch_in_consumption_to_sql_df.to_sql("SHIYIBEI_hospital_in_out_batch", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        consumption_to_sql_df.to_sql("SHIYIBEI_comsumption_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        print('已上传')
+    # try:
+    #     order_all_to_sql_df.to_sql("SHIYIBEI_order_calculate", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     order_to_sql_df.to_sql("SHIYIBEI_order_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     in_out_to_sql_df.to_sql("SHIYIBEI_in_out_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     str_kyl_to_sql_df.to_sql("SHIYIBEI_kyl_stock", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     product_batch_kyl_to_sql_df.to_sql("SHIYIBEI_kyl_stock_batch", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     product_in_consumption_to_sql_df.to_sql("SHIYIBEI_hospital_in_out", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     product_batch_in_consumption_to_sql_df.to_sql("SHIYIBEI_hospital_in_out_batch", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     consumption_to_sql_df.to_sql("SHIYIBEI_comsumption_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     print('已上传')
 
-    except Exception as e:
-        print('错误：{}'.format(e))
+    # except Exception as e:
+    #     print('错误：{}'.format(e))
 
-    to_sql_connect.dispose()
-    to_sql_connect_conn.close()
-    print('所有表格成功上传数据库，关闭链接')
+    # to_sql_connect.dispose()
+    # to_sql_connect_conn.close()
+    # print('所有表格成功上传数据库，关闭链接')
     return 'success'
 
 

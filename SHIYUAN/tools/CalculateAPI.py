@@ -301,101 +301,102 @@ def SHIYUAN(rawdata,filename):
     print('excel保存成功')
     
 
-    #保存数据存入数据库
-    #订单统计
-    order_all_to_sql_df=order_all_df
-    order_all_to_sql_df.rename(columns={'订单日期':'orderdate','使用科室':'department','订单编号':'ordercode','货号':'itemcode','物料编码':'productcode','智检编码':'zhijiancode','名称':'productname','规格':'spec','品牌':'brand','单位':'unit','供应商':'supplier','进价':'purchaseprice','销价':'sellprice','备注':'comment','订单总数量':'ttlquantity','康意路入库总数量':'kylquantity','康意路数量明细':'kylqtydetail','康意路入库日期明细':'kyldatedetail','直送入库总数量':'directquantity','直送数量明细':'directqtydetail','直送日期明细':'directdatedetail','合计入库':'ttlinqty','欠货数量':'quantityowed'},inplace=True)
-    #订单明细(上传的)
-    order_to_sql_df=order_df
-    order_to_sql_df.rename(columns={'订单日期':'orderdate','使用科室':'department','订单编号':'ordercode','货号':'itemcode','物料编码':'productcode','智检编码':'zhijiancode','名称':'productname','规格':'spec','品牌':'brand','单位':'unit','供应商':'supplier','进价':'purchaseprice','销价':'sellprice','数量':'quantity','备注':'comment'},inplace=True)
-    #直送入库和康意路出入库明细(上传的)
-    in_out_to_sql_df=in_out_df
-    in_out_to_sql_df.rename(columns={'订货抬头':'ordertitle','入库日期':'indate','订单号':'ordercode','科室':'department','商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','采购单价':'purchaseprice','税价总金额':'sum','数量':'quantity','批号':'batchcode','有效期至':'expiredate','备注':'comment','备注2':'comment2'},inplace=True)
+#     #保存数据存入数据库
+#     #订单统计
+#     order_all_to_sql_df=order_all_df
+#     order_all_to_sql_df.rename(columns={'订单日期':'orderdate','使用科室':'department','订单编号':'ordercode','货号':'itemcode','物料编码':'productcode','智检编码':'zhijiancode','名称':'productname','规格':'spec','品牌':'brand','单位':'unit','供应商':'supplier','进价':'purchaseprice','销价':'sellprice','备注':'comment','订单总数量':'ttlquantity','康意路入库总数量':'kylquantity','康意路数量明细':'kylqtydetail','康意路入库日期明细':'kyldatedetail','直送入库总数量':'directquantity','直送数量明细':'directqtydetail','直送日期明细':'directdatedetail','合计入库':'ttlinqty','欠货数量':'quantityowed'},inplace=True)
+#     #订单明细(上传的)
+#     order_to_sql_df=order_df
+#     order_to_sql_df.rename(columns={'订单日期':'orderdate','使用科室':'department','订单编号':'ordercode','货号':'itemcode','物料编码':'productcode','智检编码':'zhijiancode','名称':'productname','规格':'spec','品牌':'brand','单位':'unit','供应商':'supplier','进价':'purchaseprice','销价':'sellprice','数量':'quantity','备注':'comment'},inplace=True)
+#     #直送入库和康意路出入库明细(上传的)
+#     in_out_to_sql_df=in_out_df
+#     in_out_to_sql_df.rename(columns={'订货抬头':'ordertitle','入库日期':'indate','订单号':'ordercode','科室':'department','商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','采购单价':'purchaseprice','税价总金额':'sum','数量':'quantity','批号':'batchcode','有效期至':'expiredate','备注':'comment','备注2':'comment2'},inplace=True)
     
-    ##########################
-    #康意路库存
-    str_kyl_to_sql_df=str_kyl_df
-    # str_kyl_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','入库总数量':'inquantity','入库数量明细':'inqtydetail','入库日期明细':'indatedetail','入库批号明细':'inbatchdetail','出库总数量':'outquantity','出库数量明细':'outqtydetail','出库日期明细':'outdatedetail','出库批号明细':'outbatchdetail','剩余库存':'leftqty'},inplace=True)
-    str_kyl_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','入库总数量':'inquantity','出库总数量':'outquantity','剩余库存':'leftqty'},inplace=True)
-   ############################
+#     ##########################
+#     #康意路库存
+#     str_kyl_to_sql_df=str_kyl_df
+#     # str_kyl_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','入库总数量':'inquantity','入库数量明细':'inqtydetail','入库日期明细':'indatedetail','入库批号明细':'inbatchdetail','出库总数量':'outquantity','出库数量明细':'outqtydetail','出库日期明细':'outdatedetail','出库批号明细':'outbatchdetail','剩余库存':'leftqty'},inplace=True)
+#     str_kyl_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','入库总数量':'inquantity','出库总数量':'outquantity','剩余库存':'leftqty'},inplace=True)
+#    ############################
 
 
-    #康意路库存(带批次)
-    product_batch_kyl_to_sql_df=product_batch_kyl_df
-    product_batch_kyl_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','入库数量':'inquantity','出库数量':'outquantity','剩余库存':'leftqty'},inplace=True)
+#     #康意路库存(带批次)
+#     product_batch_kyl_to_sql_df=product_batch_kyl_df
+#     product_batch_kyl_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','入库数量':'inquantity','出库数量':'outquantity','剩余库存':'leftqty'},inplace=True)
     
     
-    ################################
-    #医院端的库存和领用汇总
-    product_in_consumption_to_sql_df=product_in_consumption_df
-    # product_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','直送入库总数量':'directinqty','直送数量明细':'directinqtydetail','直送日期明细':'directindatedetail','直送订单号明细':'directinorderdetail','直送批号明细':'directinbatchdetail','直送效期明细':'directinexpdetail','康意路来货总数量':'kylqty','康意路来货数量明细':'kylqtydetail','康意路来货日期明细':'kyldatedetail','康意路来货订单号明细':'kylorderdetail','康意路来货批号明细':'kylbatchdetail','康意路来货效期明细':'kylexpdetail','总库存':'ttlqty','领用数量':'takeoutqty','领用数量明细':'takeoutqtydetail','领用批号明细':'takeoutbatchdetail','剩余库存':'leftqty'},inplace=True)
-    product_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','直送入库总数量':'directinqty','康意路来货总数量':'kylqty','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
+#     ################################
+#     #医院端的库存和领用汇总
+#     product_in_consumption_to_sql_df=product_in_consumption_df
+#     # product_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','直送入库总数量':'directinqty','直送数量明细':'directinqtydetail','直送日期明细':'directindatedetail','直送订单号明细':'directinorderdetail','直送批号明细':'directinbatchdetail','直送效期明细':'directinexpdetail','康意路来货总数量':'kylqty','康意路来货数量明细':'kylqtydetail','康意路来货日期明细':'kyldatedetail','康意路来货订单号明细':'kylorderdetail','康意路来货批号明细':'kylbatchdetail','康意路来货效期明细':'kylexpdetail','总库存':'ttlqty','领用数量':'takeoutqty','领用数量明细':'takeoutqtydetail','领用批号明细':'takeoutbatchdetail','剩余库存':'leftqty'},inplace=True)
+#     product_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','直送入库总数量':'directinqty','康意路来货总数量':'kylqty','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
 
     
-    #医院端的库存和领用汇总(带批次)
-    product_batch_in_consumption_to_sql_df=product_batch_in_consumption_df
-    # product_batch_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','有效期至':'expiredate','直送入库总数量':'directinqty','直送数量明细':'directinqtydetail','直送日期明细':'directindatedetail','直送订单号明细':'directinorderdetail','康意路来货总数量':'kylqty','康意路来货数量明细':'kylqtydetail','康意路来货日期明细':'kyldatedetail','康意路来货订单号明细':'kylorderdetail','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
-    product_batch_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','有效期至':'expiredate','直送入库总数量':'directinqty','康意路来货总数量':'kylqty','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
-    ################################
+#     #医院端的库存和领用汇总(带批次)
+#     product_batch_in_consumption_to_sql_df=product_batch_in_consumption_df
+#     # product_batch_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','有效期至':'expiredate','直送入库总数量':'directinqty','直送数量明细':'directinqtydetail','直送日期明细':'directindatedetail','直送订单号明细':'directinorderdetail','康意路来货总数量':'kylqty','康意路来货数量明细':'kylqtydetail','康意路来货日期明细':'kyldatedetail','康意路来货订单号明细':'kylorderdetail','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
+#     product_batch_in_consumption_to_sql_df.rename(columns={'商品编码':'productcode','批号':'batchcode','商品名称':'productname','规格':'spec','单位':'unit','品牌':'brand','供应商':'supplier','科室':'department','有效期至':'expiredate','直送入库总数量':'directinqty','康意路来货总数量':'kylqty','总库存':'ttlqty','领用数量':'takeoutqty','剩余库存':'leftqty'},inplace=True)
+#     ################################
 
 
-    #领用明细(上传的)
-    consumption_to_sql_df=consumption_df
-    consumption_to_sql_df.rename(columns={'日期':'date','科室':'department','编码':'productcode','产品名称':'productname','规格':'spec','单位':'unit','厂商':'brand','批号':'batchcode','有效期':'expiredate','数量':'quantity','是否签回':'signback','送货人':'deliverperson'}, inplace=True)
+#     #领用明细(上传的)
+#     consumption_to_sql_df=consumption_df
+#     consumption_to_sql_df.rename(columns={'日期':'date','科室':'department','编码':'productcode','产品名称':'productname','规格':'spec','单位':'unit','厂商':'brand','批号':'batchcode','有效期':'expiredate','数量':'quantity','是否签回':'signback','送货人':'deliverperson'}, inplace=True)
  
 
 
 
-    #【【【【【【【【【【【【链接数据库！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-    to_sql_connect = create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
-    # to_sql_connect = create_engine('postgresql+psycopg2://' + 'postgres' + ':' + 'Kathy83305136' + '@139.224.61.6' + ':'+'5432'+'/'+'postgres')
+    # #【【【【【【【【【【【【链接数据库！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+    # to_sql_connect = create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
+    # # to_sql_connect = create_engine('postgresql+psycopg2://' + 'postgres' + ':' + 'Kathy83305136' + '@139.224.61.6' + ':'+'5432'+'/'+'postgres')
+    # print('to_sql_connect??:::',to_sql_connect)
 
-    # print('settings.PG_DBNAME',settings.PG_DBNAME)
-    to_sql_connect_conn = to_sql_connect.connect()
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+    # # print('settings.PG_DBNAME',settings.PG_DBNAME)
+    # to_sql_connect_conn = to_sql_connect.connect()
+    # #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
 
-    #订单统计
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_order_calculate"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanordercalculate_id_seq" RESTART WITH 1')
-    #订单明细(上传的)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_order_detail"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanorderdetail_id_seq" RESTART WITH 1')
-    #直送入库和康意路出入库明细(上传的)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_in_out_detail"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuaninoutdetail_id_seq" RESTART WITH 1')
-    #康意路库存
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_kyl_stock"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuankylstock_id_seq" RESTART WITH 1')
-    #康意路库存(带批次)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_kyl_stock_batch"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuankylstockbatch_id_seq" RESTART WITH 1')
-    #医院端的库存和领用汇总
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_hospital_in_out"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanhospitalinout_id_seq" RESTART WITH 1')
-    #医院端的库存和领用汇总(带批次)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_hospital_in_out_batch"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanhospitalinoutbatch_id_seq" RESTART WITH 1')
-    #领用明细(上传的)
-    to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_comsumption_detail"')   
-    to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanconsumptiondetail_id_seq" RESTART WITH 1')
+    # #订单统计
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_order_calculate"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanordercalculate_id_seq" RESTART WITH 1')
+    # #订单明细(上传的)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_order_detail"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanorderdetail_id_seq" RESTART WITH 1')
+    # #直送入库和康意路出入库明细(上传的)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_in_out_detail"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuaninoutdetail_id_seq" RESTART WITH 1')
+    # #康意路库存
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_kyl_stock"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuankylstock_id_seq" RESTART WITH 1')
+    # #康意路库存(带批次)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_kyl_stock_batch"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuankylstockbatch_id_seq" RESTART WITH 1')
+    # #医院端的库存和领用汇总
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_hospital_in_out"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanhospitalinout_id_seq" RESTART WITH 1')
+    # #医院端的库存和领用汇总(带批次)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_hospital_in_out_batch"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanhospitalinoutbatch_id_seq" RESTART WITH 1')
+    # #领用明细(上传的)
+    # to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLYCHAIN"."SHIYUAN_comsumption_detail"')   
+    # to_sql_connect_conn.execute('ALTER SEQUENCE "SUPPLYCHAIN"."shiyuanconsumptiondetail_id_seq" RESTART WITH 1')
 
-    try:
-        order_all_to_sql_df.to_sql("SHIYUAN_order_calculate", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        order_to_sql_df.to_sql("SHIYUAN_order_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        in_out_to_sql_df.to_sql("SHIYUAN_in_out_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        str_kyl_to_sql_df.to_sql("SHIYUAN_kyl_stock", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        product_batch_kyl_to_sql_df.to_sql("SHIYUAN_kyl_stock_batch", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        product_in_consumption_to_sql_df.to_sql("SHIYUAN_hospital_in_out", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        product_batch_in_consumption_to_sql_df.to_sql("SHIYUAN_hospital_in_out_batch", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        consumption_to_sql_df.to_sql("SHIYUAN_comsumption_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
-        print('已上传')
+    # try:
+    #     order_all_to_sql_df.to_sql("SHIYUAN_order_calculate", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     order_to_sql_df.to_sql("SHIYUAN_order_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     in_out_to_sql_df.to_sql("SHIYUAN_in_out_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     str_kyl_to_sql_df.to_sql("SHIYUAN_kyl_stock", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     product_batch_kyl_to_sql_df.to_sql("SHIYUAN_kyl_stock_batch", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     product_in_consumption_to_sql_df.to_sql("SHIYUAN_hospital_in_out", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     product_batch_in_consumption_to_sql_df.to_sql("SHIYUAN_hospital_in_out_batch", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     consumption_to_sql_df.to_sql("SHIYUAN_comsumption_detail", con=to_sql_connect, schema='SUPPLYCHAIN', if_exists='append', index=False)
+    #     print('已上传数据库')
 
-    except Exception as e:
-        print('错误：{}'.format(e))
+    # except Exception as e:
+    #     print('数据库上传错误：：：{}'.format(e))
 
-    to_sql_connect.dispose()
-    to_sql_connect_conn.close()
-    print('所有表格成功上传数据库，关闭链接')
+    # to_sql_connect.dispose()
+    # to_sql_connect_conn.close()
+    # print('所有表格成功上传数据库，关闭链接')
     return 'success'
 
 
