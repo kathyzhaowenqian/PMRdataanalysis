@@ -141,33 +141,44 @@ from django.conf import settings
 #     return result_list
 
 
-def SHIYUAN(rawdata,filename):
-    # order_df = pd.read_excel(rawdata, sheet_name = '订单', dtype={'订单编号':str,'物料编码': str,'智检编码': str,'单位': str,'供应商': str,'备注': str}) #要保证订单编号和物料编码联合只出现一次
-    # order_df['数量'] = order_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
-    # in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细', dtype={'订单号':str,'商品编码': str,'批号': str,'单位': str,'供应商': str,'备注': str}) 
-    # in_out_df['数量'] = in_out_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
-    # consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细', dtype={'编码':str,'批号': str}) 
-    # consumption_df['数量'] = consumption_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+# def SHIYUAN(rawdata,filename):
+#     # order_df = pd.read_excel(rawdata, sheet_name = '订单', dtype={'订单编号':str,'物料编码': str,'智检编码': str,'单位': str,'供应商': str,'备注': str}) #要保证订单编号和物料编码联合只出现一次
+#     # order_df['数量'] = order_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+#     # in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细', dtype={'订单号':str,'商品编码': str,'批号': str,'单位': str,'供应商': str,'备注': str}) 
+#     # in_out_df['数量'] = in_out_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+#     # consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细', dtype={'编码':str,'批号': str}) 
+#     # consumption_df['数量'] = consumption_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
 
-    order_df = pd.read_excel(rawdata, sheet_name = '订单') #要保证订单编号和物料编码联合只出现一次
+def SHIYUAN(rawdata,filename):
+
+    order_df = pd.read_excel(rawdata, sheet_name = '订单').dropna(subset=['订单编号']) #要保证订单编号和物料编码联合只出现一次
+    # 过滤 A 列非空的行
+    # order_df = order_df[order_df['订单编号'].notna()]
     order_df['订单编号'] = order_df['订单编号'].astype(str)
     order_df['物料编码'] = order_df['物料编码'].astype(str)
-    order_df['数量'] = order_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+    # order_df['数量'] = order_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+    order_df['数量'] = order_df['数量'].astype(str).str.replace(',', '', regex=False).astype(float)
     order_df=order_df[["订单日期","使用科室","订单编号","货号","物料编码","智检编码","名称","规格","品牌","单位","供应商","进价","销价","数量","备注"]]
+    print('订单读取完毕')
 
-    in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细') 
+    in_out_df = pd.read_excel(rawdata, sheet_name = '直送入库和康意路出入库明细').dropna(subset=['订单号']) 
+    # in_out_df = in_out_df[in_out_df['订单号'].notna()]
     in_out_df['订单号'] = in_out_df['订单号'].astype(str)
     in_out_df['商品编码'] = in_out_df['商品编码'].astype(str)
     in_out_df['批号'] = in_out_df['批号'].astype(str)
-    in_out_df['数量'] = in_out_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+    # in_out_df['数量'] = in_out_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+    in_out_df['数量'] = in_out_df['数量'].astype(str).str.replace(',', '', regex=False).astype(float)
     in_out_df=in_out_df[["订货抬头", "入库日期", "订单号", "科室", "商品编码", "商品名称", "规格", "单位", "品牌", "供应商", "采购单价", "税价总金额", "数量", "批号", "有效期至", "备注", "备注2"]]
+    print('出入库读取完毕')
 
-    consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细') 
+    consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细').dropna(subset=['编码']) 
+    # consumption_df = consumption_df[consumption_df['编码'].notna()]
     consumption_df['编码'] = consumption_df['编码'].astype(str)
     consumption_df['批号'] = consumption_df['批号'].astype(str)
-    consumption_df['数量'] = consumption_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+    # consumption_df['数量'] = consumption_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
+    consumption_df['数量'] = consumption_df['数量'].astype(str).str.replace(',', '', regex=False).astype(float)
     consumption_df=consumption_df[["日期", "科室", "编码", "产品名称", "规格", "单位", "厂商", "批号", "有效期", "数量", "是否签回", "送货人"]]
- 
+    print('领用读取完毕')
 
     #订单统计
     order_groupby_df=order_df.groupby(['订单编号','物料编码'])['数量'].sum().reset_index()
@@ -175,6 +186,7 @@ def SHIYUAN(rawdata,filename):
     order_unique_df =order_unique_df.drop_duplicates(subset=['订单编号','物料编码'], keep='first')
     order_merge_df = pd.merge(order_unique_df,order_groupby_df, on=['订单编号','物料编码'], how='left')
     order_merge_df.rename(columns={ '数量':'订单总数量'},inplace=True)
+
     kyl_in_out_df=in_out_df[in_out_df['备注']=='康意路入库']
     unique_kyl_in_out_df=kyl_in_out_df.groupby(['订单号','商品编码'])['数量'].sum().reset_index()
     unique_kyl_in_out_df.rename(columns={ '数量':'康意路入库总数量'},inplace=True)
@@ -195,6 +207,11 @@ def SHIYUAN(rawdata,filename):
     order_all_df['直送入库总数量']=order_all_df['直送入库总数量'].fillna(0)
     order_all_df['合计入库']=order_all_df['康意路入库总数量']+order_all_df['直送入库总数量']
     order_all_df['欠货数量']=order_all_df['订单总数量']-order_all_df['合计入库']
+
+    order_all_df['康意路入库日期明细'] = order_all_df['康意路入库日期明细'].str.replace(r' (\d{2}:\d{2}:\d{2})', '', regex=True)
+    order_all_df['直送日期明细'] = order_all_df['直送日期明细'].str.replace(r' (\d{2}:\d{2}:\d{2})', '', regex=True)
+    print('订单统计完毕')
+
     #康意路库存明细带批号
     product_batch_kyl_in_df=kyl_in_out_df.groupby(['商品编码','批号'])['数量'].sum().reset_index()
     product_batch_kyl_out_df=in_out_df[in_out_df['备注']=='康意路出库'].groupby(['商品编码','批号'])['数量'].sum().reset_index()
@@ -206,6 +223,9 @@ def SHIYUAN(rawdata,filename):
     cut_kyl_in_out_df=kyl_in_out_df[['商品编码','批号','商品名称']]
     product_batch_kyl_df = pd.merge(product_batch_kyl_in_out_df,cut_kyl_in_out_df.drop_duplicates(subset=['商品编码','批号'], keep='first'), on=['商品编码','批号'], how='left')
     product_batch_kyl_df=product_batch_kyl_df[['商品编码','批号','商品名称','入库数量','出库数量','剩余库存']]
+    print('康意路库存明细带批号 统计完毕')
+
+    
     #康意路库存明细
     product_kyl_in_df=kyl_in_out_df.groupby('商品编码')['数量'].sum().reset_index()
     product_kyl_out_df=in_out_df[in_out_df['备注']=='康意路出库'].groupby('商品编码')['数量'].sum().reset_index()
@@ -224,6 +244,8 @@ def SHIYUAN(rawdata,filename):
     cut_kyl_in_out_df2=kyl_in_out_df[['商品编码','商品名称']]
     str_kyl_df = pd.merge(str_kyl_df,cut_kyl_in_out_df2.drop_duplicates(subset='商品编码', keep='first'), on='商品编码', how='left')
     str_kyl_df=str_kyl_df[['商品编码','商品名称','入库总数量','入库数量明细','入库日期明细','入库批号明细','出库总数量','出库数量明细','出库日期明细','出库批号明细','剩余库存']]
+    print('康意路库存明细 统计完毕')
+
 
     #医院端的库存和领用汇总(带批次)
     total_in_df=in_out_df[in_out_df['备注']!='康意路出库']
@@ -249,6 +271,8 @@ def SHIYUAN(rawdata,filename):
     product_batch_in_consumption_df=pd.merge(product_batch_total_df,product_batch_consumption_df,  how="left",  left_on=['商品编码','批号'],right_on=['商品编码','批号'])
     product_batch_in_consumption_df['领用数量']=product_batch_in_consumption_df['领用数量'].fillna(0)
     product_batch_in_consumption_df['剩余库存']=product_batch_in_consumption_df['总库存']-product_batch_in_consumption_df['领用数量']
+    print('医院端的库存和领用汇总(带批次) 统计完毕')
+
 
     #医院端的库存和领用汇总
     sumup_total_in_df2=total_in_df[['商品编码','商品名称','规格','单位','品牌','供应商','科室']]
@@ -276,6 +300,8 @@ def SHIYUAN(rawdata,filename):
     product_in_consumption_df=pd.merge(product_zs_combine1_df,product_consumption_all_df,  how="left",  left_on=['商品编码'],right_on=['商品编码'])
     product_in_consumption_df['领用数量']=product_in_consumption_df['领用数量'].fillna(0)
     product_in_consumption_df['剩余库存']=product_in_consumption_df['总库存']-product_in_consumption_df['领用数量']
+    print('医院端的库存和领用汇总 统计完毕')
+    
     #合并
     # return result_list
     #####################商品编码	商品名称	规格	单位	品牌	供应商	科室	直送入库总数量	直送数量明细	直送日期明细	直送订单号明细	直送批号明细	直送效期明细	康意路来货总数量	康意路来货数量明细	康意路来货日期明细	康意路来货订单号明细	康意路来货批号明细	康意路来货效期明细	总库存	领用数量	领用数量明细	领用批号明细	剩余库存
@@ -285,21 +311,31 @@ def SHIYUAN(rawdata,filename):
     product_batch_in_consumption_df =  product_batch_in_consumption_df[['商品编码','批号','商品名称','规格','单位','品牌','供应商','科室','有效期至','直送入库总数量','康意路来货总数量','总库存','领用数量','剩余库存']]
 
     str_kyl_df=str_kyl_df[['商品编码','商品名称','入库总数量','出库总数量','剩余库存']]
-    #######################     
+    #######################  
+
+   
     # 
     # 
     #                
    #保存excel
     result_list = [order_all_df,order_df,in_out_df,str_kyl_df,product_batch_kyl_df,product_in_consumption_df,product_batch_in_consumption_df,consumption_df]
     sheet_name_list = ['订单统计','订单明细(上传的)','直送入库和康意路出入库明细(上传的)','康意路库存','康意路库存(带批次)','医院端的库存和领用汇总','医院端的库存和领用汇总(带批次)','领用明细(上传的)']
-    writer = pd.ExcelWriter(filename)
-    for i in range(len(result_list)):
-        result_list[i]=result_list[i].style.set_properties(**{'text-align': 'center'}) ## 使excel表格中的数据居中对齐
-        result_list[i].to_excel(writer, sheet_name=sheet_name_list[i],index=False)
-        worksheet = writer.sheets[sheet_name_list[i]]
-    writer.close()
-    print('excel保存成功')
+#     writer = pd.ExcelWriter(filename)
+#     for i in range(len(result_list)):
+#         result_list[i]=result_list[i].style.set_properties(**{'text-align': 'center'}) ## 使excel表格中的数据居中对齐
+#         result_list[i].to_excel(writer, sheet_name=sheet_name_list[i],index=False)
+#         worksheet = writer.sheets[sheet_name_list[i]]
+#     writer.close()
+#     print('excel保存成功')
     
+
+    with pd.ExcelWriter(filename ,engine='openpyxl') as writer:
+        for df, sheet_name in zip(result_list, sheet_name_list):
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
+    print('excel保存成功')
+
+
+    # 下面暂时关闭！！！！！！！！
 
 #     #保存数据存入数据库
 #     #订单统计
@@ -399,14 +435,13 @@ def SHIYUAN(rawdata,filename):
     # print('所有表格成功上传数据库，关闭链接')
     return 'success'
 
-
-
-
+ 
+     
 
 if __name__=='__main__':
     rawdata = 'C:\\Users\\赵文茜\\Desktop\\testshiyuan.xlsx'  
     filename= 'C:\\Users\\赵文茜\\Desktop\\testshiyuan_result.xlsx'  
     SHIYUAN(rawdata,filename)
-    print('原始数据已上传')
+    print('测试结束 - 原始数据已上传')
 
   
