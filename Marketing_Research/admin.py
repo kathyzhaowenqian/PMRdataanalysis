@@ -766,6 +766,7 @@ class PMRResearchListAdmin(GlobalAdmin):
                             Sum('salestarget__q2actualsales', filter=Q(salestarget__year='2023')) +
                             Sum('salestarget__q3actualsales', filter=Q(salestarget__year='2023')) +
                             Sum('salestarget__q4actualsales', filter=Q(salestarget__year='2023')),
+                            
                 actualsales_24_q1=Sum('salestarget__q1actualsales', filter=Q(salestarget__year='2024',is_active=True)),
                 actualsales_24_q2=Sum('salestarget__q2actualsales', filter=Q(salestarget__year='2024',is_active=True)),
                 actualsales_24_q3=Sum('salestarget__q3actualsales', filter=Q(salestarget__year='2024',is_active=True)),
@@ -1317,6 +1318,61 @@ class PMRResearchListAdmin(GlobalAdmin):
                 color_code,ret)
     salestarget_24_q4.admin_order_field = '-salestarget__q4target'
 
+    # 2025
+    @admin.display(description='25/Q1目标')
+    def salestarget_25_q1(self, obj):
+        if obj.salestarget_set.filter(year='2025',is_active=True)[0].q1target == 0:
+            color_code='black'
+            ret='--'
+        else:
+            color_code='green'
+            ret=obj.salestarget_set.filter(year='2025',is_active=True)[0].q1target
+        return format_html(
+                '<span style="color:{};">{}</span>',
+                color_code,ret)
+    salestarget_25_q1.admin_order_field = '-salestarget__q1target'
+
+    @admin.display(description='25/Q2目标')
+    def salestarget_25_q2(self, obj):
+        if obj.salestarget_set.filter(year='2025',is_active=True)[0].q2target == 0:
+            color_code='black'
+            ret='--'
+        else:
+            color_code='green'
+            ret=obj.salestarget_set.filter(year='2025',is_active=True)[0].q2target
+        return format_html(
+                '<span style="color:{};">{}</span>',
+                color_code,ret)
+    salestarget_25_q2.admin_order_field = '-salestarget__q2target'
+
+    @admin.display(description='25/Q3目标')
+    def salestarget_25_q3(self, obj):
+        if obj.salestarget_set.filter(year='2025',is_active=True)[0].q3target == 0:
+            color_code='black'
+            ret='--'
+        else:
+            color_code='green'
+            ret=obj.salestarget_set.filter(year='2025',is_active=True)[0].q3target
+        return format_html(
+                '<span style="color:{};">{}</span>',
+                color_code,ret)
+    salestarget_25_q3.admin_order_field = '-salestarget__q3target'
+
+
+    @admin.display(description='25/Q4目标')
+    def salestarget_25_q4(self, obj):
+        if obj.salestarget_set.filter(year='2025',is_active=True)[0].q4target == 0:
+            color_code='black'
+            ret='--'
+        else:
+            color_code='green'
+            ret=obj.salestarget_set.filter(year='2025',is_active=True)[0].q4target
+        return format_html(
+                '<span style="color:{};">{}</span>',
+                color_code,ret)
+    salestarget_25_q4.admin_order_field = '-salestarget__q4target'
+
+
 #目标完成月
     @admin.display(description='23/Q1目标月')
     def completemonth_23_q1(self, obj):
@@ -1362,6 +1418,31 @@ class PMRResearchListAdmin(GlobalAdmin):
         return obj.salestarget_set.filter(year='2024',is_active=True)[0].q4completemonth
     completemonth_24_q4.admin_order_field = 'salestarget__q4completemonth'
 
+
+    # 2025
+    @admin.display(description='25/Q1目标月')
+    def completemonth_25_q1(self, obj):
+        return obj.salestarget_set.filter(year='2025',is_active=True)[0].q1completemonth
+    completemonth_25_q1.admin_order_field = 'salestarget__q1completemonth'
+
+    @admin.display(description='25/Q2目标月')
+    def completemonth_25_q2(self, obj):
+        return obj.salestarget_set.filter(year='2025',is_active=True)[0].q2completemonth
+    completemonth_25_q2.admin_order_field = 'salestarget__q2completemonth'
+
+
+    @admin.display(description='25/Q3目标月')
+    def completemonth_25_q3(self, obj):
+        return obj.salestarget_set.filter(year='2025',is_active=True)[0].q3completemonth
+    completemonth_25_q3.admin_order_field = 'salestarget__q3completemonth'
+
+
+    @admin.display(description='25/Q4目标月')
+    def completemonth_25_q4(self, obj):
+        return obj.salestarget_set.filter(year='2025',is_active=True)[0].q4completemonth
+    completemonth_25_q4.admin_order_field = 'salestarget__q4completemonth'
+
+
 #23年全年实际完成额
     @admin.display(description='23年开票额')
     def actualsales_2023(self, obj):
@@ -1391,6 +1472,7 @@ class PMRResearchListAdmin(GlobalAdmin):
         return '{:,.0f}'.format(obj.salestarget_set.filter(year='2023',is_active=True)[0].q4actualsales)
     actualsales_23_q4.admin_order_field = '-salestarget__q4actualsales'
     
+    # 2024
     @admin.display(description='24/Q1实际')
     def actualsales_24_q1(self, obj):
         return '{:,.0f}'.format(obj.salestarget_set.filter(year='2024',is_active=True)[0].q1actualsales)
@@ -1413,6 +1495,30 @@ class PMRResearchListAdmin(GlobalAdmin):
     def actualsales_24_q4(self, obj):
         return '{:,.0f}'.format(obj.salestarget_set.filter(year='2024',is_active=True)[0].q4actualsales)
     actualsales_24_q4.admin_order_field = '-actualsales_24_q4'
+
+    # 2025
+    @admin.display(description='25/Q1实际')
+    def actualsales_25_q1(self, obj):
+        return '{:,.0f}'.format(obj.salestarget_set.filter(year='2025',is_active=True)[0].q1actualsales)
+    actualsales_25_q1.admin_order_field = '-actualsales_25_q1'
+
+
+    @admin.display(description='25/Q2实际')
+    def actualsales_25_q2(self, obj):
+        return '{:,.0f}'.format(obj.salestarget_set.filter(year='2025',is_active=True)[0].q2actualsales)
+    actualsales_25_q2.admin_order_field = '-actualsales_25_q2'
+
+
+    @admin.display(description='25/Q3实际')
+    def actualsales_25_q3(self, obj):
+        return '{:,.0f}'.format(obj.salestarget_set.filter(year='2025',is_active=True)[0].q3actualsales)
+    actualsales_25_q3.admin_order_field = '-actualsales_25_q3'
+
+
+    @admin.display(description='25/Q4实际')
+    def actualsales_25_q4(self, obj):
+        return '{:,.0f}'.format(obj.salestarget_set.filter(year='2025',is_active=True)[0].q4actualsales)
+    actualsales_25_q4.admin_order_field = '-actualsales_25_q4'
 
 
 #每季度实际完成率
@@ -1545,6 +1651,72 @@ class PMRResearchListAdmin(GlobalAdmin):
             sales_target.save()
             return '{:.1f}%'.format(finishrate*100)        
     finishrate_24_q4.admin_order_field = '-salestarget__q4finishrate'
+
+    # 2025
+    @admin.display(description='25/Q1完成率')
+    def finishrate_25_q1(self, obj):
+        sales_target = obj.salestarget_set.filter(year='2025',is_active=True)[0]
+        if sales_target.q1target and sales_target.q1target != 0:#如果target不是0
+            finishrate = sales_target.q1actualsales / sales_target.q1target
+            sales_target.q1finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)
+
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q1finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_25_q1.admin_order_field = '-salestarget__q1finishrate'
+
+    @admin.display(description='25/Q2完成率')
+    def finishrate_25_q2(self, obj):
+        sales_target = obj.salestarget_set.filter(year='2025',is_active=True)[0]
+        if sales_target.q2target and sales_target.q2target != 0:#如果target不是0
+            finishrate = sales_target.q2actualsales / sales_target.q2target
+            sales_target.q2finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)
+
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q2finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_25_q2.admin_order_field = '-salestarget__q2finishrate'
+    
+    @admin.display(description='25/Q3完成率')
+    def finishrate_25_q3(self, obj):
+        sales_target = obj.salestarget_set.filter(year='2025',is_active=True)[0]
+        if sales_target.q3target and sales_target.q3target != 0:#如果target不是0
+            finishrate = sales_target.q3actualsales / sales_target.q3target
+            sales_target.q3finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)
+
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q3finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_25_q3.admin_order_field = '-salestarget__q3finishrate'
+    
+    @admin.display(description='25/Q4完成率')
+    def finishrate_25_q4(self, obj):
+        sales_target = obj.salestarget_set.filter(year='2025',is_active=True)[0]
+        if sales_target.q4target and sales_target.q4target != 0:#如果target不是0
+            finishrate = sales_target.q4actualsales / sales_target.q4target
+            sales_target.q4finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)
+
+        else: #如果target是0 但actual不是0 #如果target是0 actual是0
+            finishrate=0
+            sales_target.q4finishrate = finishrate
+            sales_target.save()
+            return '{:.1f}%'.format(finishrate*100)        
+    finishrate_25_q4.admin_order_field = '-salestarget__q4finishrate'
+
 
     #通过display计算的仪器值，不做任何保存！！！
     @admin.display(description='test仪器总数')

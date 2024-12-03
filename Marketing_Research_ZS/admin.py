@@ -1362,6 +1362,182 @@ class GSMRResearchListAdmin(GlobalAdmin):
                 return '--'
     finishrate_24_q4.admin_order_field = '-gsmrsalestarget__q4finishrate'
 
+
+
+
+#############
+
+
+
+    @admin.display(description='25/Q1目标')
+    def salestarget_25_q1(self, obj):
+        if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1target == 0:
+            color_code='black'
+            ret='--'
+        else:
+            color_code='green'
+            ret=obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1target
+        return format_html(
+                '<span style="color:{};">{}</span>',
+                color_code,ret)
+    salestarget_25_q1.admin_order_field = '-gsmrsalestarget__q1target'
+    
+
+
+    @admin.display(description='25/Q2目标')
+    def salestarget_25_q2(self, obj):
+        if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2target == 0:
+            color_code='black'
+            ret='--'
+        else:
+            color_code='green'
+            ret=obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2target
+        return format_html(
+                '<span style="color:{};">{}</span>',
+                color_code,ret)
+    salestarget_25_q2.admin_order_field = '-gsmrsalestarget__q2target'
+        
+    @admin.display(description='25/Q3目标')
+    def salestarget_25_q3(self, obj):
+        if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3target == 0:
+            color_code='black'
+            ret='--'
+        else:
+            color_code='green'
+            ret=obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3target
+        return format_html(
+                '<span style="color:{};">{}</span>',
+                color_code,ret)
+    salestarget_25_q3.admin_order_field = '-gsmrsalestarget__q3target'
+    
+    @admin.display(description='25/Q4目标')
+    def salestarget_25_q4(self, obj):
+        if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4target == 0:
+            color_code='black'
+            ret='--'
+        else:
+            color_code='green'
+            ret=obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4target
+        return format_html(
+                '<span style="color:{};">{}</span>',
+                color_code,ret)
+    salestarget_25_q4.admin_order_field = '-gsmrsalestarget__q4target'
+
+    @admin.display(description='25/Q1目标月')
+    def completemonth_25_q1(self, obj):
+        return obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1completemonth
+    completemonth_25_q1.admin_order_field = 'gsmrsalestarget__q1completemonth'
+
+    @admin.display(description='25/Q2目标月')
+    def completemonth_25_q2(self, obj):
+        return obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2completemonth
+    completemonth_25_q2.admin_order_field = 'gsmrsalestarget__q2completemonth'
+    
+    @admin.display(description='25/Q3目标月')
+    def completemonth_25_q3(self, obj):
+        return obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3completemonth
+    completemonth_25_q3.admin_order_field = 'gsmrsalestarget__q3completemonth'
+
+    @admin.display(description='25/Q4目标月')
+    def completemonth_25_q4(self, obj):
+        return obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4completemonth
+    completemonth_25_q4.admin_order_field = 'gsmrsalestarget__q4completemonth'
+
+
+    @admin.display(description='25/Q1实际')
+    def actualsales_25_q1(self, obj):
+        return obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1actualsales
+    actualsales_25_q1.admin_order_field = '-gsmrsalestarget__q1actualsales'
+
+    @admin.display(description='25/Q2实际')
+    def actualsales_25_q2(self, obj):
+        return obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2actualsales
+    actualsales_25_q2.admin_order_field = '-gsmrsalestarget__q2actualsales'
+
+    @admin.display(description='25/Q3实际')
+    def actualsales_25_q3(self, obj):
+        return obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3actualsales
+    actualsales_25_q3.admin_order_field = '-gsmrsalestarget__q3actualsales'
+
+    @admin.display(description='25/Q4实际')
+    def actualsales_25_q4(self, obj):
+        return obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4actualsales
+    actualsales_25_q4.admin_order_field = '-gsmrsalestarget__q4actualsales'
+
+
+    @admin.display(description='25/Q1完成率')
+    def finishrate_25_q1(self, obj):
+        if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1target and obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1target != 0:
+            finishrate=obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1actualsales/obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1target
+            obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1finishrate=finishrate
+            return '{:.1f}%'.format(finishrate*100)
+
+        else: #如果target是0 但actual不是0
+            if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1actualsales !=0:  
+                finishrate=0
+                obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1finishrate=finishrate
+                return '--'
+            else: #如果target是0 actual是0
+                finishrate=0
+                obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q1finishrate=finishrate
+                return '--'
+    finishrate_25_q1.admin_order_field = '-gsmrsalestarget__q1finishrate'
+
+    @admin.display(description='25/Q2完成率')
+    def finishrate_25_q2(self, obj):
+        if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2target and obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2target != 0:
+            finishrate=obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2actualsales/obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2target
+            obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2finishrate=finishrate
+            return '{:.1f}%'.format(finishrate*100)
+        else: #如果target是0 但actual不是0
+            if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2actualsales !=0:  
+                finishrate=0
+                obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2finishrate=finishrate
+                return '--'
+            else: #如果target是0 actual是0
+                finishrate=0
+                obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q2finishrate=finishrate
+                return '--'
+    finishrate_25_q2.admin_order_field = '-gsmrsalestarget__q2finishrate'
+    
+    @admin.display(description='25/Q3完成率')
+    def finishrate_25_q3(self, obj):
+        if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3target and obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3target != 0:
+            finishrate=obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3actualsales/obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3target
+            obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3finishrate=finishrate
+            return '{:.1f}%'.format(finishrate*100)
+        else: #如果target是0 但actual不是0
+            if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3actualsales !=0:  
+                finishrate=0
+                obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3finishrate=finishrate
+                return '--'
+            else: #如果target是0 actual是0
+                finishrate=0
+                obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q3finishrate=finishrate
+                return '--'
+    finishrate_25_q3.admin_order_field = '-gsmrsalestarget__q3finishrate'
+    
+    @admin.display(description='25/Q4完成率')
+    def finishrate_25_q4(self, obj):
+        if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4target and obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4target != 0:
+            finishrate=obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4actualsales/obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4target
+            obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4finishrate=finishrate
+            return '{:.1f}%'.format(finishrate*100)
+        else: #如果target是0 但actual不是0
+            if obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4actualsales !=0:  
+                finishrate=0
+                obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4finishrate=finishrate
+                return '--'
+            else: #如果target是0 actual是0
+                finishrate=0
+                obj.gsmrsalestarget_set.filter(year='2025',is_active=True)[0].q4finishrate=finishrate
+                return '--'
+    finishrate_25_q4.admin_order_field = '-gsmrsalestarget__q4finishrate'
+
+
+############
+
+
     #通过display计算的仪器值，不做任何保存！！！
     @admin.display(description='test仪器总数')
     def detail_qtysum(self, obj):        
