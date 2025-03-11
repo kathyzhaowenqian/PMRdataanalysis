@@ -168,7 +168,7 @@ def SHIYUAN(rawdata,filename):
     in_out_df['批号'] = in_out_df['批号'].astype(str)
     # in_out_df['数量'] = in_out_df['数量'].apply(lambda x: float(str(x).replace(',', '')))
     in_out_df['数量'] = in_out_df['数量'].astype(str).str.replace(',', '', regex=False).astype(float)
-    in_out_df=in_out_df[["订货抬头", "入库日期", "订单号", "科室", "商品编码", "商品名称", "规格", "单位", "品牌", "供应商", "采购单价", "税价总金额", "数量", "批号", "有效期至", "备注", "备注2"]]
+    in_out_df=in_out_df[["订货抬头", "入库日期", "订单号", "科室", "商品编码", "商品名称", "规格", "单位", "品牌", "供应商", "采购单价", "税价总金额", "数量", "批号","生产日期", "有效期至", "备注", "备注2"]]
     print('出入库读取完毕')
 
     consumption_df = pd.read_excel(rawdata, sheet_name = '领用明细').dropna(subset=['编码']) 
