@@ -763,7 +763,7 @@ class MindrayInstrumentSurvey(models.Model):
         projects = MindrayBloodCellProject.objects.filter(
             instrument_survey=self,
             is_active=True
-        ).select_related('competitionrelation')
+        ).select_related('competitionrelation').order_by('project_type', 'id')  # 添加这个排序
         
         if not projects.exists():
             self.blood_project_types = ""
@@ -825,7 +825,7 @@ class MindrayInstrumentSurvey(models.Model):
         projects = MindrayBloodCellProject.objects.filter(
             instrument_survey=self,
             is_active=True
-        ).select_related('competitionrelation')
+        ).select_related('competitionrelation').order_by('project_type', 'id')  # 添加这个排序
         
         if not projects.exists():
             self.blood_project_details = ""

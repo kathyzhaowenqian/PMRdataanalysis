@@ -117,66 +117,22 @@
     /* 移除 min-width 限制，让其他列自然布局 */
 }
 
-/* 移动端适配 - 取消冻结效果 */
+/* 移动端适配 */
 @media (max-width: 768px) {
-    /* 重置第一列的冻结样式 */
     .change-list .results table th:first-child,
     .change-list .results table td:first-child,
     .change-list .results table th.action-checkbox-column,
     .change-list .results table td.action-checkbox-column {
-        position: static !important; /* 取消sticky定位 */
-        left: auto !important; /* 重置left属性 */
         width: 35px !important;
         min-width: 35px !important;
         max-width: 35px !important;
-        background-color: white !important; /* 重置背景色 */
-        z-index: auto !important; /* 重置z-index */
-        border-right: 1px solid #ddd !important;
-        box-shadow: none !important; /* 移除阴影 */
     }
     
-    /* 重置第二列的冻结样式 */
     .change-list .results table th:nth-child(2),
     .change-list .results table td:nth-child(2) {
-        position: static !important; /* 取消sticky定位 */
-        left: auto !important; /* 重置left属性 */
-        width: auto !important; /* 让宽度自适应 */
-        min-width: auto !important;
-        background-color: white !important; /* 重置背景色 */
-        z-index: auto !important; /* 重置z-index */
-        border-right: 1px solid #ddd !important;
-        box-shadow: none !important; /* 移除阴影 */
-    }
-    
-    /* 移动端表头样式调整 */
-    .change-list .results table thead th:first-child,
-    .change-list .results table thead th.action-checkbox-column,
-    .change-list .results table thead th:nth-child(2) {
-        background-color: #417690 !important;
-        color: white !important;
-        font-weight: bold !important;
-        z-index: auto !important; /* 重置z-index */
-    }
-    
-    /* 取消移动端的hover效果的特殊定位 */
-    .change-list .results table td:nth-child(2):hover {
-        position: static !important;
-        z-index: auto !important;
-        box-shadow: none !important;
-    }
-    
-    /* 移动端行悬停效果调整 */
-    .change-list .results table tbody tr:hover td:first-child,
-    .change-list .results table tbody tr:hover td:nth-child(2),
-    .change-list .results table tbody tr:hover td.action-checkbox-column {
-        background-color: #f5f5f5 !important; /* 统一悬停背景色 */
-    }
-    
-    /* 移动端选中行效果调整 */
-    .change-list .results table tbody tr.selected td:first-child,
-    .change-list .results table tbody tr.selected td.action-checkbox-column,
-    .change-list .results table tbody tr.selected td:nth-child(2) {
-        background-color: #fff3cd !important; /* 统一选中背景色 */
+        left: 35px !important;
+        width: 180px !important; /* 移动端稍小 */
+        min-width: 180px !important;
     }
 }
 
@@ -209,30 +165,11 @@
     font-size: 12px;
 }
 
-/* 移动端不显示tooltip */
-@media (max-width: 768px) {
-    .change-list .results table td:nth-child(2)[title]:hover::after {
-        display: none !important;
-    }
-}
-
 body.change-list #changelist #result_list tbody tr:hover td:first-child,
 body.change-list #changelist #result_list tbody tr:hover th:first-child,
 body.change-list #changelist #result_list tbody tr:hover td.action-checkbox-column,
 body.change-list #changelist #result_list tbody tr:hover th.action-checkbox-column,
 body.change-list #changelist #result_list tbody tr:hover td:nth-child(2),
 body.change-list #changelist #result_list tbody tr:hover th:nth-child(2) {
-    background-color: #e6f2ff !important;
-}
-
-/* 移动端重置最后的悬停效果 */
-@media (max-width: 768px) {
-    body.change-list #changelist #result_list tbody tr:hover td:first-child,
-    body.change-list #changelist #result_list tbody tr:hover th:first-child,
-    body.change-list #changelist #result_list tbody tr:hover td.action-checkbox-column,
-    body.change-list #changelist #result_list tbody tr:hover th.action-checkbox-column,
-    body.change-list #changelist #result_list tbody tr:hover td:nth-child(2),
-    body.change-list #changelist #result_list tbody tr:hover th:nth-child(2) {
-        background-color: #f5f5f5 !important; /* 统一移动端悬停色 */
-    }
+background-color: #e6f2ff !important;
 }
