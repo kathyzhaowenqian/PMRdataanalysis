@@ -18,6 +18,7 @@ from django.urls import path,include
 from django.views.generic.base import RedirectView
 favicon_view = RedirectView.as_view(url='/static/pmr/images/favicon.ico',permanent=True)
 mainsite_view=RedirectView.as_view(url='admin/',permanent=True)
+ 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,11 +39,11 @@ urlpatterns = [
 
     path('SHIYIBEI/',include('SHIYIBEI.urls')),
     path('SHIYINAN/',include('SHIYINAN.urls')),
-
     path('Suppliers/',include('Suppliers.urls')),
-
     path('SALESREPORT/',include('SALESREPORT.urls')),
 
-    
     path('favicon.ico', favicon_view)
 ]
+
+
+ 

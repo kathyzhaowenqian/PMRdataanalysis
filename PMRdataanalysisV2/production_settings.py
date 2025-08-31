@@ -65,6 +65,9 @@ INSTALLED_APPS = [
     'SHIYINAN',
     'Suppliers',
     'SALESREPORT',
+
+    'Mindray_Research',
+    'rangefilter',
     'nested_admin',
 ]
 
@@ -177,8 +180,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['Marketing_Research/static/','PUZHONGXIN/static/','Marketing_Research_ZS/static/','ANTING/static/','NANXIANG/static/']
+# STATICFILES_DIRS = ['Marketing_Research/static/','PUZHONGXIN/static/','Marketing_Research_ZS/static/','ANTING/static/','NANXIANG/static/']
 
+STATICFILES_DIRS = ['Marketing_Research/static/','Mindray_Research/static/','PUZHONGXIN/static/','Marketing_Research_ZS/static/','ANTING/static/','NANXIANG/static/', ]
 
 
 
@@ -195,161 +199,190 @@ AUTH_USER_MODEL = 'Marketing_Research.UserInfo'
 
 SIMPLEUI_ANALYSIS = False
 
-SIMPLEUI_HOME_PAGE ='https://data.bio-merry.com:8087/login/'
-SIMPLEUI_HOME_TITLE = 'Superset BI 数据看板'
-SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
+# SIMPLEUI_HOME_PAGE ='https://data.bio-merry.com:8087/login/'
+# SIMPLEUI_HOME_TITLE = 'Superset BI 数据看板'
+# SIMPLEUI_HOME_ICON = 'fa-sharp fa-solid fa-chart-simple'
+SIMPLEUI_HOME_INFO = False
+SIMPLEUI_HOME_PAGE ='' #如果上面放开，那么这里注释掉
 
 SIMPLEUI_CONFIG = {
     'system_keep': True,
      # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
-    'menu_display':  ['普美瑞直销调研表','普美瑞KA调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','供应商信息查询','用友-U8-同步','认证授权'],    
+    'menu_display':  ['其田-迈瑞市场地图','普美瑞直销调研表','普美瑞KA调研表','其田直销调研表','卫顿直销调研表','国赛美瑞调研表','集成调研表','供应商信息查询','用友-U8-同步','认证授权'],    
     'dynamic': True,    # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
     'menus': [
-
-        #一级菜单：普美瑞直销调研表
-        {
-            'name': '普美瑞直销调研表',
+         #一级菜单：其田直销调研表       
+   {
+            'name': '其田-迈瑞市场地图',
             'icon': 'fa-solid fa-star',
             'models': [
                 {
                 # 第二级菜单                
-                'name': '调研表列表(在此填报)',
-                'url': '/admin/Marketing_Research/pmrresearchlist/',
+                'name': '调研表填报',
+                'url': '/admin/Mindray_Research/mindrayhospitalsurvey/',
                 'icon': 'fa-solid fa-pen'
                 }, 
                 {
-                'name': '调研表仪器详情表',
+                'name': '调研表仪器详情展示',
                 'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research/pmrresearchdetail/'
+                'url': '/admin/Mindray_Research/mindrayinstrumentsurvey/'
                 },
                 {
-                'name': '普美瑞调研数据分析',
-                'icon': 'fa-solid fa-list',
-                'url': '/Marketing_Research/pmranalysis'
+                'name': '商机填报',
+                'icon': 'fa-solid fa-pen',
+                'url': '/admin/Mindray_Research/salesopportunity/'
                 },
                 {
-                'name': '普美瑞已删除的数据',
+                'name': '商机详情展示',
                 'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research/pmrresearchlistdelete/'
+                'url': '/admin/Mindray_Research/salesopportunitysummary/'
                 },
-
-            ] 
-        },
-
-
-        #一级菜单：普美瑞KA客户调研表
-        {
-            'name': '普美瑞KA调研表',
-            'icon': 'fa-solid fa-star',
-            'models': [
-                {
-                # 第二级菜单                
-                'name': '调研表列表(在此填报)',
-                'url': '/admin/PMRKA/pmrresearchlistpmrka/',
-                'icon': 'fa-solid fa-pen'
-                }, 
-                {
-                'name': '调研表详情表',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/PMRKA/pmrresearchdetailpmrka/'
-                },
-
-                {
-                'name': '已删除的数据',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/PMRKA/pmrresearchlistpmrkadelete/'
-                },
-
-            ] 
-        },
-
-
-        #一级菜单：其田直销调研表
-        {
-            'name': '其田直销调研表',
-            'icon': 'fa-solid fa-star',
-            'models': [
-                {
-                # 第二级菜单                
-                'name': '调研表列表(在此填报)',
-                'url': '/admin/Marketing_Research_QT/pmrresearchlist3/',
-                'icon': 'fa-solid fa-pen'
-                }, 
-                {
-                'name': '调研表详情表',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research_QT/pmrresearchdetail3/'
-                },
-                {
-                'name': '其田调研数据分析',
-                'icon': 'fa-solid fa-list',
-                'url': '/Marketing_Research_QT/qtanalysis'
-                },
-                {
-                'name': '其田已删除的数据',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research_QT/pmrresearchlist3delete/'
-                },                        
             ]        
         },
+        # #一级菜单：普美瑞直销调研表
+        # {
+        #     'name': '普美瑞直销调研表',
+        #     'icon': 'fa-solid fa-star',
+        #     'models': [
+        #         {
+        #         # 第二级菜单                
+        #         'name': '调研表列表(在此填报)',
+        #         'url': '/admin/Marketing_Research/pmrresearchlist/',
+        #         'icon': 'fa-solid fa-pen'
+        #         }, 
+        #         {
+        #         'name': '调研表仪器详情表',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research/pmrresearchdetail/'
+        #         },
+        #         {
+        #         'name': '普美瑞调研数据分析',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/Marketing_Research/pmranalysis'
+        #         },
+        #         {
+        #         'name': '普美瑞已删除的数据',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research/pmrresearchlistdelete/'
+        #         },
 
-        #一级菜单：卫顿直销调研表
-        {
-            'name': '卫顿直销调研表',
-            'icon': 'fa-solid fa-star',
-            'models': [
-                {
-                # 第二级菜单                
-                'name': '调研表列表(在此填报)',
-                'url': '/admin/Marketing_Research_WD/pmrresearchlist2/',
-                'icon': 'fa-solid fa-pen'
-                }, 
-                {
-                'name': '调研表仪器详情表',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research_WD/pmrresearchdetail2/'
-                } ,
-                {
-                'name': '卫顿调研数据分析',
-                'icon': 'fa-solid fa-list',
-                'url': '/Marketing_Research_WD/wdanalysis'
-                },
-                {
-                'name': '卫顿已删除的数据',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research_WD/pmrresearchlist2delete/'
-                },                       
-            ]        
-        },
+        #     ] 
+        # },
+
+
+        # #一级菜单：普美瑞KA客户调研表
+        # {
+        #     'name': '普美瑞KA调研表',
+        #     'icon': 'fa-solid fa-star',
+        #     'models': [
+        #         {
+        #         # 第二级菜单                
+        #         'name': '调研表列表(在此填报)',
+        #         'url': '/admin/PMRKA/pmrresearchlistpmrka/',
+        #         'icon': 'fa-solid fa-pen'
+        #         }, 
+        #         {
+        #         'name': '调研表详情表',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/PMRKA/pmrresearchdetailpmrka/'
+        #         },
+
+        #         {
+        #         'name': '已删除的数据',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/PMRKA/pmrresearchlistpmrkadelete/'
+        #         },
+
+        #     ] 
+        # },
+
+
+        # #一级菜单：其田直销调研表
+        # {
+        #     'name': '其田直销调研表',
+        #     'icon': 'fa-solid fa-star',
+        #     'models': [
+        #         {
+        #         # 第二级菜单                
+        #         'name': '调研表列表(在此填报)',
+        #         'url': '/admin/Marketing_Research_QT/pmrresearchlist3/',
+        #         'icon': 'fa-solid fa-pen'
+        #         }, 
+        #         {
+        #         'name': '调研表详情表',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research_QT/pmrresearchdetail3/'
+        #         },
+        #         {
+        #         'name': '其田调研数据分析',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/Marketing_Research_QT/qtanalysis'
+        #         },
+        #         {
+        #         'name': '其田已删除的数据',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research_QT/pmrresearchlist3delete/'
+        #         },                        
+        #     ]        
+        # },
+
+        # #一级菜单：卫顿直销调研表
+        # {
+        #     'name': '卫顿直销调研表',
+        #     'icon': 'fa-solid fa-star',
+        #     'models': [
+        #         {
+        #         # 第二级菜单                
+        #         'name': '调研表列表(在此填报)',
+        #         'url': '/admin/Marketing_Research_WD/pmrresearchlist2/',
+        #         'icon': 'fa-solid fa-pen'
+        #         }, 
+        #         {
+        #         'name': '调研表仪器详情表',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research_WD/pmrresearchdetail2/'
+        #         } ,
+        #         {
+        #         'name': '卫顿调研数据分析',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/Marketing_Research_WD/wdanalysis'
+        #         },
+        #         {
+        #         'name': '卫顿已删除的数据',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research_WD/pmrresearchlist2delete/'
+        #         },                       
+        #     ]        
+        # },
         
-        #一级菜单：国赛美瑞直销调研表
-        {
-            'name': '国赛美瑞调研表',
-            'icon': 'fa-solid fa-star',
-            'models': [
-                {
-                # 第二级菜单                
-                'name': '调研表列表(在此填报)',
-                'url': '/admin/Marketing_Research_ZS/gsmrresearchlist/',
-                'icon': 'fa-solid fa-pen'
-                }, 
-                #甘特图                     
-                {
-                'name': '招商进度甘特图',
-                'url': '/Marketing_Research_ZS/gantt'
-                },  
-                {
-                'name': '调研表仪器详情表',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research_ZS/gsmrresearchdetail/'
-                },
-                {
-                'name': '国赛美瑞已删除的数据',
-                'icon': 'fa-solid fa-list',
-                'url': '/admin/Marketing_Research_ZS/gsmrresearchlistdelete/'
-                },                        
-             ]        
-        },
+        # #一级菜单：国赛美瑞直销调研表
+        # {
+        #     'name': '国赛美瑞调研表',
+        #     'icon': 'fa-solid fa-star',
+        #     'models': [
+        #         {
+        #         # 第二级菜单                
+        #         'name': '调研表列表(在此填报)',
+        #         'url': '/admin/Marketing_Research_ZS/gsmrresearchlist/',
+        #         'icon': 'fa-solid fa-pen'
+        #         }, 
+        #         #甘特图                     
+        #         {
+        #         'name': '招商进度甘特图',
+        #         'url': '/Marketing_Research_ZS/gantt'
+        #         },  
+        #         {
+        #         'name': '调研表仪器详情表',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research_ZS/gsmrresearchdetail/'
+        #         },
+        #         {
+        #         'name': '国赛美瑞已删除的数据',
+        #         'icon': 'fa-solid fa-list',
+        #         'url': '/admin/Marketing_Research_ZS/gsmrresearchlistdelete/'
+        #         },                        
+        #      ]        
+        # },
 
         #一级菜单：集成战略地图/作战计划
         {
@@ -709,431 +742,431 @@ SIMPLEUI_CONFIG = {
             ]        
         },
 
-#一级菜单：供应商信息查询
-        {
-        'name': '供应商信息查询',
-        'icon': 'fa-solid fa-star',
-        'models': [
-            #二级菜单：
-            {
-                'name': '供应商基础信息表',
-                'url': '/admin/Suppliers/supplierinfo/'
-            },  
-            {
-                'name': '所有项目供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        {
-                        'name': '所有项目供应商排行',
-                        'url': '/admin/Suppliers/total_supplier_rank/'
-                        },     
-                        {
-                        'name': '所有项目产品排行',
-                        'url': '/admin/Suppliers/total_product_rank/'
-                        },                     
-                        {
-                        'name': '所有项目EXCEL下载平台',
-                        'url': '/Suppliers/uploads_total'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '徐二院供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：徐二院     
-                        {
-                        'name': '徐二院供应商排行',
-                        'url': '/admin/Suppliers/xey_supplier_rank/'
-                        },     
-                        {
-                        'name': '徐二院供应商详情表',
-                        'url': '/admin/Suppliers/xey_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '徐二院产品排行',
-                        'url': '/admin/Suppliers/xey_product_rank/'
-                        },                     
-                        {
-                        'name': '徐二院EXCEL上传平台',
-                        'url': '/Suppliers/uploads_xey_23'
-                        },                                                           
-                    ]
-            },
+# #一级菜单：供应商信息查询
+#         {
+#         'name': '供应商信息查询',
+#         'icon': 'fa-solid fa-star',
+#         'models': [
+#             #二级菜单：
+#             {
+#                 'name': '供应商基础信息表',
+#                 'url': '/admin/Suppliers/supplierinfo/'
+#             },  
+#             {
+#                 'name': '所有项目供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         {
+#                         'name': '所有项目供应商排行',
+#                         'url': '/admin/Suppliers/total_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '所有项目产品排行',
+#                         'url': '/admin/Suppliers/total_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '所有项目EXCEL下载平台',
+#                         'url': '/Suppliers/uploads_total'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '徐二院供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：徐二院     
+#                         {
+#                         'name': '徐二院供应商排行',
+#                         'url': '/admin/Suppliers/xey_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '徐二院供应商详情表',
+#                         'url': '/admin/Suppliers/xey_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '徐二院产品排行',
+#                         'url': '/admin/Suppliers/xey_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '徐二院EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_xey_23'
+#                         },                                                           
+#                     ]
+#             },
 
-            {
-                'name': '普中心供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：PZX    
-                        {
-                        'name': '普中心供应商排行',
-                        'url': '/admin/Suppliers/pzx_supplier_rank/'
-                        },     
-                        {
-                        'name': '普中心供应商详情表',
-                        'url': '/admin/Suppliers/pzx_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '普中心产品排行',
-                        'url': '/admin/Suppliers/pzx_product_rank/'
-                        },                     
-                        {
-                        'name': '普中心EXCEL上传平台',
-                        'url': '/Suppliers/uploads_pzx_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '新沂供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：NQ    
-                        {
-                        'name': '新沂供应商排行',
-                        'url': '/admin/Suppliers/xinyi_supplier_rank/'
-                        },     
-                        {
-                        'name': '新沂供应商详情表',
-                        'url': '/admin/Suppliers/xinyi_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '新沂产品排行',
-                        'url': '/admin/Suppliers/xinyi_product_rank/'
-                        },                     
-                        {
-                        'name': '新沂EXCEL上传平台',
-                        'url': '/Suppliers/uploads_xinyi_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '邳州供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：    
-                        {
-                        'name': '邳州供应商排行',
-                        'url': '/admin/Suppliers/pizhou_supplier_rank/'
-                        },     
-                        {
-                        'name': '邳州供应商详情表',
-                        'url': '/admin/Suppliers/pizhou_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '邳州产品排行',
-                        'url': '/admin/Suppliers/pizhou_product_rank/'
-                        },                     
-                        {
-                        'name': '邳州EXCEL上传平台',
-                        'url': '/Suppliers/uploads_pizhou_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '安亭供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：    
-                        {
-                        'name': '安亭供应商排行',
-                        'url': '/admin/Suppliers/anting_supplier_rank/'
-                        },     
-                        {
-                        'name': '安亭供应商详情表',
-                        'url': '/admin/Suppliers/anting_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '安亭产品排行',
-                        'url': '/admin/Suppliers/anting_product_rank/'
-                        },                     
-                        {
-                        'name': '安亭EXCEL上传平台',
-                        'url': '/Suppliers/uploads_anting_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '南翔供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：    
-                        {
-                        'name': '南翔供应商排行',
-                        'url': '/admin/Suppliers/nanxiang_supplier_rank/'
-                        },     
-                        {
-                        'name': '南翔供应商详情表',
-                        'url': '/admin/Suppliers/nanxiang_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '南翔产品排行',
-                        'url': '/admin/Suppliers/nanxiang_product_rank/'
-                        },                     
-                        {
-                        'name': '南翔EXCEL上传平台',
-                        'url': '/Suppliers/uploads_nanxiang_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '南桥供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单： 
-                        {
-                        'name': '南桥供应商排行',
-                        'url': '/admin/Suppliers/nq_supplier_rank/'
-                        },     
-                        {
-                        'name': '南桥供应商详情表',
-                        'url': '/admin/Suppliers/nq_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '南桥产品排行',
-                        'url': '/admin/Suppliers/nq_product_rank/'
-                        },                     
-                        {
-                        'name': '南桥EXCEL上传平台',
-                        'url': '/Suppliers/uploads_nq_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '齐贤供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：  
-                        {
-                        'name': '齐贤供应商排行',
-                        'url': '/admin/Suppliers/qixian_supplier_rank/'
-                        },     
-                        {
-                        'name': '齐贤供应商详情表',
-                        'url': '/admin/Suppliers/qixian_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '齐贤产品排行',
-                        'url': '/admin/Suppliers/qixian_product_rank/'
-                        },                     
-                        {
-                        'name': '齐贤EXCEL上传平台',
-                        'url': '/Suppliers/uploads_qixian_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '申养供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：  
-                        {
-                        'name': '申养供应商排行',
-                        'url': '/admin/Suppliers/shenyang_supplier_rank/'
-                        },     
-                        {
-                        'name': '申养供应商详情表',
-                        'url': '/admin/Suppliers/shenyang_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '申养产品排行',
-                        'url': '/admin/Suppliers/shenyang_product_rank/'
-                        },                     
-                        {
-                        'name': '申养EXCEL上传平台',
-                        'url': '/Suppliers/uploads_shenyang_23'
-                        },                                                           
-                    ]
-            },           
-             {
-                'name': '四团供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：   
-                        {
-                        'name': '四团供应商排行',
-                        'url': '/admin/Suppliers/situan_supplier_rank/'
-                        },     
-                        {
-                        'name': '四团供应商详情表',
-                        'url': '/admin/Suppliers/situan_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '四团产品排行',
-                        'url': '/admin/Suppliers/situan_product_rank/'
-                        },                     
-                        {
-                        'name': '四团EXCEL上传平台',
-                        'url': '/Suppliers/uploads_situan_23'
-                        },                                                           
-                    ]
-            },
+#             {
+#                 'name': '普中心供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：PZX    
+#                         {
+#                         'name': '普中心供应商排行',
+#                         'url': '/admin/Suppliers/pzx_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '普中心供应商详情表',
+#                         'url': '/admin/Suppliers/pzx_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '普中心产品排行',
+#                         'url': '/admin/Suppliers/pzx_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '普中心EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_pzx_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '新沂供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：NQ    
+#                         {
+#                         'name': '新沂供应商排行',
+#                         'url': '/admin/Suppliers/xinyi_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '新沂供应商详情表',
+#                         'url': '/admin/Suppliers/xinyi_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '新沂产品排行',
+#                         'url': '/admin/Suppliers/xinyi_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '新沂EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_xinyi_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '邳州供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：    
+#                         {
+#                         'name': '邳州供应商排行',
+#                         'url': '/admin/Suppliers/pizhou_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '邳州供应商详情表',
+#                         'url': '/admin/Suppliers/pizhou_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '邳州产品排行',
+#                         'url': '/admin/Suppliers/pizhou_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '邳州EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_pizhou_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '安亭供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：    
+#                         {
+#                         'name': '安亭供应商排行',
+#                         'url': '/admin/Suppliers/anting_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '安亭供应商详情表',
+#                         'url': '/admin/Suppliers/anting_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '安亭产品排行',
+#                         'url': '/admin/Suppliers/anting_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '安亭EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_anting_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '南翔供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：    
+#                         {
+#                         'name': '南翔供应商排行',
+#                         'url': '/admin/Suppliers/nanxiang_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '南翔供应商详情表',
+#                         'url': '/admin/Suppliers/nanxiang_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '南翔产品排行',
+#                         'url': '/admin/Suppliers/nanxiang_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '南翔EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_nanxiang_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '南桥供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单： 
+#                         {
+#                         'name': '南桥供应商排行',
+#                         'url': '/admin/Suppliers/nq_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '南桥供应商详情表',
+#                         'url': '/admin/Suppliers/nq_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '南桥产品排行',
+#                         'url': '/admin/Suppliers/nq_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '南桥EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_nq_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '齐贤供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：  
+#                         {
+#                         'name': '齐贤供应商排行',
+#                         'url': '/admin/Suppliers/qixian_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '齐贤供应商详情表',
+#                         'url': '/admin/Suppliers/qixian_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '齐贤产品排行',
+#                         'url': '/admin/Suppliers/qixian_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '齐贤EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_qixian_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '申养供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：  
+#                         {
+#                         'name': '申养供应商排行',
+#                         'url': '/admin/Suppliers/shenyang_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '申养供应商详情表',
+#                         'url': '/admin/Suppliers/shenyang_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '申养产品排行',
+#                         'url': '/admin/Suppliers/shenyang_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '申养EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_shenyang_23'
+#                         },                                                           
+#                     ]
+#             },           
+#              {
+#                 'name': '四团供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：   
+#                         {
+#                         'name': '四团供应商排行',
+#                         'url': '/admin/Suppliers/situan_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '四团供应商详情表',
+#                         'url': '/admin/Suppliers/situan_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '四团产品排行',
+#                         'url': '/admin/Suppliers/situan_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '四团EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_situan_23'
+#                         },                                                           
+#                     ]
+#             },
 
-            {
-                'name': '四五五供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：   
-                        {
-                        'name': '四五五供应商排行',
-                        'url': '/admin/Suppliers/siwuwu_supplier_rank/'
-                        },     
-                        {
-                        'name': '四五五供应商详情表',
-                        'url': '/admin/Suppliers/siwuwu_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '四五五产品排行',
-                        'url': '/admin/Suppliers/siwuwu_product_rank/'
-                        },                     
-                        {
-                        'name': '四五五EXCEL上传平台',
-                        'url': '/Suppliers/uploads_siwuwu_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '亭林供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：   
-                        {
-                        'name': '亭林供应商排行',
-                        'url': '/admin/Suppliers/tinglin_supplier_rank/'
-                        },     
-                        {
-                        'name': '亭林供应商详情表',
-                        'url': '/admin/Suppliers/tinglin_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '亭林产品排行',
-                        'url': '/admin/Suppliers/tinglin_product_rank/'
-                        },                     
-                        {
-                        'name': '亭林EXCEL上传平台',
-                        'url': '/Suppliers/uploads_tinglin_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '西渡供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：   
-                        {
-                        'name': '西渡供应商排行',
-                        'url': '/admin/Suppliers/xidu_supplier_rank/'
-                        },     
-                        {
-                        'name': '西渡供应商详情表',
-                        'url': '/admin/Suppliers/xidu_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '西渡产品排行',
-                        'url': '/admin/Suppliers/xidu_product_rank/'
-                        },                     
-                        {
-                        'name': '西渡EXCEL上传平台',
-                        'url': '/Suppliers/uploads_xidu_23'
-                        },                                                           
-                    ]
-            },
-            {
-                'name': '直销供应商数据',
-                'icon': 'fa-solid fa-list',
-                'models': [
-                        #三级菜单：    
-                        {
-                        'name': '直销供应商排行',
-                        'url': '/admin/Suppliers/zhixiao_supplier_rank/'
-                        },     
-                        {
-                        'name': '直销供应商详情表',
-                        'url': '/admin/Suppliers/zhixiao_supplier_product_summary/'
-                        },        
-                        {
-                        'name': '直销产品排行',
-                        'url': '/admin/Suppliers/zhixiao_product_rank/'
-                        },                     
-                        {
-                        'name': '直销EXCEL上传平台',
-                        'url': '/Suppliers/uploads_zhixiao_23'
-                        },                                                           
-                    ]
-            },
+#             {
+#                 'name': '四五五供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：   
+#                         {
+#                         'name': '四五五供应商排行',
+#                         'url': '/admin/Suppliers/siwuwu_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '四五五供应商详情表',
+#                         'url': '/admin/Suppliers/siwuwu_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '四五五产品排行',
+#                         'url': '/admin/Suppliers/siwuwu_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '四五五EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_siwuwu_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '亭林供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：   
+#                         {
+#                         'name': '亭林供应商排行',
+#                         'url': '/admin/Suppliers/tinglin_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '亭林供应商详情表',
+#                         'url': '/admin/Suppliers/tinglin_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '亭林产品排行',
+#                         'url': '/admin/Suppliers/tinglin_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '亭林EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_tinglin_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '西渡供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：   
+#                         {
+#                         'name': '西渡供应商排行',
+#                         'url': '/admin/Suppliers/xidu_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '西渡供应商详情表',
+#                         'url': '/admin/Suppliers/xidu_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '西渡产品排行',
+#                         'url': '/admin/Suppliers/xidu_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '西渡EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_xidu_23'
+#                         },                                                           
+#                     ]
+#             },
+#             {
+#                 'name': '直销供应商数据',
+#                 'icon': 'fa-solid fa-list',
+#                 'models': [
+#                         #三级菜单：    
+#                         {
+#                         'name': '直销供应商排行',
+#                         'url': '/admin/Suppliers/zhixiao_supplier_rank/'
+#                         },     
+#                         {
+#                         'name': '直销供应商详情表',
+#                         'url': '/admin/Suppliers/zhixiao_supplier_product_summary/'
+#                         },        
+#                         {
+#                         'name': '直销产品排行',
+#                         'url': '/admin/Suppliers/zhixiao_product_rank/'
+#                         },                     
+#                         {
+#                         'name': '直销EXCEL上传平台',
+#                         'url': '/Suppliers/uploads_zhixiao_23'
+#                         },                                                           
+#                     ]
+#             },
 
 
-            ]
+#             ]
     
-        },
+#         },
 
         
-        #一级菜单：用友-U8-同步
-        {
-            'name': '用友-U8-同步',
-            'icon': 'fab fa-github',
-            'models': [
+#         #一级菜单：用友-U8-同步
+#         {
+#             'name': '用友-U8-同步',
+#             'icon': 'fab fa-github',
+#             'models': [
 
-                #二级菜单：PMR_U8_001
-                {
-                    'name': '用友-普美瑞-U8-001',
-                    'icon': 'fab fa-github',
-                    'models': [
-                        {
-                        'name': '发货单',
-                        'url': '/admin/PMR_U8_001/consignments/'
-                        }, 
-                    ]                
-                } ,
+#                 #二级菜单：PMR_U8_001
+#                 {
+#                     'name': '用友-普美瑞-U8-001',
+#                     'icon': 'fab fa-github',
+#                     'models': [
+#                         {
+#                         'name': '发货单',
+#                         'url': '/admin/PMR_U8_001/consignments/'
+#                         }, 
+#                     ]                
+#                 } ,
 
-                #二级菜单：PMR_U8_009
-                {
-                    'name': '用友-盈帅-U8-009',
-                    'icon': 'fab fa-github',
-                    'models': [
-                        {
-                        'name': '发货单',
-                        'url': '/admin/PMR_U8_009/consignments/'
-                        }, 
-                    ]                
-                } ,
+#                 #二级菜单：PMR_U8_009
+#                 {
+#                     'name': '用友-盈帅-U8-009',
+#                     'icon': 'fab fa-github',
+#                     'models': [
+#                         {
+#                         'name': '发货单',
+#                         'url': '/admin/PMR_U8_009/consignments/'
+#                         }, 
+#                     ]                
+#                 } ,
 
-                #二级菜单：PMR_U8_010
-                {
-                    'name': '用友-国赛美瑞-U8-010',
-                    'icon': 'fab fa-github',
-                    'models': [
-                        {
-                        'name': '发货单',
-                        'url': '/admin/PMR_U8_010/consignments/'
-                        },          
-                    ]        
-                },  
-                #二级菜单：PMR_U8_011
-                {
-                    'name': '用友-其田-U8-011',
-                    'icon': 'fab fa-github',
-                    'models': [
-                        {
-                        'name': '发货单',
-                        'url': '/admin/PMR_U8_011/consignments/'
-                        },          
-                    ]        
-                },  
-                #二级菜单：PMR_U8_012
-                {
-                    'name': '用友-卫顿-U8-012',
-                    'icon': 'fab fa-github',
-                    'models': [
-                        {
-                        'name': '发货单',
-                        'url': '/admin/PMR_U8_012/consignments/'
-                        },          
-                    ]        
-                },  
+#                 #二级菜单：PMR_U8_010
+#                 {
+#                     'name': '用友-国赛美瑞-U8-010',
+#                     'icon': 'fab fa-github',
+#                     'models': [
+#                         {
+#                         'name': '发货单',
+#                         'url': '/admin/PMR_U8_010/consignments/'
+#                         },          
+#                     ]        
+#                 },  
+#                 #二级菜单：PMR_U8_011
+#                 {
+#                     'name': '用友-其田-U8-011',
+#                     'icon': 'fab fa-github',
+#                     'models': [
+#                         {
+#                         'name': '发货单',
+#                         'url': '/admin/PMR_U8_011/consignments/'
+#                         },          
+#                     ]        
+#                 },  
+#                 #二级菜单：PMR_U8_012
+#                 {
+#                     'name': '用友-卫顿-U8-012',
+#                     'icon': 'fab fa-github',
+#                     'models': [
+#                         {
+#                         'name': '发货单',
+#                         'url': '/admin/PMR_U8_012/consignments/'
+#                         },          
+#                     ]        
+#                 },  
 
-            ]        
-        },
+#             ]        
+#         },
             
         #一级菜单：人员
         {
@@ -1168,6 +1201,6 @@ MARKETING_RESEARCH_TARGET_AUTO_DELAYED_DAYS = 30
 
 SIMPLEUI_LOGO = '/static/pmr/images/logo.png'
 
-SESSION_COOKIE_AGE = 21600 
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240

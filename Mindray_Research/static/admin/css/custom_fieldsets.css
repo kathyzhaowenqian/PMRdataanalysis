@@ -1,0 +1,1507 @@
+/* 主要fieldset - 深蓝色背景 */
+.primary-fieldset h2 {
+    background: #417690 !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    font-weight: bold !important;
+    border-radius: 4px 4px 0 0 !important;
+}
+
+/* 次要fieldset - 中等蓝色背景 */
+.secondary-fieldset h2 {
+    background: #b4ceec !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    font-weight: bold !important;
+    border-radius: 4px 4px 0 0 !important;
+}
+
+/* 三级fieldset - 浅蓝色背景 */
+.tertiary-fieldset h2 {
+    background: #b4ceec !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    font-weight: bold !important;
+    border-radius: 4px 4px 0 0 !important;
+}
+
+/* 分割线样式 */
+.section-divider h2 {
+    display: none !important;
+}
+
+.section-divider {
+    border-bottom: 2px solid #ddd !important;
+    margin: 20px 0 !important;
+    padding: 0 !important;
+}
+
+/* inline fieldsets 颜色 */
+.inline-group .primary-fieldset h3 {
+    background: #417690 !important;
+    color: white !important;
+    padding: 6px 10px !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    border-radius: 3px 3px 0 0 !important;
+}
+
+.inline-group .secondary-fieldset h3 {
+    background: #b4ceec !important;
+    color: white !important;
+    padding: 6px 10px !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    border-radius: 3px 3px 0 0 !important;
+}
+
+/* ===== 主页面列表网格线样式 ===== */
+
+/* 列表页面表格样式 */
+/* #changelist .results {
+    border: 1px solid #b4ceec !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+} */
+/* 列表页面表格样式 */
+#changelist .results {
+    border: 1px solid #b4ceec !important;
+    border-radius: 4px !important;
+    overflow-x: auto !important;  /* 允许水平滚动 */
+    overflow-y: visible !important;  /* 垂直方向正常显示 */
+    -webkit-overflow-scrolling: touch !important;  /* iOS平滑滚动 */
+}
+
+#changelist .results table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+}
+
+/* 表头样式 */
+#changelist .results thead th {
+    background: #f0f7ff !important;
+    border-bottom: 2px solid #b4ceec !important;
+    border-right: 1px solid #d0e3f5 !important;
+    padding: 10px 8px !important;
+    font-weight: 600 !important;
+    color: #2c5282 !important;
+    text-align: left !important;
+}
+
+#changelist .results thead th:last-child {
+    border-right: none !important;
+}
+
+/* 表格行样式 */
+#changelist .results tbody tr {
+    border-bottom: 1px solid #e6f2ff !important;
+}
+
+#changelist .results tbody tr:last-child {
+    border-bottom: none !important;
+}
+
+/* 奇偶行背景色 */
+#changelist .results tbody tr:nth-child(even) {
+    background-color: #f9fcff !important;
+}
+
+#changelist .results tbody tr:nth-child(odd) {
+    background-color: white !important;
+}
+
+/* 悬停效果 */
+#changelist .results tbody tr:hover {
+    background-color: #e6f2ff !important;
+}
+
+/* 表格单元格样式 */
+#changelist .results tbody td {
+    border-right: 1px solid #e6f2ff !important;
+    padding: 8px !important;
+    vertical-align: middle !important;
+}
+
+#changelist .results tbody td:last-child {
+    border-right: none !important;
+}
+
+/* 操作列样式 */
+#changelist .results tbody td.action-checkbox-column {
+    border-right: 1px solid #d0e3f5 !important;
+    background-color: #f0f7ff !important;
+    text-align: center !important;
+    width: 35px !important;
+}
+
+/* 链接样式 */
+#changelist .results tbody td a {
+    color: #2c5282 !important;
+    text-decoration: none !important;
+}
+
+#changelist .results tbody td a:hover {
+    color: #1a365d !important;
+    text-decoration: underline !important;
+}
+
+/* ===== 响应式表单字段样式（标题左对齐版本） ===== */
+
+/* 桌面端样式  */
+@media (min-width: 767px) {
+    /* 表单行布局 */
+    .form-row {
+        display: flex !important;
+        align-items: flex-start !important;
+        margin-bottom: 12px !important;
+        min-height: 34px !important;
+    }
+    .form-row > div,
+
+    /* 标题样式 - 左对齐但固定宽度 */
+    .form-row label {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+        margin-right: 15px !important;
+        text-align: left !important;
+        padding-right: 0 !important;
+        flex-shrink: 0 !important;
+        font-weight: 600 !important;
+        color: #333 !important;
+        line-height: 34px !important;
+    }
+
+    /* 输入框容器 */
+    .form-row > div,
+    .form-row .field-content {
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        position: relative !important;
+        max-width: calc(100% - 175px) !important; /* 新增：防止超出 */
+        overflow: hidden !important; /* 新增：防止内容溢出 */
+    }
+
+    /* 统一所有输入框的宽度 */
+    .form-row input[type="text"],
+    .form-row input[type="number"], 
+    .form-row input[type="date"],
+    .form-row input[type="email"],
+    .form-row input[type="url"],
+    .form-row select,
+    .form-row textarea {
+        width: 250px !important;
+        min-width: 250px !important;
+        max-width: 350px !important;
+        box-sizing: border-box !important;
+        padding: 6px 8px !important;
+        height: 34px !important;
+        line-height: 1.4 !important;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important;
+    }
+
+    /* textarea特殊处理 */
+    .form-row textarea {
+        width: 400px !important;
+        min-width: 400px !important;
+        height: 80px !important;
+        resize: vertical !important;
+        line-height: 1.4 !important;
+        padding: 8px !important;
+    }
+
+    /* 外键选择框（autocomplete）统一宽度 */
+    .form-row .select2-container {
+        width: 250px !important;
+        min-width: 250px !important;
+        max-width: 350px !important;
+        flex-shrink: 0 !important; /* 添加这行 */
+
+    }
+
+    .form-row .select2-container .select2-selection {
+        height: 34px !important;
+        line-height: 32px !important;
+        padding: 0 8px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important;
+        box-sizing: border-box !important; /* 添加这行 */
+
+    }
+
+     
+    /* 外键选择框容器的宽度控制 */
+    .form-row .related-widget-wrapper {
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        width: auto !important;
+        max-width: 100% !important; /* 确保不超出父容器 */
+        box-sizing: border-box !important; /* 新增 */
+    }
+    .form-row .related-widget-wrapper select,
+    .form-row .related-widget-wrapper .select2-container {
+        width: 250px !important;
+        min-width: 200px !important; /* 从 250px 改为 200px */
+        max-width: 280px !important; /* 新增最大宽度限制 */
+        flex-shrink: 1 !important; /* 允许收缩 */
+        box-sizing: border-box !important; /* 新增 */
+    }
+    /* 外键按钮的宽度控制 */
+    .form-row .related-widget-wrapper a {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 24px !important;
+        height: 24px !important;
+        background: #f8f9fa !important;
+        border: 1px solid #ddd !important;
+        border-radius: 3px !important;
+        text-decoration: none !important;
+        color: #333 !important;
+        font-size: 14px !important;
+        margin-left: 2px !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important; /* 新增 */
+    }
+
+    .form-row .related-widget-wrapper a:hover {
+        background: #e9ecef !important;
+        border-color: #adb5bd !important;
+    }
+
+    /* 复选框和单选框保持原样 */
+    .form-row input[type="checkbox"],
+    .form-row input[type="radio"] {
+        width: auto !important;
+        min-width: auto !important;
+        max-width: auto !important;
+        height: auto !important;
+        margin-right: 5px !important;
+    }
+
+    /* Inline 表格中的字段宽度 */
+    .inline-group .form-row {
+        margin-bottom: 8px !important;
+    }
+
+    .inline-group .form-row label {
+        width: 120px !important;
+        min-width: 120px !important;
+        max-width: 120px !important;
+        margin-right: 10px !important;
+        font-size: 13px !important;
+        line-height: 30px !important;
+    }
+
+    .inline-group .form-row input[type="text"],
+    .inline-group .form-row input[type="number"],
+    .inline-group .form-row input[type="date"],
+    .inline-group .form-row select {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 250px !important;
+        height: 30px !important;
+    }
+
+    .inline-group .form-row .select2-container {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 250px !important;
+    }
+
+    .inline-group .form-row .select2-container .select2-selection {
+        height: 30px !important;
+        line-height: 28px !important;
+    }
+
+    .inline-group .form-row .related-widget-wrapper select,
+    .inline-group .form-row .related-widget-wrapper .select2-container {
+        width: 200px !important;
+        min-width: 200px !important;
+    }
+
+    /* 帮助文本样式 */
+    .help {
+        margin-left: 175px !important;
+        font-size: 11px !important;
+        color: #666 !important;
+        margin-top: 3px !important;
+        display: block !important;
+        clear: both !important;
+    }
+
+    /* 错误信息样式 */
+    .errorlist {
+        margin-left: 175px !important;
+        font-size: 12px !important;
+        color: #dc3545 !important;
+        margin-top: 3px !important;
+    }
+
+       /* 添加这段代码 */
+    #changelist .results table {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        width: 100% !important;
+        min-width: 800px !important;  /* 确保表格有最小宽度 */
+    }
+
+}
+
+/* 平板端样式 (481px - 768px) */
+@media (min-width: 481px) and (max-width: 766px) {
+    .form-row {
+        display: flex !important;
+        align-items: flex-start !important;
+        margin-bottom: 10px !important;
+        min-height: 32px !important;
+    }
+
+    .form-row label {
+        width: 130px !important;
+        min-width: 130px !important;
+        max-width: 130px !important;
+        margin-right: 10px !important;
+        text-align: left !important;
+        padding-right: 0 !important;
+        flex-shrink: 0 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 32px !important;
+    }
+
+    .form-row input[type="text"],
+    .form-row input[type="number"], 
+    .form-row input[type="date"],
+    .form-row input[type="email"],
+    .form-row input[type="url"],
+    .form-row select,
+    .form-row textarea {
+        width: 200px !important;
+        min-width: 180px !important;
+        box-sizing: border-box !important;
+        padding: 5px 6px !important;
+        height: 32px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important;
+    }
+
+    .form-row .select2-container {
+        width: 200px !important;
+        min-width: 180px !important;
+    }
+
+    .form-row .select2-container .select2-selection {
+        height: 32px !important;
+        line-height: 30px !important;
+    }
+
+    .form-row .related-widget-wrapper {
+        display: flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+    }
+
+    .form-row .related-widget-wrapper a {
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 12px !important;
+    }
+
+    .help {
+        margin-left: 140px !important;
+        font-size: 10px !important;
+        color: #666 !important;
+        margin-top: 2px !important;
+    }
+
+    .errorlist {
+        margin-left: 140px !important;
+        font-size: 11px !important;
+    }
+
+    /* 平板端列表页面调整 */
+    #changelist .results tbody td {
+        padding: 6px 4px !important;
+        font-size: 13px !important;
+    }
+
+    #changelist .results thead th {
+        padding: 8px 4px !important;
+        font-size: 13px !important;
+    }
+
+       /* 添加这段代码 */
+    #changelist .results table {
+        min-width: 600px !important;  /* 平板端的最小宽度 */
+    }
+
+}
+
+/* 手机端样式 (最大480px) */
+@media (max-width: 480px) {
+    /* 手机端整体容器增加边距 - 修复问题1：增加左右边距 */
+    .colM {
+        margin: 0 8px !important; /* 从15px改为8px，给内容更多空间 */
+    }
+
+    .module {
+        margin: 10px 0 !important;
+        border-radius: 8px !important;
+    }
+
+    .breadcrumbs {
+        margin: 0 -8px 10px -8px !important; /* 对应上面的8px边距 */
+        padding: 10px 8px !important;
+        font-size: 13px !important;
+    }
+
+    /* 表单容器边距 */
+    .form-row {
+        display: block !important;
+        margin-bottom: 15px !important;
+        padding: 0 3px !important; /* 从5px减少到3px */
+    }
+
+    .form-row label {
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+        margin-bottom: 5px !important;
+        font-weight: bold !important;
+        font-size: 14px !important;
+        color: #333 !important;
+        padding: 0 !important;
+    }
+
+    .form-row input[type="text"],
+    .form-row input[type="number"], 
+    .form-row input[type="date"],
+    .form-row input[type="email"],
+    .form-row input[type="url"],
+    .form-row select,
+    .form-row textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: auto !important;
+        box-sizing: border-box !important;
+        padding: 8px !important;
+        font-size: 16px !important; /* 防止iOS缩放 */
+        height: 38px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important;
+        /* 修复问题2：下拉框垂直居中 */
+        line-height: 20px !important; /* 38px高度 - 8px上下padding * 2 = 22px可用空间，20px行高居中 */
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* 原生select的特殊处理 */
+    .form-row select {
+        display: block !important; /* select不支持flex，使用block */
+        line-height: 20px !important;
+        padding: 9px 8px !important; /* 上下padding调整为9px使内容居中 */
+    }
+
+    .form-row textarea {
+        height: 80px !important;
+        resize: vertical !important;
+        line-height: 1.4 !important; /* textarea保持正常行高 */
+        display: block !important; /* textarea不需要flex */
+    }
+
+    /* Select2下拉框的垂直居中修复 */
+    .form-row .select2-container {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .form-row .select2-container .select2-selection {
+        height: 38px !important;
+        padding: 0 8px !important;
+        font-size: 16px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important;
+        /* 修复问题2：Select2下拉框文字垂直居中 */
+        display: flex !important;
+        align-items: center !important;
+        line-height: 1 !important;
+    }
+
+    .form-row .select2-container .select2-selection__rendered {
+        line-height: 1 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .form-row .select2-container .select2-selection__arrow {
+        height: 36px !important; /* 38px - 2px border */
+        top: 1px !important;
+        right: 1px !important;
+    }
+
+    /* 外键按钮在手机端的处理 */
+    .form-row .related-widget-wrapper {
+        display: flex !important;
+        gap: 5px !important;
+        align-items: stretch !important;
+    }
+
+    .form-row .related-widget-wrapper select,
+    .form-row .related-widget-wrapper .select2-container {
+        flex: 1 !important;
+    }
+
+    .form-row .related-widget-wrapper a {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 16px !important;
+        flex-shrink: 0 !important;
+        background: transparent !important;
+        color: #333 !important;
+        border: 1px solid #ddd !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 4px !important;
+    }
+
+    .form-row .related-widget-wrapper a:hover {
+        background: #f5f5f5 !important;
+        border-color: #ccc !important;
+        color: #000 !important;
+    }
+
+    /* 帮助文本和错误信息 */
+    .help {
+        margin-left: 0 !important;
+        margin-top: 5px !important;
+        font-size: 12px !important;
+        color: #666 !important;
+        padding: 0 3px !important; /* 从5px减少到3px */
+    }
+
+    .errorlist {
+        margin-left: 0 !important;
+        margin-top: 5px !important;
+        font-size: 13px !important;
+        padding: 0 3px !important; /* 从5px减少到3px */
+    }
+
+    /* Inline 表格在手机端的特殊处理 */
+    .inline-group {
+        margin: 10px 0 !important;
+        padding: 0 3px !important; /* 从5px减少到3px */
+    }
+
+    .inline-group .form-row {
+        border-bottom: 1px solid #eee !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 15px !important;
+        padding-left: 0 !important; /* 确保inline内部的form-row没有额外padding */
+        padding-right: 0 !important;
+    }
+
+    .inline-group h3 {
+        font-size: 14px !important;
+        padding: 8px 10px !important;
+        margin: 0 -3px 10px -3px !important; /* 对应上面的3px padding */
+    }
+
+    /* 手机端列表页面样式 - 修复问题1：调整列表页边距 */
+    #changelist {
+        margin: 0 5px !important; /* 从10px减少到5px */
+    }
+
+    #changelist .results {
+        border: 1px solid #b4ceec !important;
+        border-radius: 6px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        /* 添加最大宽度限制，防止超出视口 */
+        max-width: calc(100vw - 10px) !important; /* 视口宽度减去左右边距 */
+    }
+
+    #changelist .results table {
+        min-width: 500px !important; /* 从600px减少到500px */
+        max-width: none !important;
+    }
+
+    #changelist .results thead th {
+        padding: 8px 4px !important; /* 减少左右padding */
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        min-width: 60px !important; /* 设置最小宽度 */
+        max-width: 120px !important; /* 设置最大宽度 */
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    #changelist .results tbody td {
+        padding: 6px 3px !important; /* 减少左右padding */
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        min-width: 60px !important; /* 设置最小宽度 */
+        max-width: 120px !important; /* 设置最大宽度 */
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /* 手机端搜索和过滤器 */
+    #changelist-search {
+        margin: 0 5px 10px 5px !important; /* 对应上面的5px边距 */
+    }
+
+    #changelist-filter {
+        margin: 0 5px !important; /* 对应上面的5px边距 */
+    }
+
+    /* 手机端操作按钮 */
+    .object-tools {
+        float: none !important;
+        margin: 10px 5px 0 5px !important; /* 对应上面的5px边距 */
+        text-align: center !important;
+    }
+
+    .object-tools li {
+        margin: 5px 0 !important;
+    }
+
+    .object-tools a {
+        padding: 8px 15px !important;
+        font-size: 14px !important;
+        border-radius: 4px !important;
+    }
+}
+
+/* 新增：针对iPad和类似尺寸的特殊处理 */
+@media (min-width: 767px) and (max-width: 900px) {
+    /* 在这个范围内，进一步收紧宽度控制 */
+    .form-row .related-widget-wrapper select,
+    .form-row .related-widget-wrapper .select2-container {
+        width: 220px !important;
+        min-width: 180px !important;
+        max-width: 250px !important;
+    }
+    
+    .form-row input[type="text"],
+    .form-row input[type="number"], 
+    .form-row input[type="date"],
+    .form-row input[type="email"],
+    .form-row input[type="url"],
+    .form-row select,
+    .form-row textarea {
+        width: 220px !important;
+        min-width: 180px !important;
+        max-width: 250px !important;
+    }
+
+    .form-row .select2-container {
+        width: 220px !important;
+        min-width: 180px !important;
+        max-width: 250px !important;
+    }
+}
+
+/* 通用样式 - 适用于所有屏幕尺寸 */
+.vDateField {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1H2zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    padding-right: 30px !important;
+}
+
+.field-expiry_date .help:after {
+    content: " (点击日期框可快速选择年份)";
+}
+
+/* 通用列表页面改进 */
+#changelist .paginator {
+    border-top: 2px solid #b4ceec !important;
+    background: #f9fcff !important;
+    padding: 10px !important;
+    margin-top: 0 !important;
+}
+
+/* 过滤器样式改进 */
+#changelist-filter {
+    background: #f9fcff !important;
+    border: 1px solid #d0e3f5 !important;
+    border-radius: 4px !important;
+}
+
+#changelist-filter h2 {
+    background: #417690 !important;
+    color: white !important;
+    padding: 8px 10px !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+}
+
+#changelist-filter h3 {
+    background: #e6f2ff !important;
+    color: #2c5282 !important;
+    padding: 6px 10px !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    border-top: 1px solid #d0e3f5 !important;
+}
+
+
+/* ===== Django Nested Admin 表格对齐修复 - 修正版 ===== */
+
+/* 重置之前的样式，移除table-layout: fixed */
+.djn-items.djn-table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: auto !important; /* 改为自动布局 */
+}
+
+/* 表头样式 */
+.djn-thead th {
+    padding: 8px 6px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    border: 1px solid #ddd !important;
+    background: #f8f9fa !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    position: relative !important;
+}
+
+/* 移除固定宽度设置，让表格自然布局 */
+.djn-thead th.original {
+    width: 200px !important; /* original列给一个合适的宽度 */
+    max-width: 250px !important;
+}
+
+/* 其他列不设置固定宽度，让它们自然分配 */
+.djn-thead th.djn-th {
+    min-width: 100px !important;
+    white-space: nowrap !important;
+}
+
+/* 表格单元格样式 */
+.djn-td {
+    padding: 6px !important;
+    vertical-align: middle !important;
+    border: 1px solid #ddd !important;
+    word-wrap: break-word !important;
+}
+
+/* Original列样式 - 控制宽度 */
+.djn-td.original {
+    width: 200px !important;
+    max-width: 250px !important;
+    text-align: left !important;
+    font-size: 11px !important;
+    color: #666 !important;
+    padding: 4px 6px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.djn-td.original p {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* 具体项目列 */
+.djn-td.field-project_type {
+    text-align: center !important;
+    min-width: 100px !important;
+}
+
+.djn-td.field-project_type select {
+    width: 100% !important;
+    min-width: 90px !important;
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+}
+
+/* 标本量列 */
+.djn-td.field-sample_volume {
+    text-align: center !important;
+    min-width: 80px !important;
+}
+
+.djn-td.field-sample_volume input {
+    width: 100% !important;
+    max-width: 80px !important;
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+    text-align: center !important;
+}
+
+/* 竞品关系点列 */
+.djn-td.field-competitionrelation {
+    text-align: center !important;
+    min-width: 150px !important;
+}
+
+/* Select2在竞品关系点列中的样式 */
+.djn-td.field-competitionrelation .select2-container {
+    width: 100% !important;
+    min-width: 140px !important;
+}
+
+.djn-td.field-competitionrelation .select2-container .select2-selection {
+    height: 28px !important;
+    padding: 0 6px !important;
+    font-size: 12px !important;
+    line-height: 26px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+}
+
+/* Related widget wrapper样式 */
+.djn-td.field-competitionrelation .related-widget-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    width: 100% !important;
+}
+
+.djn-td.field-competitionrelation .related-widget-wrapper select,
+.djn-td.field-competitionrelation .related-widget-wrapper .select2-container {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.djn-td.field-competitionrelation .related-widget-wrapper a {
+    flex-shrink: 0 !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #f8f9fa !important;
+    border: 1px solid #ccc !important;
+    border-radius: 2px !important;
+    text-decoration: none !important;
+    font-size: 10px !important;
+}
+
+/* 经销商名称列 */
+.djn-td.field-dealer_name {
+    text-align: center !important;
+    min-width: 120px !important;
+}
+
+.djn-td.field-dealer_name input {
+    width: 100% !important;
+    min-width: 100px !important;
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+}
+
+/* 删除列 */
+.djn-td.delete {
+    text-align: center !important;
+    min-width: 60px !important;
+    width: 60px !important;
+}
+
+.djn-td.delete input[type="checkbox"] {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+}
+
+.djn-td.delete .inline-deletelink {
+    font-size: 11px !important;
+    color: #dc3545 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+}
+
+/* 确保表格行正确显示所有列 */
+.djn-tr {
+    display: table-row !important;
+}
+
+.djn-tr td {
+    display: table-cell !important;
+}
+
+/* 表格行的交替颜色 */
+.djn-tbody:nth-child(even) .djn-tr {
+    background-color: #f9f9f9 !important;
+}
+
+.djn-tbody:nth-child(odd) .djn-tr {
+    background-color: white !important;
+}
+
+/* 添加行样式 */
+.add-row td {
+    text-align: center !important;
+    padding: 10px !important;
+    background: #f0f7ff !important;
+    border: 1px solid #b4ceec !important;
+}
+
+.add-row .djn-add-handler {
+    color: #417690 !important;
+    text-decoration: none !important;
+    font-weight: bold !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .djn-td.original {
+        width: 150px !important;
+        max-width: 180px !important;
+    }
+    
+    .djn-td.original p {
+        font-size: 10px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .djn-items.djn-table {
+        font-size: 11px !important;
+        min-width: 700px !important; /* 确保表格有最小宽度 */
+    }
+    
+    .djn-thead th,
+    .djn-td {
+        padding: 4px 2px !important;
+    }
+    
+    .djn-td.original {
+        width: 120px !important;
+        max-width: 150px !important;
+    }
+}
+
+/* 强制显示所有列 */
+.djn-items.djn-table thead tr,
+.djn-items.djn-table tbody tr {
+    display: table-row !important;
+    width: 100% !important;
+}
+
+.djn-items.djn-table th,
+.djn-items.djn-table td {
+    display: table-cell !important;
+}
+
+
+
+/* ===== 修复表格显示不全问题 ===== */
+
+/* 确保changelist容器能充分利用屏幕宽度 */
+#changelist {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* 确保主要内容区域不被限制宽度 */
+.main {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* 修复content区域宽度 */
+#content {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 20px !important;
+}
+
+/* 确保content-main区域充分利用空间 */
+.content-main {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* 修复colM（主列）的宽度限制 */
+.colM {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 20px !important;
+}
+
+/* 确保results容器能显示完整表格 */
+#changelist .results {
+    width: 100% !important;
+    max-width: none !important;
+    border: 1px solid #b4ceec !important;
+    border-radius: 4px !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* 确保表格本身有足够宽度 */
+#changelist .results table {
+    width: 100% !important;
+    min-width: 1000px !important; /* 根据你的列数调整 */
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: auto !important;
+}
+
+/* 针对不同屏幕尺寸的调整 */
+@media (min-width: 1200px) {
+    #changelist .results table {
+        min-width: 1200px !important;
+    }
+}
+
+@media (min-width: 1400px) {
+    #changelist .results table {
+        min-width: 1400px !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    #changelist .results table {
+        min-width: 1600px !important;
+    }
+}
+
+
+/* ===== 修复搜索框和过滤器超出问题 ===== */
+
+/* 搜索区域响应式处理 */
+#changelist-search {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+#changelist-search input[type="text"] {
+    width: 100% !important;
+    max-width: 300px !important;
+    box-sizing: border-box !important;
+}
+
+/* 过滤器区域响应式处理 */
+#changelist-filter {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* 顶部过滤器按钮组的响应式处理 */
+.filter-tabs, .changelist-filter-tabs {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #ddd !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.filter-tabs a, .changelist-filter-tabs a {
+    white-space: nowrap !important;
+    padding: 8px 12px !important;
+    background: white !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
+    color: #333 !important;
+    flex-shrink: 0 !important;
+}
+
+.filter-tabs a.selected, .changelist-filter-tabs a.selected {
+    background: #417690 !important;
+    color: white !important;
+    border-color: #417690 !important;
+}
+
+/* 针对小屏幕的特殊处理 */
+@media (max-width: 768px) {
+    /* 搜索框在小屏幕下的处理 */
+    #changelist-search {
+        margin: 10px 5px !important;
+        padding: 10px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important;
+        background: #f9f9f9 !important;
+    }
+
+    #changelist-search input[type="text"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 16px !important; /* 防止iOS缩放 */
+    }
+
+    /* 过滤器按钮组在小屏幕下的处理 */
+    .filter-tabs, .changelist-filter-tabs {
+        padding: 8px 5px !important;
+        margin: 0 5px !important;
+        background: #f8f9fa !important;
+        border-radius: 4px !important;
+        border: 1px solid #ddd !important;
+    }
+
+    .filter-tabs a, .changelist-filter-tabs a {
+        padding: 6px 10px !important;
+        font-size: 14px !important;
+        min-width: auto !important;
+    }
+
+    /* 确保过滤器内容不超出 */
+    #changelist-filter h2,
+    #changelist-filter h3,
+    #changelist-filter ul {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    #changelist-filter ul {
+        padding-right: 10px !important;
+    }
+
+    #changelist-filter li {
+        max-width: 100% !important;
+        word-wrap: break-word !important;
+    }
+}
+
+/* 针对更小屏幕(手机)的处理 */
+@media (max-width: 480px) {
+    .filter-tabs, .changelist-filter-tabs {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .filter-tabs a, .changelist-filter-tabs a {
+        text-align: center !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* 搜索框完全适应小屏幕 */
+    #changelist-search {
+        margin: 5px 0 !important;
+        padding: 8px !important;
+    }
+
+    #changelist-search input[type="text"] {
+        padding: 10px !important;
+        font-size: 16px !important;
+        border-radius: 6px !important;
+    }
+}
+
+/* 如果您的过滤器按钮有特定的class，请替换上面的选择器 */
+/* 例如，如果按钮在 .object-tools 中 */
+.object-tools {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.object-tools ul {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    min-width: max-content !important;
+}
+
+.object-tools li {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+}
+
+@media (max-width: 768px) {
+    .object-tools ul {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .object-tools li {
+        margin-bottom: 5px !important;
+    }
+
+    .object-tools a {
+        display: block !important;
+        text-align: center !important;
+        padding: 10px 15px !important;
+    }
+}
+
+
+
+/* ===== 修复常规TabularInline表格对齐问题 ===== */
+
+/* 常规inline表格样式 */
+.inline-group .tabular {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: auto !important;
+    overflow-x: auto !important;
+}
+
+/* 常规inline表格头部样式 */
+.inline-group .tabular thead th {
+    padding: 8px 6px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    border: 1px solid #ddd !important;
+    background: #f8f9fa !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    position: relative !important;
+    min-width: 100px !important;
+}
+
+/* Original列特殊处理 */
+.inline-group .tabular thead th.original {
+    width: 200px !important;
+    max-width: 250px !important;
+    min-width: 150px !important;
+}
+
+/* 常规inline表格单元格样式 */
+.inline-group .tabular tbody td {
+    padding: 6px !important;
+    vertical-align: middle !important;
+    border: 1px solid #ddd !important;
+    text-align: center !important;
+    min-width: 100px !important;
+}
+
+/* Original列单元格样式 */
+.inline-group .tabular tbody td.original {
+    width: 200px !important;
+    max-width: 250px !important;
+    min-width: 150px !important;
+    text-align: left !important;
+    font-size: 11px !important;
+    color: #666 !important;
+    padding: 4px 6px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.inline-group .tabular tbody td.original p {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* 具体项目列 - 下拉框 */
+.inline-group .tabular tbody td .field-project_type,
+.inline-group .tabular tbody td select[name*="project_type"] {
+    width: 100% !important;
+    min-width: 90px !important;
+    max-width: 120px !important;
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+}
+
+/* 标本量列 - 数字输入框 */
+.inline-group .tabular tbody td .field-sample_volume,
+.inline-group .tabular tbody td input[name*="sample_volume"] {
+    width: 100% !important;
+    max-width: 80px !important;
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+    text-align: center !important;
+}
+
+/* 竞品关系点列 - Select2下拉框 */
+.inline-group .tabular tbody td .field-competitionrelation {
+    min-width: 150px !important;
+    max-width: 200px !important;
+}
+
+.inline-group .tabular tbody td .field-competitionrelation .select2-container {
+    width: 100% !important;
+    min-width: 140px !important;
+    max-width: 180px !important;
+}
+
+.inline-group .tabular tbody td .field-competitionrelation .select2-container .select2-selection {
+    height: 28px !important;
+    padding: 0 6px !important;
+    font-size: 12px !important;
+    line-height: 26px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+}
+
+/* Related widget wrapper样式 */
+.inline-group .tabular tbody td .field-competitionrelation .related-widget-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    width: 100% !important;
+}
+
+.inline-group .tabular tbody td .field-competitionrelation .related-widget-wrapper select,
+.inline-group .tabular tbody td .field-competitionrelation .related-widget-wrapper .select2-container {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.inline-group .tabular tbody td .field-competitionrelation .related-widget-wrapper a {
+    flex-shrink: 0 !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #f8f9fa !important;
+    border: 1px solid #ccc !important;
+    border-radius: 2px !important;
+    text-decoration: none !important;
+    font-size: 10px !important;
+}
+
+/* 经销商名称列 - 文本输入框 */
+.inline-group .tabular tbody td .field-dealer_name,
+.inline-group .tabular tbody td input[name*="dealer_name"] {
+    width: 100% !important;
+    min-width: 100px !important;
+    max-width: 150px !important;
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+}
+
+/* 删除列 */
+.inline-group .tabular tbody td.delete {
+    text-align: center !important;
+    min-width: 60px !important;
+    width: 60px !important;
+    max-width: 80px !important;
+}
+
+.inline-group .tabular tbody td.delete input[type="checkbox"] {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+}
+
+/* 确保表格能够正确显示所有列 */
+.inline-group .tabular tbody tr {
+    display: table-row !important;
+}
+
+.inline-group .tabular tbody tr td {
+    display: table-cell !important;
+}
+
+/* 表格行的交替颜色 */
+.inline-group .tabular tbody tr:nth-child(even) {
+    background-color: #f9f9f9 !important;
+}
+
+.inline-group .tabular tbody tr:nth-child(odd) {
+    background-color: white !important;
+}
+
+/* 添加行样式 */
+.inline-group .add-row td {
+    text-align: center !important;
+    padding: 10px !important;
+    background: #f0f7ff !important;
+    border: 1px solid #b4ceec !important;
+}
+
+.inline-group .add-row a {
+    color: #417690 !important;
+    text-decoration: none !important;
+    font-weight: bold !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .inline-group .tabular tbody td.original {
+        width: 150px !important;
+        max-width: 180px !important;
+        min-width: 120px !important;
+    }
+    
+    .inline-group .tabular tbody td.original p {
+        font-size: 10px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .inline-group .tabular {
+        font-size: 11px !important;
+        min-width: 700px !important;
+    }
+    
+    .inline-group .tabular thead th,
+    .inline-group .tabular tbody td {
+        padding: 4px 2px !important;
+    }
+    
+    .inline-group .tabular tbody td.original {
+        width: 120px !important;
+        max-width: 150px !important;
+        min-width: 100px !important;
+    }
+}
+
+/* 确保inline容器能够容纳表格 */
+.inline-group {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* 修复inline表格容器宽度问题 */
+.inline-related {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* 针对BloodCellProjectInlineForInstrument的特殊样式 */
+.inline-group#mindraybloodcellproject_set-group .tabular,
+.inline-group[id*="mindraybloodcellproject"] .tabular {
+    width: 100% !important;
+    min-width: 800px !important;
+}

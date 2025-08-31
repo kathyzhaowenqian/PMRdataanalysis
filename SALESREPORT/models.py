@@ -41,21 +41,22 @@ class Company(models.Model):
 class SalesReport(models.Model):
     company = models.ForeignKey('Company', models.CASCADE, db_column='company',to_field='id',verbose_name= '公司')
     salesman = models.ForeignKey('ReportUserInfo', models.CASCADE, db_column='salesman',to_field='id',related_name='salesmanreport',verbose_name= '负责人')
-    date1 = models.DateField(verbose_name='填报日期',blank=False, null=False)
+    date1 = models.DateField(verbose_name='填报日期',blank=True, null=False)
     project = models.CharField(verbose_name='项目',max_length=255, blank=False, null=False)
     name = models.CharField(verbose_name='主要人员',max_length=255, blank=False, null=False)
     desc = models.TextField(verbose_name='工作简述',max_length=255, blank=False, null=False)
     type = models.CharField(verbose_name='工作类型',max_length=255, blank=False, null=False)
     state = models.CharField(verbose_name='最新推进状态',max_length=255, blank=False, null=False)
     stage = models.CharField(verbose_name='已完成阶段',max_length=255, blank=False, null=False)
-    date2 = models.DateField(verbose_name='上一阶段反馈时间',blank=False, null=False)
-    date3 = models.DateField(verbose_name='最近计划反馈时间',blank=False, null=False)
+    date2 = models.DateField(verbose_name='上一阶段反馈时间',blank=True, null=False)
+    date3 = models.DateField(verbose_name='最近计划反馈时间',blank=True, null=False)
     operator = models.ForeignKey('ReportUserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operatorreport',verbose_name= '最后操作人')   
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
+        managed=False
         db_table = 'marketing_research_v2\".\"JcReport'
         verbose_name_plural = '集成业务日报'
 

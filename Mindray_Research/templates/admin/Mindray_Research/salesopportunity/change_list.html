@@ -1,0 +1,740 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <!-- 使用稳定版本的Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        .stats-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* 图表容器 - 调整TOP医院模块变窄 */
+        .charts-container {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1.4fr 1.5fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-item {
+            background: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 450px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .chart-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chart-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        /* 修改图表容器样式，确保环形图是正圆 */
+        .chart-canvas {
+            width: 100% !important;
+            height: 320px !important;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        
+        /* 环形图特殊处理 */
+        .doughnut-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 320px;
+        }
+        
+        #projectChart {
+            max-width: 280px !important;
+            max-height: 280px !important;
+            width: 280px !important;
+            height: 280px !important;
+        }
+        
+        /* TOP医院排名样式 - 优化桌面端对齐 */
+        .ranking-list {
+            margin-top: 1rem;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;  /* 垂直居中对齐 */
+            padding: 1rem 1.2rem;
+            margin-bottom: 0.8rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+            min-height: 50px;  /* 固定最小高度确保一致性 */
+        }
+        
+        .ranking-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .ranking-item:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            transform: translateX(6px) scale(1.01);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .ranking-item:nth-child(1)::before { background: linear-gradient(135deg, #ffd700, #ffed4e); }
+        .ranking-item:nth-child(2)::before { background: linear-gradient(135deg, #c0c0c0, #e5e5e5); }
+        .ranking-item:nth-child(3)::before { background: linear-gradient(135deg, #cd7f32, #deb887); }
+        
+        /* 桌面端排名数字 - 固定宽度，居中对齐 */
+        .ranking-number {
+            font-weight: 700;
+            color: #667eea;
+            width: 35px;        /* 固定宽度 */
+            text-align: center; /* 居中对齐 */
+            font-size: 1.1rem;
+            flex-shrink: 0;     /* 不收缩 */
+        }
+        
+        /* 桌面端医院名称 - 左对齐，占据剩余空间 */
+        .ranking-hospital {
+            flex: 1;            /* 占据剩余空间 */
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+            line-height: 1.4;
+            text-align: left;   /* 左对齐 */
+            padding: 0 1rem;    /* 左右padding */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* 桌面端地区 - 固定宽度，居中对齐 */
+        .ranking-district {
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-style: italic;
+            width: 90px;        /* 固定宽度 */
+            text-align: center; /* 居中对齐 */
+            flex-shrink: 0;     /* 不收缩 */
+        }
+        
+        /* 桌面端数量 - 固定宽度，居中对齐 */
+        .ranking-count {
+            color: #667eea;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 70px;        /* 固定宽度 */
+            text-align: center; /* 居中对齐 */
+            flex-shrink: 0;     /* 不收缩 */
+        }
+        
+        /* 隐藏手机版布局元素（桌面端） */
+        .ranking-main,
+        .ranking-meta {
+            display: none;
+        }
+        
+        /* 调试信息样式 */
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 - 平板和大屏手机 */
+        @media (max-width: 1200px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            /* 平板模式下保持桌面端布局但调整尺寸 */
+            .ranking-item {
+                padding: 1.2rem 1.5rem;
+                font-size: 1rem;
+                min-height: 55px;
+            }
+            
+            .ranking-number {
+                width: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .ranking-hospital {
+                font-size: 1.1rem;
+                padding: 0 1.2rem;
+            }
+            
+            .ranking-district {
+                font-size: 0.9rem;
+                width: 100px;
+            }
+            
+            .ranking-count {
+                font-size: 1.05rem;
+                width: 75px;
+            }
+        }
+        
+        /* 手机模式 - 医院名称自动换行 */
+        @media (max-width: 768px) {
+            /* 隐藏桌面版元素 */
+            .ranking-item > .ranking-number,
+            .ranking-item > .ranking-hospital,
+            .ranking-item > .ranking-district,
+            .ranking-item > .ranking-count {
+                display: none;
+            }
+            
+            /* 显示手机版布局 */
+            .ranking-main,
+            .ranking-meta {
+                display: flex !important;
+            }
+            
+            .ranking-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+                min-height: auto;
+                gap: 0.5rem;
+            }
+            
+            .ranking-item::before {
+                width: 100%;
+                height: 3px;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: auto;
+            }
+            
+            /* 第一行：排名和医院名 */
+            .ranking-main {
+                align-items: flex-start;
+                width: 100%;
+                gap: 1rem;
+            }
+            
+            .ranking-main .ranking-number {
+                width: 25px;
+                font-size: 1.2rem;
+                text-align: left;
+                flex-shrink: 0;
+            }
+            
+            .ranking-main .ranking-hospital {
+                flex: 1;
+                font-size: 1.05rem;
+                line-height: 1.3;
+                word-break: break-word;
+                hyphens: auto;
+                padding: 0;
+                text-align: left;
+            }
+            
+            /* 第二行：区域和数量 */
+            .ranking-meta {
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                margin-left: 35px;  /* 与医院名对齐 */
+            }
+            
+            .ranking-meta .ranking-district {
+                width: auto;
+                flex: 1;
+                font-size: 0.9rem;
+                text-align: left;
+            }
+            
+            .ranking-meta .ranking-count {
+                width: 55px;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.95rem;
+            }
+            
+            /* 调整hover效果 */
+            .ranking-item:hover {
+                transform: translateY(-2px) scale(1.01);
+                transform-origin: center;
+            }
+        }
+        
+        /* 超小屏幕优化 */
+        @media (max-width: 480px) {
+            .chart-item {
+                padding: 1.5rem;
+            }
+            
+            .ranking-main .ranking-hospital {
+                font-size: 1rem;
+            }
+            
+            .ranking-meta {
+                margin-left: 30px;
+            }
+            
+            .ranking-main .ranking-number {
+                width: 22px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content_title %}
+    <h1 style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800;">
+        📊 销售商机管理
+        {% if is_salesperson %}
+            <small style="color: #6c757d; font-weight: normal;">（我的商机）</small>
+        {% endif %}
+    </h1>
+    
+    <div class="stats-container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">{{ total_count }}</div>
+                <div class="stat-label">商机总数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ this_week_count }}</div>
+                <div class="stat-label">本周新增</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ last_week_count }}</div>
+                <div class="stat-label">上周新增</div>
+            </div>
+        </div>
+        
+        <!-- 图表容器 -->
+        <div class="charts-container">
+            <!-- 1. 项目分布饼图 -->
+            <div class="chart-item">
+                <div class="chart-title">🎯 商机项目分布</div>
+                <div class="doughnut-container">
+                    <canvas id="projectChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 2. Top10医院排名列表 -->
+            <div class="chart-item">
+                <div class="chart-title">🏆 商机数 Top10 医院</div>
+                <div class="ranking-list">
+                    {% for hospital in top_hospitals_list %}
+                    <div class="ranking-item">
+                        <!-- 桌面版布局 -->
+                        <span class="ranking-number">{{ hospital.rank }}</span>
+                        <span class="ranking-hospital">{{ hospital.hospital_name }}</span>
+                        <span class="ranking-district">({{ hospital.district }})</span>
+                        <span class="ranking-count">{{ hospital.count }} 个</span>
+                        
+                        <!-- 手机版布局结构 -->
+                        <div class="ranking-main">
+                            <span class="ranking-number">{{ hospital.rank }}</span>
+                            <span class="ranking-hospital">{{ hospital.hospital_name }}</span>
+                        </div>
+                        <div class="ranking-meta">
+                            <span class="ranking-district">({{ hospital.district }})</span>
+                            <span class="ranking-count">{{ hospital.count }} 个</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not top_hospitals_list %}
+                    <div style="text-align: center; color: #6c757d; padding: 3rem; font-style: italic;">
+                        📭 暂无数据
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 3. 销售排行 -->
+            <div class="chart-item">
+                <div class="chart-title">👨‍💼 销售商机数排行</div>
+                <canvas id="salespersonChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 等待页面完全加载
+        window.addEventListener('load', function() {
+            console.log('页面加载完成，开始初始化图表...');
+            
+            // 检查Chart.js是否加载
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js未加载');
+                return;
+            }
+            
+            console.log('Chart.js已加载，版本:', Chart.version);
+            
+            // 从Django模板获取数据
+            var projectData = {{ project_chart_data|safe }};
+            var projectLabels = {{ project_chart_labels|safe }};
+            var salespersonNames = {{ salesperson_names|safe }};
+            var salespersonCounts = {{ salesperson_counts|safe }};
+            
+            console.log('获取到的数据:', { projectData, projectLabels, salespersonNames, salespersonCounts });
+            
+            // 1. 创建项目分布环形图 - 使用现代化配色
+            var projectCanvas = document.getElementById('projectChart');
+            if (projectCanvas && projectData.length > 0) {
+                console.log('开始创建项目分布图...');
+                try {
+                    // 现代化渐变配色方案
+                    const modernColors = [
+                        '#667eea',  // 深蓝紫
+                        '#f093fb',  // 粉紫色
+                        '#4facfe',  // 天蓝色
+                        '#43e97b',  // 翠绿色
+                        '#fa709a',  // 珊瑚粉
+                        '#fee140',  // 金黄色
+                        '#a8edea',  // 薄荷绿
+                        '#d299c2',  // 淡紫色
+                        '#ffecd2',  // 淡橙色
+                        '#c2e59c'   // 嫩绿色
+                    ];
+                    
+                    // 确保有足够的颜色
+                    const chartColors = projectData.map((_, index) => modernColors[index % modernColors.length]);
+                    
+                    var projectChart = new Chart(projectCanvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: projectLabels,
+                            datasets: [{
+                                data: projectData,
+                                backgroundColor: chartColors,
+                                borderColor: '#ffffff',
+                                borderWidth: 3,
+                                hoverBorderWidth: 5,
+                                hoverOffset: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            aspectRatio: 1,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                        font: {
+                                            family: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                                            size: 13,
+                                            weight: '600'
+                                        },
+                                        color: '#2d3748',
+                                        generateLabels: function(chart) {
+                                            const data = chart.data;
+                                            if (data.labels.length && data.datasets.length) {
+                                                return data.labels.map((label, i) => {
+                                                    const dataset = data.datasets[0];
+                                                    const value = dataset.data[i];
+                                                    const total = dataset.data.reduce((a, b) => a + b, 0);
+                                                    const percentage = ((value / total) * 100).toFixed(1);
+                                                    return {
+                                                        text: `${label} (${percentage}%)`,
+                                                        fillStyle: dataset.backgroundColor[i],
+                                                        strokeStyle: dataset.borderColor,
+                                                        lineWidth: dataset.borderWidth,
+                                                        pointStyle: 'circle',
+                                                        hidden: false,
+                                                        index: i
+                                                    };
+                                                });
+                                            }
+                                            return [];
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(45, 55, 72, 0.95)',
+                                    titleColor: '#ffffff',
+                                    bodyColor: '#ffffff',
+                                    borderColor: '#667eea',
+                                    borderWidth: 2,
+                                    cornerRadius: 12,
+                                    titleFont: {
+                                        family: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                                        size: 14,
+                                        weight: '700'
+                                    },
+                                    bodyFont: {
+                                        family: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                                        size: 13,
+                                        weight: '500'
+                                    },
+                                    callbacks: {
+                                        title: function(context) {
+                                            return '📊 ' + context[0].label;
+                                        },
+                                        label: function(context) {
+                                            var value = context.parsed || 0;
+                                            var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            var percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                            return [
+                                                `数量: ${value} 个`,
+                                                `占比: ${percentage}%`
+                                            ];
+                                        }
+                                    }
+                                }
+                            },
+                            cutout: '65%',
+                            animation: {
+                                animateScale: true,
+                                animateRotate: true,
+                                duration: 1500,
+                                easing: 'easeOutQuart'
+                            }
+                        }
+                    });
+                    console.log('项目分布图创建成功');
+                } catch (error) {
+                    console.error('创建项目分布图失败:', error);
+                }
+            } else {
+                console.log('项目分布图：无数据或canvas不存在');
+            }
+            
+            // 2. 创建销售排行柱状图 - 现代渐变样式
+            var salespersonCanvas = document.getElementById('salespersonChart');
+            if (salespersonCanvas && salespersonCounts.length > 0) {
+                console.log('开始创建销售排行图...');
+                try {
+                    var ctx = salespersonCanvas.getContext('2d');
+                    
+                    // 现代化渐变配色
+                    const gradientColors = [
+                        { start: '#667eea', end: '#764ba2' },
+                        { start: '#f093fb', end: '#f5576c' },
+                        { start: '#4facfe', end: '#00f2fe' },
+                        { start: '#43e97b', end: '#38f9d7' },
+                        { start: '#fa709a', end: '#fee140' },
+                        { start: '#a8edea', end: '#fed6e3' },
+                        { start: '#ff9a9e', end: '#fecfef' },
+                        { start: '#a18cd1', end: '#fbc2eb' },
+                        { start: '#ffecd2', end: '#fcb69f' },
+                        { start: '#c2e59c', end: '#64b3f4' }
+                    ];
+                    
+                    // 创建渐变色
+                    var backgroundColors = [];
+                    var borderColors = [];
+                    
+                    for (var i = 0; i < salespersonCounts.length; i++) {
+                        var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                        var colors = gradientColors[i % gradientColors.length];
+                        gradient.addColorStop(0, colors.start);
+                        gradient.addColorStop(1, colors.end);
+                        backgroundColors.push(gradient);
+                        borderColors.push(colors.start);
+                    }
+                    
+                    var salespersonChart = new Chart(salespersonCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: salespersonNames,
+                            datasets: [{
+                                label: '商机数量',
+                                data: salespersonCounts,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 2,
+                                borderRadius: {
+                                    topLeft: 12,
+                                    topRight: 12,
+                                    bottomLeft: 4,
+                                    bottomRight: 4
+                                },
+                                borderSkipped: false,
+                                hoverBorderWidth: 3,
+                                hoverBackgroundColor: backgroundColors
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(45, 55, 72, 0.95)',
+                                    titleColor: '#ffffff',
+                                    bodyColor: '#ffffff',
+                                    borderColor: '#667eea',
+                                    borderWidth: 2,
+                                    cornerRadius: 12,
+                                    titleFont: {
+                                        family: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                                        size: 14,
+                                        weight: '700'
+                                    },
+                                    bodyFont: {
+                                        family: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                                        size: 13,
+                                        weight: '500'
+                                    },
+                                    callbacks: {
+                                        title: function(context) {
+                                            return '👨‍💼 ' + context[0].label;
+                                        },
+                                        label: function(context) {
+                                            return `商机数量: ${context.parsed.y} 个`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1,
+                                        font: {
+                                            family: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                                            size: 12,
+                                            weight: '500'
+                                        },
+                                        color: '#4a5568'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.08)',
+                                        lineWidth: 1
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        maxRotation: 45,
+                                        font: {
+                                            family: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                                            size: 11,
+                                            weight: '600'
+                                        },
+                                        color: '#2d3748'
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            animation: {
+                                duration: 1500,
+                                easing: 'easeOutQuart'
+                            },
+                            interaction: {
+                                intersect: false,
+                                mode: 'index'
+                            }
+                        }
+                    });
+                    console.log('销售排行图创建成功');
+                } catch (error) {
+                    console.error('创建销售排行图失败:', error);
+                }
+            } else {
+                console.log('销售排行图：无数据或canvas不存在');
+            }
+            
+            console.log('图表初始化完成');
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+{% endblock %}

@@ -1,0 +1,175 @@
+.change-list .results {
+    position: relative;
+    overflow-x: auto;
+    border: 1px solid #ddd;
+}
+
+.change-list .results table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    /* 移除 table-layout: fixed */
+}
+
+/* 第一列（勾选框列）- 更严格的宽度控制 */
+.change-list .results table th:first-child,
+.change-list .results table td:first-child,
+.change-list .results table th.action-checkbox-column,
+.change-list .results table td.action-checkbox-column {
+    position: sticky !important;
+    left: 0 !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    background-color: #f8f9fa !important;
+    z-index: 1002 !important;
+    border-right: 1px solid #ddd !important;
+    text-align: center !important;
+    padding: 8px 2px !important;
+    box-sizing: border-box !important;
+}
+
+/* 第二列 - 加大宽度并处理文字溢出 */
+.change-list .results table th:nth-child(2),
+.change-list .results table td:nth-child(2) {
+    position: sticky !important;
+    left: 40px !important;
+    width: 250px !important; /* 增加宽度 */
+    min-width: 250px !important;
+    background-color: #f8f9fa !important;
+    z-index: 1001 !important;
+    border-right: 2px solid #ddd !important;
+    box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1) !important;
+    box-sizing: border-box !important;
+    padding: 8px !important;
+    /* 处理文字溢出 */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* 第二列如果需要显示完整文字，可以设置hover效果 */
+.change-list .results table td:nth-child(2):hover {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    z-index: 1010 !important;
+    position: sticky !important;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3) !important;
+}
+
+/* 表头特殊样式 - 第一列 */
+.change-list .results table thead th:first-child,
+.change-list .results table thead th.action-checkbox-column {
+    background-color: #417690 !important;
+    color: white !important;
+    font-weight: bold !important;
+    z-index: 1003 !important;
+}
+
+/* 表头特殊样式 - 第二列 */
+.change-list .results table thead th:nth-child(2) {
+    background-color: #417690 !important;
+    color: white !important;
+    font-weight: bold !important;
+    z-index: 1002 !important;
+}
+
+/* 勾选框样式优化 */
+.change-list .results table td:first-child input[type="checkbox"],
+.change-list .results table th:first-child input[type="checkbox"],
+.change-list .results table td.action-checkbox-column input[type="checkbox"],
+.change-list .results table th.action-checkbox-column input[type="checkbox"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: scale(0.9) !important;
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* 行悬停效果 */
+.change-list .results table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.change-list .results table tbody tr:hover td:first-child,
+.change-list .results table tbody tr:hover td:nth-child(2),
+.change-list .results table tbody tr:hover td.action-checkbox-column {
+    background-color: #e9ecef !important;
+}
+
+/* 选中行效果 */
+.change-list .results table tbody tr.selected td:first-child,
+.change-list .results table tbody tr.selected td.action-checkbox-column {
+    background-color: #ffc107 !important;
+}
+
+.change-list .results table tbody tr.selected td:nth-child(2) {
+    background-color: #fff3cd !important;
+}
+
+/* 确保其他列正常显示 - 移除固定宽度限制 */
+.change-list .results table th:nth-child(n+3),
+.change-list .results table td:nth-child(n+3) {
+    background-color: white;
+    position: relative;
+    z-index: 1;
+    /* 移除 min-width 限制，让其他列自然布局 */
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .change-list .results table th:first-child,
+    .change-list .results table td:first-child,
+    .change-list .results table th.action-checkbox-column,
+    .change-list .results table td.action-checkbox-column {
+        width: 35px !important;
+        min-width: 35px !important;
+        max-width: 35px !important;
+    }
+    
+    .change-list .results table th:nth-child(2),
+    .change-list .results table td:nth-child(2) {
+        left: 35px !important;
+        width: 180px !important; /* 移动端稍小 */
+        min-width: 180px !important;
+    }
+}
+
+/* 额外的覆盖样式，确保Django admin默认样式不干扰 */
+.change-list .results table th.action-checkbox-column {
+    width: 40px !important;
+}
+
+.change-list .results table .action-checkbox-column input {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* 如果第二列内容确实很长，可以添加这个样式来显示tooltip */
+.change-list .results table td:nth-child(2) {
+    position: relative;
+}
+
+.change-list .results table td:nth-child(2)[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: #333;
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+    white-space: nowrap;
+    z-index: 1020;
+    font-size: 12px;
+}
+
+body.change-list #changelist #result_list tbody tr:hover td:first-child,
+body.change-list #changelist #result_list tbody tr:hover th:first-child,
+body.change-list #changelist #result_list tbody tr:hover td.action-checkbox-column,
+body.change-list #changelist #result_list tbody tr:hover th.action-checkbox-column,
+body.change-list #changelist #result_list tbody tr:hover td:nth-child(2),
+body.change-list #changelist #result_list tbody tr:hover th:nth-child(2) {
+background-color: #e6f2ff !important;
+}
