@@ -1475,10 +1475,16 @@ html, body {
 }
 
 /* Original列特殊处理 */
-.inline-group .tabular thead th.original {
+/* .inline-group .tabular thead th.original {
     width: 200px !important;
     max-width: 250px !important;
     min-width: 150px !important;
+} */
+/* Original列特殊处理 - 修改为很窄的宽度 */
+.inline-group .tabular thead th.original {
+    width: 60px !important;
+    max-width: 80px !important;
+    min-width: 50px !important;
 }
 
 /* 常规inline表格单元格样式 */
@@ -1491,7 +1497,7 @@ html, body {
 }
 
 /* Original列单元格样式 */
-.inline-group .tabular tbody td.original {
+/* .inline-group .tabular tbody td.original {
     width: 200px !important;
     max-width: 250px !important;
     min-width: 150px !important;
@@ -1499,6 +1505,19 @@ html, body {
     font-size: 11px !important;
     color: #666 !important;
     padding: 4px 6px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+} */
+
+/* Original列单元格样式 - 修改为很窄的宽度 */
+.inline-group .tabular tbody td.original {
+    width: 60px !important;
+    max-width: 80px !important;
+    min-width: 50px !important;
+    text-align: left !important;
+    font-size: 11px !important;
+    color: #666 !important;
+    padding: 4px 2px !important; /* 减少左右内边距 */
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
@@ -1649,7 +1668,7 @@ html, body {
 }
 
 /* 响应式调整 */
-@media (max-width: 1200px) {
+/* @media (max-width: 1200px) {
     .inline-group .tabular tbody td.original {
         width: 150px !important;
         max-width: 180px !important;
@@ -1677,7 +1696,30 @@ html, body {
         max-width: 150px !important;
         min-width: 100px !important;
     }
+} */
+
+
+/* 响应式调整也需要相应修改 */
+@media (max-width: 1200px) {
+    .inline-group .tabular tbody td.original {
+        width: 50px !important;
+        max-width: 60px !important;
+        min-width: 40px !important;
+    }
+    
+    .inline-group .tabular tbody td.original p {
+        font-size: 10px !important;
+    }
 }
+
+@media (max-width: 768px) {
+    .inline-group .tabular tbody td.original {
+        width: 40px !important;
+        max-width: 50px !important;
+        min-width: 35px !important;
+    }
+}
+
 
 /* 确保inline容器能够容纳表格 */
 .inline-group {

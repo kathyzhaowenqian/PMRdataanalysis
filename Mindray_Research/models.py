@@ -196,7 +196,8 @@ class MindrayBloodCellProject(models.Model):
         unique_together = ['instrument_survey', 'project_type']
 
     def __str__(self):
-        return f"{self.instrument_survey} - {self.get_project_type_display()}"
+        return 'id:'+str(self.pk)  
+        # return f"{self.instrument_survey} - {self.get_project_type_display()}"
 
    
     def save(self, *args, **kwargs):
@@ -962,7 +963,8 @@ class SalesOpportunity(models.Model):
         
     def __str__(self):
         hospital_name = self.hospital_survey.hospital.hospitalname if self.hospital_survey and self.hospital_survey.hospital else '未知医院'
-        return f"{hospital_name} - {self.opportunity_model} - {self.get_opportunity_project_display()}"
+        # return f"{hospital_name} - {self.opportunity_model} - {self.get_opportunity_project_display()}"
+        return 'id:'+str(self.pk) 
     
     @property
     def hospital(self):
