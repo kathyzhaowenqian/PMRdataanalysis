@@ -507,7 +507,11 @@
             }
         }
 
-
+    .familiarity-stat-item.familiarity-gray {
+        background-color: #f5f5f5;
+        color: #666;
+        border-color: #ccc;
+    }
         
     </style>
 {% endblock %}
@@ -561,7 +565,7 @@
             
           
             <!-- 3. 客情统计 -->
-            {% if director_familiarity_stats or leader_familiarity_stats %}
+            <!-- {% if director_familiarity_stats or leader_familiarity_stats %}
             <div class="familiarity-stats">
                 <div class="chart-title">👥 客情统计</div>
                 <div style="margin-bottom: 1.5rem;">
@@ -579,6 +583,32 @@
                     <div style="margin-top: 0.5rem;">
                         {% for familiarity, count in leader_familiarity_stats.items %}
                             <span class="familiarity-stat-item familiarity-{% if familiarity == '不认识' %}red{% elif familiarity == '有商机在跟进' %}yellow{% elif familiarity == '有明确代理商' %}green{% elif familiarity == '成单' %}blue{% endif %}">
+                                {{ familiarity }}: {{ count }}个
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %} -->
+            <!-- 3. 客情统计 -->
+            {% if director_familiarity_stats or leader_familiarity_stats %}
+            <div class="familiarity-stats">
+                <div class="chart-title">👥 客情统计</div>
+                <div style="margin-bottom: 1.5rem;">
+                    <div class="chart-subtitle">主任客情：</div>
+                    <div style="margin-top: 0.5rem;">
+                        {% for familiarity, count in director_familiarity_stats.items %}
+                            <span class="familiarity-stat-item familiarity-{% if familiarity == '不认识' %}red{% elif familiarity == '有商机在跟进' %}yellow{% elif familiarity == '有明确代理商' %}green{% elif familiarity == '成单' %}blue{% elif familiarity == '未设置' %}gray{% endif %}">
+                                {{ familiarity }}: {{ count }}个
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <div class="chart-subtitle">组长客情：</div>
+                    <div style="margin-top: 0.5rem;">
+                        {% for familiarity, count in leader_familiarity_stats.items %}
+                            <span class="familiarity-stat-item familiarity-{% if familiarity == '不认识' %}red{% elif familiarity == '有商机在跟进' %}yellow{% elif familiarity == '有明确代理商' %}green{% elif familiarity == '成单' %}blue{% elif familiarity == '未设置' %}gray{% endif %}">
                                 {{ familiarity }}: {{ count }}个
                             </span>
                         {% endfor %}

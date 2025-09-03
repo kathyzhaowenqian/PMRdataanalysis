@@ -33,8 +33,7 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from collections import defaultdict
-
-
+ 
 
 ALLOWED_SALESMEN = ['ybb', 'fzj', 'zy', 'cy', 'gsj', 'xxh']
 
@@ -239,6 +238,38 @@ class BrandAdmin(GlobalAdmin):
     def has_delete_permission(self, request, obj=None):
         return False  # 全局禁用删除按钮
     
+ 
+@admin.register(InstrumentModel)
+class InstrumentModelAdmin(GlobalAdmin):
+    list_display = ['model_name', 'brand', 'is_active', 'createtime']
+    list_filter = ['brand', 'is_active', 'createtime']
+    search_fields = ['model_name', 'brand__brand']
+    list_editable = ['is_active']
+    autocomplete_fields = ['brand']
+    
+    def get_search_results(self, request, queryset, search_term):
+        """处理 autocomplete 搜索，支持品牌过滤"""
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        
+        # 只在autocomplete请求时应用品牌过滤
+        if 'autocomplete' in request.path:
+            # 获取品牌过滤参数
+            brand_id = request.GET.get('brand')
+            if brand_id:
+                try:
+                    brand_id = int(brand_id)
+                    queryset = queryset.filter(brand_id=brand_id)
+                except (ValueError, TypeError):
+                    pass
+            
+            # 只显示激活的记录
+            queryset = queryset.filter(is_active=True).order_by('model_name')
+        
+        return queryset, use_distinct
+
+ 
+
+
 @admin.register(Company)  
 class CompanyAdmin(GlobalAdmin):   
     exclude = ('id','createtime','updatetime','is_active')
@@ -264,30 +295,36 @@ class MindrayInstrumentCategoryAdmin(GlobalAdmin):
         return super().get_queryset(request).filter(is_active=True)
 
  
+ 
 class MindrayInstrumentSurveyForm(forms.ModelForm):
     class Meta:
         model = MindrayInstrumentSurvey
         fields = '__all__'
-        # widgets = {
-        #     'expiry_date': YearMonthDateWidget(attrs={
-        #         'placeholder': '选择到期时间'
-        #     }),
-        # }
     
-    # def clean_expiry_date(self):
-    #     """确保日期字段正确处理"""
-    #     expiry_date = self.cleaned_data.get('expiry_date')
-    #     return expiry_date
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # 始终显示所有可用的 model，不做品牌限制
+        self.fields['model'].queryset = InstrumentModel.objects.filter(
+            is_active=True
+        ).order_by('model_name')
     
-    def clean_quantity(self):
-        """验证台数不能小于1"""
-        quantity = self.cleaned_data.get('quantity')
-        if quantity is not None and quantity < 0:
-            raise forms.ValidationError('台数不能小于0')
-        return quantity
+    def clean(self):
+        """自定义验证：确保选择的 model 属于选择的 brand"""
+        cleaned_data = super().clean()
+        brand = cleaned_data.get('brand')
+        model = cleaned_data.get('model')
+        
+        if brand and model:
+            # 验证 model 是否属于选择的 brand
+            if model.brand != brand:
+                raise forms.ValidationError({
+                    'model': f'所选型号 "{model.model_name}" 不属于品牌 "{brand.brand}"，请重新选择。'
+                })
+        
+        return cleaned_data
 
- 
-class BloodCellProjectInlineForInstrument(admin.StackedInline):  # 改为StackedInline
+class BloodCellProjectInlineForInstrument(admin.StackedInline):  
     model = MindrayBloodCellProject
     extra = 0
     verbose_name = "血球项目详情"
@@ -334,11 +371,11 @@ class MindrayBloodCellProjectInline(nested_admin.NestedTabularInline):
 class BaseInstrumentInline(nested_admin.NestedStackedInline):
     model = MindrayInstrumentSurvey
     form = MindrayInstrumentSurveyForm
-    extra = 0
+    extra = 1
     verbose_name = "仪器调研"
     verbose_name_plural = "仪器调研"
     
-    autocomplete_fields = ['brand', 'competitionrelation']
+    autocomplete_fields = ['brand','competitionrelation']
     exclude = ['category']
     
     def get_extra(self, request, obj=None, **kwargs):
@@ -349,13 +386,18 @@ class BaseInstrumentInline(nested_admin.NestedStackedInline):
     def get_max_num(self, request, obj=None, **kwargs):
         return None
     
+ 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "brand":
             kwargs["queryset"] = Brand.objects.filter(is_active=True)
+        elif db_field.name == "model":
+            # 关键：为 inline 中的 model 字段设置完整的 queryset
+            kwargs["queryset"] = InstrumentModel.objects.filter(is_active=True).order_by('model_name')
         elif db_field.name == "competitionrelation":
             kwargs["queryset"] = CompetitionRelation.objects.filter(is_active=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
     
+
     # 新增这个辅助方法
     def _sync_last_modified_by(self, instance, user):
         """辅助方法：为仪器实例设置修改人（仅当为空时）"""
@@ -364,11 +406,12 @@ class BaseInstrumentInline(nested_admin.NestedStackedInline):
             return True
         return False
     
+
 class BloodCellInstrumentInline(BaseInstrumentInline):
     verbose_name = "血球仪器调研"
     verbose_name_plural = "血球仪器调研"
     inlines = [MindrayBloodCellProjectInline]
-    
+ 
     fieldsets = (
         ('基本信息', {
             'fields': (
@@ -443,11 +486,11 @@ class BloodCellInstrumentInline(BaseInstrumentInline):
             
             return BloodCellFormSet     
 
+ 
 
 class GlycationInstrumentInline(BaseInstrumentInline):
     verbose_name = "糖化仪器调研"
     verbose_name_plural = "糖化仪器调研"
-    
     fieldsets = (
         ('仪器信息', {
             'fields': (
@@ -524,7 +567,6 @@ class GlycationInstrumentInline(BaseInstrumentInline):
 class UrineInstrumentInline(BaseInstrumentInline):
     verbose_name = "尿液仪器调研"
     verbose_name_plural = "尿液仪器调研"
-    
     fieldsets = (
         ('仪器信息', {
             'fields': (
@@ -664,6 +706,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         'sales_mode',
         'director_familiarity',
         'leader_familiarity',
+        'updatetime'
     ]
     
     search_fields = [
@@ -746,33 +789,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
     get_urine_count.short_description = '尿液台数'
     get_urine_count.admin_order_field = 'urine_total_count'
     
-    # def get_blood_cell_summary(self, obj):
-    #     """显示血球仪器汇总，超长时截断"""
-    #     summary = obj.blood_cell_summary or "无"
-    #     # if len(summary) > 100:  # 如果太长，截断显示
-    #     #     return f"{summary[:100]}..."
-    #     return summary
-    # get_blood_cell_summary.short_description = '血球品牌-型号-台数-装机年份-标本量'
-    # get_blood_cell_summary.admin_order_field = 'blood_cell_summary'
-    
  
-    # def get_glycation_summary(self, obj):
-    #     """显示糖化仪器汇总，超长时截断"""
-    #     summary = obj.glycation_summary or "无"
-    #     # if len(summary) > 100:  # 如果太长，截断显示
-    #     #     return f"{summary[:100]}..."
-    #     return summary
-    # get_glycation_summary.short_description = '糖化品牌-型号-台数-装机年份-标本量'
-    # get_glycation_summary.admin_order_field = 'glycation_summary'
-    
-    # def get_urine_summary(self, obj):
-    #     """显示尿液仪器汇总，超长时截断"""
-    #     summary = obj.urine_summary or "无"
-    #     # if len(summary) > 100:  # 如果太长，截断显示
-    #     #     return f"{summary[:100]}..."
-    #     return summary
-    # get_urine_summary.short_description = '尿液品牌-型号-台数-装机年份-标本量'
-    # get_urine_summary.admin_order_field = 'urine_summary'
 
     def get_blood_cell_summary(self, obj):
         """显示血球仪器汇总，支持换行显示"""
@@ -810,19 +827,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
     get_urine_summary.short_description = '尿液品牌-型号-台数-装机年份-标本量'
     get_urine_summary.admin_order_field = 'urine_summary'
 
-
-    # def display_sales_opportunities_summary(self, obj):
-    #     """在列表页显示商机汇总，支持换行显示"""
-    #     if obj.sales_opportunities_summary and obj.sales_opportunities_summary != "无":
-    #         # 将/分隔的内容用<br>标签连接，实现换行显示
-    #         summaries = obj.sales_opportunities_summary.split('/')
-    #         html_content = '<br>'.join(summaries)
-    #         return format_html(html_content)
-    #     return "无商机"
-    
-    # display_sales_opportunities_summary.short_description = '商机项目-型号-标本量-落地时间'
-    # display_sales_opportunities_summary.admin_order_field = 'sales_opportunities_summary'
-
+ 
     def display_sales_opportunities_summary(self, obj):
         """显示尿液仪器汇总，支持换行显示"""
         summary = obj.sales_opportunities_summary or "无"
@@ -835,8 +840,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
     display_sales_opportunities_summary.short_description = '商机项目-型号-标本量-落地时间'
     display_sales_opportunities_summary.admin_order_field = 'sales_opportunities_summary'
 
-#====================================================
-
+    #====================================================
 
     def get_hospital_district(self, obj):
         return obj.hospital.district
@@ -1400,7 +1404,8 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                 '是' if obj.is_our_instrument else '否',
                 obj.get_our_sales_channel_display() or '',
                 str(obj.brand) if obj.brand else '',
-                obj.model or '',
+                # obj.model or '',
+                obj.model.model_name if obj.model else '',
                 obj.quantity or 0,
                 obj.installation_year or '',
                 obj.get_installation_location_display() or '',  
@@ -1580,7 +1585,8 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                 obj.hospital_survey.hospital.district if obj.hospital_survey and obj.hospital_survey.hospital else '',
                 obj.hospital_survey.hospital.hospitalclass if obj.hospital_survey and obj.hospital_survey.hospital else '',
                 obj.hospital_survey.qitian_manager.chinesename if obj.hospital_survey and obj.hospital_survey.qitian_manager else '',
-                obj.opportunity_model or '',
+                # obj.opportunity_model or '',
+                obj.opportunity_model.model_name if obj.opportunity_model else '',
                 obj.get_opportunity_project_display(),
                 obj.sample_volume or 0,
                 obj.landing_time or '',
@@ -1626,7 +1632,8 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             )
             
             project_key = (
-                obj.opportunity_model or '',
+                # obj.opportunity_model or '',
+                obj.opportunity_model.model_name if obj.opportunity_model else '',
                 obj.get_opportunity_project_display() or '',
                 obj.opportunity_status or '',  # 添加商机情况
                 obj.createtime.strftime('%Y-%m-%d') if obj.createtime else ''
@@ -1853,9 +1860,10 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             ).select_related(
                 'category',
                 'brand',
+                'model', 
                 'competitionrelation',
                 'last_modified_by'
-            )
+            ).order_by('category__id', 'brand__id', 'createtime') 
             
             if not instruments.exists():
                 # 如果医院没有仪器调研，仍然要显示医院信息
@@ -1869,7 +1877,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                         blood_projects = MindrayBloodCellProject.objects.filter(
                             instrument_survey=instrument,
                             is_active=True
-                        ).select_related('competitionrelation')
+                        ).select_related('competitionrelation').order_by('project_type', 'createtime', 'id')
                         
                         if blood_projects.exists():
                             grouped_data[hospital_survey][category_name][instrument].extend(blood_projects)
@@ -1949,7 +1957,8 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             '是' if instrument and instrument.is_our_instrument else ('否' if instrument else ''),
             dict(MindrayInstrumentSurvey.SALES_CHANNEL_CHOICES).get(instrument.our_sales_channel, instrument.our_sales_channel or '') if instrument and instrument.our_sales_channel else '',
             instrument.brand.brand if instrument and instrument.brand else '',
-            instrument.model if instrument else '',
+            # instrument.model if instrument else '',
+            instrument.model.model_name if instrument and instrument.model else '',
             instrument.quantity if instrument else '',
             instrument.installation_year if instrument else '',
             dict(MindrayInstrumentSurvey.installation_location_CHOICES).get(instrument.installation_location, instrument.installation_location or '') if instrument and instrument.installation_location else '',
@@ -2191,6 +2200,224 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
     refresh_all_calculated_fields.type = 'info'
     refresh_all_calculated_fields.style = 'color:white;'
 
+    # def changelist_view(self, request, extra_context=None):
+    #     """自定义列表页面，添加统计信息和图表数据"""
+    #     extra_context = extra_context or {}
+        
+    #     # 获取当前查询集
+    #     queryset = self.get_queryset(request)
+        
+    #     # 应用搜索和过滤
+    #     cl = self.get_changelist_instance(request)
+    #     queryset = cl.get_queryset(request)
+        
+    #     from django.db.models import Sum, Count, Avg, Q
+    #     from django.utils import timezone
+    #     from datetime import timedelta
+        
+    #     # 1. 基本统计
+    #     total_hospitals = queryset.count()
+        
+    #     # 2. 标本量统计汇总 - 确保所有字段都包含
+    #     volume_stats = queryset.aggregate(
+    #         total_routine=Sum('routine_total_volume'),
+    #         total_crp=Sum('crp_total_volume'),
+    #         total_saa=Sum('saa_total_volume'),
+    #         total_esr=Sum('esr_total_volume'),
+    #         total_glycation=Sum('glycation_total_volume'),
+    #         total_urine=Sum('urine_total_volume'),
+    #     )
+        
+        
+    #     # 3. 仪器台数统计汇总
+    #     instrument_stats = queryset.aggregate(
+    #         total_blood_cell=Sum('blood_cell_total_count'),
+    #         total_glycation_count=Sum('glycation_total_count'),
+    #         total_urine_count=Sum('urine_total_count'),
+    #     )
+        
+    #     # 4. 按医院级别统计
+    #     class_stats = queryset.values(
+    #         'hospital__hospitalclass'
+    #     ).annotate(
+    #         count=Count('id')
+    #     ).exclude(
+    #         hospital__hospitalclass__isnull=True
+    #     ).order_by('-count')
+        
+    #     # 5. 客情统计
+    #     director_familiarity_stats = queryset.values('director_familiarity').annotate(
+    #         count=Count('id')
+    #     )
+    #     leader_familiarity_stats = queryset.values('leader_familiarity').annotate(
+    #         count=Count('id')
+    #     )
+        
+    #     familiarity_map = {
+    #         'red': '不认识',
+    #         'yellow': '有商机在跟进',
+    #         'green': '有明确代理商',
+    #         'blue': '成单'
+    #     }
+        
+    #     director_familiarity_display = {}
+    #     leader_familiarity_display = {}
+        
+    #     for item in director_familiarity_stats:
+    #         key = item['director_familiarity']
+    #         if key:
+    #             director_familiarity_display[familiarity_map.get(key, key)] = item['count']
+        
+    #     for item in leader_familiarity_stats:
+    #         key = item['leader_familiarity']
+    #         if key:
+    #             leader_familiarity_display[familiarity_map.get(key, key)] = item['count']
+        
+    #     # 6. 修改时间统计
+    #     today = timezone.now().date()
+    #     week_start = today - timedelta(days=today.weekday())
+    #     month_start = today.replace(day=1)
+        
+    #     this_week_count = queryset.filter(updatetime__date__gte=week_start).count()
+    #     this_month_count = queryset.filter(updatetime__date__gte=month_start).count()
+        
+    #     # 7. 医院标本量排名（Top15）
+    #     hospital_sample_rankings = []
+    #     for hospital in queryset.select_related('hospital'):
+    #         total_sample = (
+    #             (hospital.crp_total_volume or 0) +
+    #             (hospital.saa_total_volume or 0) +
+    #             (hospital.esr_total_volume or 0) +
+    #             (hospital.routine_total_volume or 0) +
+    #             (hospital.glycation_total_volume or 0) +
+    #             (hospital.urine_total_volume or 0)
+    #         )
+    #         if total_sample > 0:
+    #             hospital_sample_rankings.append({
+    #                 'hospital_name': hospital.hospital.hospitalname,
+    #                 'total_sample': total_sample,
+    #                 'district': hospital.hospital.district,
+    #                 'rank': 0  # 将在排序后设置
+    #             })
+        
+    #     # 按总标本量排序并添加排名
+    #     hospital_sample_rankings.sort(key=lambda x: x['total_sample'], reverse=True)
+    #     for i, hospital in enumerate(hospital_sample_rankings[:15], 1):
+    #         hospital['rank'] = i
+        
+    #     # 8. 医院仪器台数排名（Top15）
+    #     hospital_instrument_rankings = []
+    #     for hospital in queryset.select_related('hospital'):
+    #         total_instruments = (
+    #             (hospital.blood_cell_total_count or 0) +
+    #             (hospital.glycation_total_count or 0) +
+    #             (hospital.urine_total_count or 0)
+    #         )
+    #         if total_instruments > 0:
+    #             hospital_instrument_rankings.append({
+    #                 'hospital_name': hospital.hospital.hospitalname,
+    #                 'total_instruments': total_instruments,
+    #                 'district': hospital.hospital.district,
+    #                 'rank': 0  # 将在排序后设置
+    #             })
+        
+    #     # 按总仪器台数排序并添加排名
+    #     hospital_instrument_rankings.sort(key=lambda x: x['total_instruments'], reverse=True)
+    #     for i, hospital in enumerate(hospital_instrument_rankings[:15], 1):
+    #         hospital['rank'] = i
+        
+    #     # 9. 修改：医院商机数量排名（基于SalesOpportunity数量）
+    #     from .models import SalesOpportunity  # 确保导入SalesOpportunity
+        
+    #     hospital_opportunity_rankings = []
+    #     for hospital in queryset.select_related('hospital'):
+    #         # 统计该医院调研记录的商机数量
+    #         opportunity_count = SalesOpportunity.objects.filter(
+    #             hospital_survey=hospital,  # 使用正确的字段名
+    #             is_active=True
+    #         ).count()
+            
+    #         if opportunity_count > 0:
+    #             hospital_opportunity_rankings.append({
+    #                 'hospital_name': hospital.hospital.hospitalname,
+    #                 'opportunity_count': opportunity_count,
+    #                 'district': hospital.hospital.district,
+    #                 'rank': 0  # 将在排序后设置
+    #             })
+        
+    #     # 按商机数量排序并添加排名
+    #     hospital_opportunity_rankings.sort(key=lambda x: x['opportunity_count'], reverse=True)
+    #     for i, hospital in enumerate(hospital_opportunity_rankings[:15], 1):
+    #         hospital['rank'] = i
+        
+    #     # 准备图表数据 - 修正标本量数据
+    #     # 标本量分布数据（按值降序排序） - 确保包含所有类型
+    #     volume_data_raw = [
+    #         (volume_stats['total_routine'] or 0, '血常规'),
+    #         (volume_stats['total_crp'] or 0, 'CRP'),
+    #         (volume_stats['total_saa'] or 0, 'SAA'),  # 确保SAA包含
+    #         (volume_stats['total_esr'] or 0, '血沉'),
+    #         (volume_stats['total_glycation'] or 0, '糖化'),
+    #         (volume_stats['total_urine'] or 0, '尿液'),  # 确保尿液包含
+    #     ]
+
+       
+
+
+    #     # 过滤掉值为0的项目（避免图表中显示0值）
+    #     volume_data_filtered = [(value, label) for value, label in volume_data_raw if value > 0]
+    #     volume_data_filtered.sort(key=lambda x: x[0], reverse=True)
+        
+    #     volume_chart_data = [item[0] for item in volume_data_filtered]
+    #     volume_chart_labels = [item[1] for item in volume_data_filtered]
+        
+    #     # 仪器台数分布数据（按值降序排序）
+    #     instrument_data_raw = [
+    #         (instrument_stats['total_blood_cell'] or 0, '血球仪器'),
+    #         (instrument_stats['total_glycation_count'] or 0, '糖化仪器'),
+    #         (instrument_stats['total_urine_count'] or 0, '尿液仪器'),
+    #     ]
+    #     # 过滤掉值为0的项目
+    #     instrument_data_filtered = [(value, label) for value, label in instrument_data_raw if value > 0]
+    #     instrument_data_filtered.sort(key=lambda x: x[0], reverse=True)
+        
+    #     instrument_chart_data = [item[0] for item in instrument_data_filtered]
+    #     instrument_chart_labels = [item[1] for item in instrument_data_filtered]
+        
+    #     extra_context.update({
+    #         # 基本统计
+    #         'total_hospitals': total_hospitals,
+    #         'this_week_count': this_week_count,
+    #         'this_month_count': this_month_count,
+    #         'total_all_samples': sum(volume_chart_data) if volume_chart_data else 0,
+    #         'total_all_instruments': sum(instrument_chart_data) if instrument_chart_data else 0,
+            
+    #         # 图表数据
+    #         'volume_chart_data': volume_chart_data,
+    #         'volume_chart_labels': volume_chart_labels,
+    #         'instrument_chart_data': instrument_chart_data,
+    #         'instrument_chart_labels': instrument_chart_labels,
+            
+    #         # 传统统计保留
+    #         'volume_stats': volume_stats,
+    #         'instrument_stats': instrument_stats,
+    #         'class_stats': class_stats,
+    #         'director_familiarity_stats': director_familiarity_display,
+    #         'leader_familiarity_stats': leader_familiarity_display,
+            
+    #         # 排名数据
+    #         'hospital_sample_rankings': hospital_sample_rankings[:15],
+    #         'hospital_instrument_rankings': hospital_instrument_rankings[:15],
+    #         'hospital_opportunity_rankings': hospital_opportunity_rankings[:15],
+    #     })
+        
+    #     #    # 添加这个调试，看看传递给模板的数据
+    #     # print(f"传递给模板的 volume_chart_data: {extra_context['volume_chart_data']}")
+    #     # print(f"传递给模板的 volume_chart_labels: {extra_context['volume_chart_labels']}")
+    #     # print("=== 调试结束 ===")
+        
+    #     return super().changelist_view(request, extra_context=extra_context)    
+
     def changelist_view(self, request, extra_context=None):
         """自定义列表页面，添加统计信息和图表数据"""
         extra_context = extra_context or {}
@@ -2202,14 +2429,14 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         cl = self.get_changelist_instance(request)
         queryset = cl.get_queryset(request)
         
-        from django.db.models import Sum, Count, Avg, Q
+        from django.db.models import Sum, Count, Avg, Q, Case, When, IntegerField
         from django.utils import timezone
         from datetime import timedelta
         
         # 1. 基本统计
         total_hospitals = queryset.count()
         
-        # 2. 标本量统计汇总 - 确保所有字段都包含
+        # 2. 标本量统计汇总
         volume_stats = queryset.aggregate(
             total_routine=Sum('routine_total_volume'),
             total_crp=Sum('crp_total_volume'),
@@ -2218,7 +2445,6 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             total_glycation=Sum('glycation_total_volume'),
             total_urine=Sum('urine_total_volume'),
         )
-        
         
         # 3. 仪器台数统计汇总
         instrument_stats = queryset.aggregate(
@@ -2236,33 +2462,67 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             hospital__hospitalclass__isnull=True
         ).order_by('-count')
         
-        # 5. 客情统计
-        director_familiarity_stats = queryset.values('director_familiarity').annotate(
-            count=Count('id')
-        )
-        leader_familiarity_stats = queryset.values('leader_familiarity').annotate(
-            count=Count('id')
-        )
-        
+        # 5. 修正后的客情统计
         familiarity_map = {
             'red': '不认识',
             'yellow': '有商机在跟进',
             'green': '有明确代理商',
-            'blue': '成单'
+            'blue': '成单',
+            None: '未设置',  # 添加None值的处理
+            '': '未设置'     # 添加空字符串的处理
         }
         
+        # 主任客情统计 - 使用更精确的统计方式
         director_familiarity_display = {}
+        director_stats = queryset.aggregate(
+            red_count=Count('id', filter=Q(director_familiarity='red')),
+            yellow_count=Count('id', filter=Q(director_familiarity='yellow')),
+            green_count=Count('id', filter=Q(director_familiarity='green')),
+            blue_count=Count('id', filter=Q(director_familiarity='blue')),
+            none_count=Count('id', filter=Q(director_familiarity__isnull=True)),
+            empty_count=Count('id', filter=Q(director_familiarity=''))
+        )
+        
+        # 组织主任客情显示数据
+        if director_stats['red_count'] > 0:
+            director_familiarity_display['不认识'] = director_stats['red_count']
+        if director_stats['yellow_count'] > 0:
+            director_familiarity_display['有商机在跟进'] = director_stats['yellow_count']
+        if director_stats['green_count'] > 0:
+            director_familiarity_display['有明确代理商'] = director_stats['green_count']
+        if director_stats['blue_count'] > 0:
+            director_familiarity_display['成单'] = director_stats['blue_count']
+        
+        # 合并None和空字符串为"未设置"
+        unset_director_count = director_stats['none_count'] + director_stats['empty_count']
+        if unset_director_count > 0:
+            director_familiarity_display['未设置'] = unset_director_count
+        
+        # 组长客情统计 - 使用相同方式
         leader_familiarity_display = {}
+        leader_stats = queryset.aggregate(
+            red_count=Count('id', filter=Q(leader_familiarity='red')),
+            yellow_count=Count('id', filter=Q(leader_familiarity='yellow')),
+            green_count=Count('id', filter=Q(leader_familiarity='green')),
+            blue_count=Count('id', filter=Q(leader_familiarity='blue')),
+            none_count=Count('id', filter=Q(leader_familiarity__isnull=True)),
+            empty_count=Count('id', filter=Q(leader_familiarity=''))
+        )
         
-        for item in director_familiarity_stats:
-            key = item['director_familiarity']
-            if key:
-                director_familiarity_display[familiarity_map.get(key, key)] = item['count']
+        # 组织组长客情显示数据
+        if leader_stats['red_count'] > 0:
+            leader_familiarity_display['不认识'] = leader_stats['red_count']
+        if leader_stats['yellow_count'] > 0:
+            leader_familiarity_display['有商机在跟进'] = leader_stats['yellow_count']
+        if leader_stats['green_count'] > 0:
+            leader_familiarity_display['有明确代理商'] = leader_stats['green_count']
+        if leader_stats['blue_count'] > 0:
+            leader_familiarity_display['成单'] = leader_stats['blue_count']
         
-        for item in leader_familiarity_stats:
-            key = item['leader_familiarity']
-            if key:
-                leader_familiarity_display[familiarity_map.get(key, key)] = item['count']
+        # 合并None和空字符串为"未设置"
+        unset_leader_count = leader_stats['none_count'] + leader_stats['empty_count']
+        if unset_leader_count > 0:
+            leader_familiarity_display['未设置'] = unset_leader_count
         
         # 6. 修改时间统计
         today = timezone.now().date()
@@ -2288,7 +2548,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                     'hospital_name': hospital.hospital.hospitalname,
                     'total_sample': total_sample,
                     'district': hospital.hospital.district,
-                    'rank': 0  # 将在排序后设置
+                    'rank': 0
                 })
         
         # 按总标本量排序并添加排名
@@ -2309,7 +2569,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                     'hospital_name': hospital.hospital.hospitalname,
                     'total_instruments': total_instruments,
                     'district': hospital.hospital.district,
-                    'rank': 0  # 将在排序后设置
+                    'rank': 0
                 })
         
         # 按总仪器台数排序并添加排名
@@ -2317,14 +2577,13 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         for i, hospital in enumerate(hospital_instrument_rankings[:15], 1):
             hospital['rank'] = i
         
-        # 9. 修改：医院商机数量排名（基于SalesOpportunity数量）
-        from .models import SalesOpportunity  # 确保导入SalesOpportunity
+        # 9. 医院商机数量排名
+        from .models import SalesOpportunity
         
         hospital_opportunity_rankings = []
         for hospital in queryset.select_related('hospital'):
-            # 统计该医院调研记录的商机数量
             opportunity_count = SalesOpportunity.objects.filter(
-                hospital_survey=hospital,  # 使用正确的字段名
+                hospital_survey=hospital,
                 is_active=True
             ).count()
             
@@ -2333,7 +2592,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                     'hospital_name': hospital.hospital.hospitalname,
                     'opportunity_count': opportunity_count,
                     'district': hospital.hospital.district,
-                    'rank': 0  # 将在排序后设置
+                    'rank': 0
                 })
         
         # 按商机数量排序并添加排名
@@ -2341,39 +2600,40 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         for i, hospital in enumerate(hospital_opportunity_rankings[:15], 1):
             hospital['rank'] = i
         
-        # 准备图表数据 - 修正标本量数据
-        # 标本量分布数据（按值降序排序） - 确保包含所有类型
+        # 准备图表数据
         volume_data_raw = [
             (volume_stats['total_routine'] or 0, '血常规'),
             (volume_stats['total_crp'] or 0, 'CRP'),
-            (volume_stats['total_saa'] or 0, 'SAA'),  # 确保SAA包含
+            (volume_stats['total_saa'] or 0, 'SAA'),
             (volume_stats['total_esr'] or 0, '血沉'),
             (volume_stats['total_glycation'] or 0, '糖化'),
-            (volume_stats['total_urine'] or 0, '尿液'),  # 确保尿液包含
+            (volume_stats['total_urine'] or 0, '尿液'),
         ]
-
-       
-
-
-        # 过滤掉值为0的项目（避免图表中显示0值）
+        
+        # 过滤掉值为0的项目
         volume_data_filtered = [(value, label) for value, label in volume_data_raw if value > 0]
         volume_data_filtered.sort(key=lambda x: x[0], reverse=True)
         
         volume_chart_data = [item[0] for item in volume_data_filtered]
         volume_chart_labels = [item[1] for item in volume_data_filtered]
         
-        # 仪器台数分布数据（按值降序排序）
+        # 仪器台数分布数据
         instrument_data_raw = [
             (instrument_stats['total_blood_cell'] or 0, '血球仪器'),
             (instrument_stats['total_glycation_count'] or 0, '糖化仪器'),
             (instrument_stats['total_urine_count'] or 0, '尿液仪器'),
         ]
-        # 过滤掉值为0的项目
         instrument_data_filtered = [(value, label) for value, label in instrument_data_raw if value > 0]
         instrument_data_filtered.sort(key=lambda x: x[0], reverse=True)
         
         instrument_chart_data = [item[0] for item in instrument_data_filtered]
         instrument_chart_labels = [item[1] for item in instrument_data_filtered]
+        
+        # 添加调试信息（可以在生产环境中删除）
+        print(f"主任客情统计调试: {director_stats}")
+        print(f"主任客情显示: {director_familiarity_display}")
+        print(f"组长客情统计调试: {leader_stats}")
+        print(f"组长客情显示: {leader_familiarity_display}")
         
         extra_context.update({
             # 基本统计
@@ -2402,12 +2662,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             'hospital_opportunity_rankings': hospital_opportunity_rankings[:15],
         })
         
-        #    # 添加这个调试，看看传递给模板的数据
-        # print(f"传递给模板的 volume_chart_data: {extra_context['volume_chart_data']}")
-        # print(f"传递给模板的 volume_chart_labels: {extra_context['volume_chart_labels']}")
-        # print("=== 调试结束 ===")
-        
-        return super().changelist_view(request, extra_context=extra_context)    
+        return super().changelist_view(request, extra_context=extra_context)
 
 
     # 权限控制方法
@@ -2455,6 +2710,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
 
     def get_inline_instances(self, request, obj=None):
         """根据权限控制inline显示"""
+        
         inline_instances = []
         
         # 管理员可以看到所有inline
@@ -2503,6 +2759,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         obj.is_active = False 
         obj.save()
 
+
     def delete_queryset(self, request, queryset):
         """批量删除医院调研时级联删除所有关联数据"""
         print('im in hospital survey delete_queryset')
@@ -2546,18 +2803,21 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         
         return queryset, use_distinct
 
+
     class Media:
         css = {
             'all': ('admin/css/freeze_firsttwo_column.css',)
         }
-
+        js = (
+                    'admin/js/custom_cascade.js',  # 添加这行
+                )
 
 
 @admin.register(MindrayInstrumentSurvey)
 class MindrayInstrumentSurveyAdmin(GlobalAdmin):
     ordering = ['hospital_survey__id','category','brand','createtime']
     form = MindrayInstrumentSurveyForm
-    autocomplete_fields = ['hospital_survey', 'brand', 'competitionrelation']
+    autocomplete_fields = ['hospital_survey','brand','competitionrelation']
     
     
     list_display = [
@@ -2569,7 +2829,8 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         'is_our_instrument', 
         'our_sales_channel',
         'brand', 
-        'model', 
+        # 'model', 
+        'get_model_display',
         'quantity', 
         'installation_year', 
         'installation_location',
@@ -2590,11 +2851,13 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         InstallationYearFilter,  # 2. 修正的装机年份筛选
         'hospital_survey__hospital__district',
         'hospital_survey__hospital__hospitalclass',
+        'updatetime'
     ]
     
     search_fields = [
         'hospital_survey__hospital__hospitalname', 
-        'model', 
+        # 'model', 
+        'model__model_name',  # 修改这里
         'installation_location', 
         'dealer_name',
         'hospital_survey__qitian_manager__chinesename',
@@ -2614,6 +2877,16 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             'classes': ('primary-fieldset',)
         }),
     )
+    
+
+    # 新增：型号显示方法
+    def get_model_display(self, obj):
+        """显示仪器型号"""
+        if obj.model:
+            return obj.model.model_name
+        return '-'
+    get_model_display.short_description = '型号'
+    get_model_display.admin_order_field = 'model__model_name'
     
 
     # # 让仪器分类有颜色   
@@ -2749,19 +3022,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
     get_blood_dealers_display.admin_order_field = 'blood_dealer_names'
 
 
-    # # 新增：血球项目详细汇总显示
-    # def get_blood_project_details_display(self, obj):
-    #     """显示血球项目详细汇总，只针对血球仪器"""
-    #     if obj.category and obj.category.name == '血球':
-    #         details = obj.blood_project_details or '-'
-    #         # 如果内容太长，截断显示
-    #         if len(details) > 80:
-    #             return f"{details[:80]}..."
-    #         return details
-    #     return '-'
-    # get_blood_project_details_display.short_description = '血球项目-标本量-竞品关系点-经销商'
-    # get_blood_project_details_display.admin_order_field = 'blood_project_details'
-
+    
     #============
     # 新增：血球项目详细汇总显示
     def get_blood_project_details_display(self, obj):
@@ -2825,7 +3086,6 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
     get_dealer_name_display.admin_order_field = 'dealer_name'
 
 
-
     # 5. 动态添加inline，只对血球仪器显示项目详情
     def get_inlines(self, request, obj):
         inlines = []
@@ -2843,27 +3103,49 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             'last_modified_by'  # 新增：优化查询性能
         )
      
+    
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """根据权限限制外键选择范围"""
+        print(f"=== formfield_for_foreignkey called ===")
+        print(f"db_field.name: {db_field.name}")
+        print(f"request.user: {request.user}")
+        print(f"request.user.is_superuser: {request.user.is_superuser}")
+        print(f"request.user.username: {request.user.username}")
+        
         if db_field.name == "hospital_survey":
             kwargs["queryset"] = MindrayHospitalSurvey.objects.filter(is_active=True)
             
             # 销售只能选择自己负责的医院调研
             if not request.user.is_superuser and request.user.username in ALLOWED_SALESMEN:
                 kwargs["queryset"] = kwargs["queryset"].filter(qitian_manager=request.user)
+                
+            print(f"hospital_survey queryset count: {kwargs['queryset'].count()}")
         
         elif db_field.name == "category":
             kwargs["queryset"] = MindrayInstrumentCategory.objects.filter(is_active=True).order_by('order')
+            print(f"category queryset count: {kwargs['queryset'].count()}")
+            
         elif db_field.name == "brand":
             kwargs["queryset"] = Brand.objects.filter(is_active=True)
+            print(f"brand queryset count: {kwargs['queryset'].count()}")
+            print(f"brand queryset first 5: {list(kwargs['queryset'].values('id', 'brand')[:5])}")
+            
+        elif db_field.name == "model":
+            # ✅ 关键修改：为 model 字段设置完整的 queryset
+            # 不要基于 brand 进行过滤，让前端 JavaScript 处理级联逻辑
+            # 后端只需要确保包含所有可能的选项以通过验证
+            kwargs["queryset"] = InstrumentModel.objects.filter(is_active=True).order_by('model_name')
+            print(f"model queryset count: {kwargs['queryset'].count()}")
+            
         elif db_field.name == "competitionrelation":
             kwargs["queryset"] = CompetitionRelation.objects.filter(is_active=True)
+            print(f"competitionrelation queryset count: {kwargs['queryset'].count()}")
+            
         elif db_field.name == "last_modified_by":
             kwargs["queryset"] = UserInfoMindray.objects.filter(is_active=True)
         
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-    
-     
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         
@@ -3221,6 +3503,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             adjusted_width = min(max(max_length + 2, 10), 60)
             ws.column_dimensions[column_letter].width = adjusted_width
  
+  
     def changelist_view(self, request, extra_context=None):
         """自定义列表页面，添加统计信息"""
         extra_context = extra_context or {}
@@ -3232,7 +3515,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         cl = self.get_changelist_instance(request)
         queryset = cl.get_queryset(request)
         
-        from django.db.models import Sum, Count, Avg
+        from django.db.models import Sum, Count, Avg, Q
         from django.utils import timezone
         from datetime import timedelta
         
@@ -3301,30 +3584,65 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             total_quantity=Sum('quantity')
         ).order_by('-count')
         
-        # 6. 我司vs非我司统计
-        our_vs_competitor = queryset.values('is_our_instrument').annotate(
-            count=Count('id'),
-            total_quantity=Sum('quantity')
-        )
-        
+        # 6. 我司vs非我司统计 - 修复版本
         our_stats = {'count': 0, 'quantity': 0}
         competitor_stats = {'count': 0, 'quantity': 0}
         
-        for item in our_vs_competitor:
-            if item['is_our_instrument']:
-                our_stats = {'count': item['count'], 'quantity': item['total_quantity'] or 0}
-            else:
-                competitor_stats = {'count': item['count'], 'quantity': item['total_quantity'] or 0}
+        # 我司设备统计
+        our_data = queryset.filter(is_our_instrument=True).aggregate(
+            count=Count('id'),
+            total_quantity=Sum('quantity')
+        )
+        our_stats = {
+            'count': our_data['count'] or 0,
+            'quantity': our_data['total_quantity'] or 0
+        }
         
-        # 7. 装机年份分布（最近5年）
-        current_year = timezone.now().year
-        recent_years = [str(year) for year in range(current_year-4, current_year+1)]
+        # 非我司设备统计
+        competitor_data = queryset.filter(is_our_instrument=False).aggregate(
+            count=Count('id'),
+            total_quantity=Sum('quantity')
+        )
+        competitor_stats = {
+            'count': competitor_data['count'] or 0,
+            'quantity': competitor_data['total_quantity'] or 0
+        }
         
+        # NULL值统计（如果存在）
+        null_data = queryset.filter(is_our_instrument__isnull=True).aggregate(
+            count=Count('id'),
+            total_quantity=Sum('quantity')
+        )
+        null_stats = {
+            'count': null_data['count'] or 0,
+            'quantity': null_data['total_quantity'] or 0
+        }
+        
+        # 7. 装机年份分布 - 修复版本（统计所有实际存在的年份）
         year_stats = {}
-        for year in recent_years:
-            year_count = queryset.filter(installation_year=year).count()
-            if year_count > 0:
-                year_stats[year] = year_count
+        
+        # 获取所有不为空的装机年份
+        actual_years = queryset.exclude(
+            Q(installation_year__isnull=True) | Q(installation_year='')
+        ).values_list('installation_year', flat=True).distinct().order_by('-installation_year')
+        
+        for year in actual_years:
+            if year:  # 确保年份不为空
+                year_count = queryset.filter(installation_year=year).count()
+                if year_count > 0:
+                    year_stats[year] = year_count
+        
+        # 如果希望只显示最近几年，可以添加这个过滤（可选）
+        current_year = timezone.now().year
+        # 只保留最近10年的数据，你可以调整这个数字
+        filtered_year_stats = {}
+        for year, count in year_stats.items():
+            try:
+                if int(year) >= current_year - 9:  # 最近10年
+                    filtered_year_stats[year] = count
+            except (ValueError, TypeError):
+                # 如果年份格式有问题，跳过
+                continue
         
         # 8. 本周/本月更新统计（改为updatetime）
         today = timezone.now().date()
@@ -3348,13 +3666,16 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             'brand_stats': brand_stats,
             'district_stats': district_stats,
             
-            # 我司vs竞品
+            # 我司vs竞品 - 修复版本
             'our_stats': our_stats,
             'competitor_stats': competitor_stats,
+            'null_stats': null_stats,  # 新增：空值统计
             'our_percentage': round(our_stats['count'] / total_instruments * 100, 1) if total_instruments > 0 else 0,
+            'competitor_percentage': round(competitor_stats['count'] / total_instruments * 100, 1) if total_instruments > 0 else 0,
             
-            # 时间统计
-            'year_stats': year_stats,
+            # 时间统计 - 使用修复后的年份统计
+            'year_stats': filtered_year_stats,  # 使用过滤后的年份统计
+            'all_year_stats': year_stats,       # 如果需要，也可以提供全部年份统计
             'this_week_count': this_week_count,
             'this_month_count': this_month_count,
         })
@@ -3743,56 +4064,6 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
     download_comprehensive_excel.type = 'success'
     download_comprehensive_excel.style = 'color:white;'
 
-    # def _group_all_hospital_data(self, hospital_surveys_queryset):
-    #     """按医院->分类->仪器->项目的层级结构组织数据（包含没有仪器的医院）"""
-    #     from collections import defaultdict
-        
-    #     grouped_data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-        
-    #     for hospital_survey in hospital_surveys_queryset.select_related(
-    #         'hospital',
-    #         'qitian_manager',
-    #         'director_contact',
-    #         'leader_contact',
-    #         'operator_contact',
-    #         'created_by'
-    #     ):
-    #         # 确保计算最新统计
-    #         hospital_survey.calculate_all_statistics()
-            
-    #         # 获取该医院的所有仪器调研
-    #         instruments = MindrayInstrumentSurvey.objects.filter(
-    #             hospital_survey=hospital_survey,
-    #             is_active=True
-    #         ).select_related(
-    #             'category',
-    #             'brand',
-    #             'competitionrelation',
-    #             'last_modified_by'
-    #         )
-            
-    #         if not instruments.exists():
-    #             # 如果医院没有仪器调研，仍然要显示医院信息
-    #             grouped_data[hospital_survey] = {}
-    #         else:
-    #             # 按仪器分类组织数据
-    #             for instrument in instruments:
-    #                 category_name = instrument.category.name if instrument.category else '未分类'
-                    
-    #                 if instrument.category and instrument.category.name == '血球':
-    #                     blood_projects = MindrayBloodCellProject.objects.filter(
-    #                         instrument_survey=instrument,
-    #                         is_active=True
-    #                     ).select_related('competitionrelation')
-                        
-    #                     if blood_projects.exists():
-    #                         grouped_data[hospital_survey][category_name][instrument].extend(blood_projects)
-    #                     else:
-    #                         grouped_data[hospital_survey][category_name][instrument].append(None)
-    #                 else:
-    #                     grouped_data[hospital_survey][category_name][instrument].append(None)
-        
-    #     return grouped_data
    
     def _group_all_hospital_data(self, hospital_surveys_queryset):
         """按医院->分类->仪器->项目的层级结构组织数据（包含没有仪器的医院）"""
@@ -3818,6 +4089,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             ).select_related(
                 'category',
                 'brand',
+                'model',
                 'competitionrelation',
                 'last_modified_by'
             ).order_by('category__id', 'brand__id','createtime')  # 按分类和品牌排序
@@ -3835,7 +4107,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                         blood_projects = MindrayBloodCellProject.objects.filter(
                             instrument_survey=instrument,
                             is_active=True
-                        ).select_related('competitionrelation').order_by('project_type', 'id')  # 按项目类型排序
+                        ).select_related('competitionrelation').order_by('project_type',  'createtime','id')  # 按项目类型排序
                         
                         if blood_projects.exists():
                             grouped_data[hospital_survey][category_name][instrument].extend(blood_projects)
@@ -3916,7 +4188,8 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             '是' if instrument and instrument.is_our_instrument else ('否' if instrument else ''),
             dict(MindrayInstrumentSurvey.SALES_CHANNEL_CHOICES).get(instrument.our_sales_channel, instrument.our_sales_channel or '') if instrument and instrument.our_sales_channel else '',
             instrument.brand.brand if instrument and instrument.brand else '',
-            instrument.model if instrument else '',
+            # instrument.model if instrument else '',
+            instrument.model.model_name if instrument and instrument.model else '',
             instrument.quantity if instrument else '',
             instrument.installation_year if instrument else '',
             dict(MindrayInstrumentSurvey.installation_location_CHOICES).get(instrument.installation_location, instrument.installation_location or '') if instrument and instrument.installation_location else '',
@@ -4006,6 +4279,13 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             # 确保在导出前计算最新的统计数据
             if obj.is_blood_category:
                 obj.calculate_all_blood_summaries()
+
+             # 修改：直接获取原始的血球项目详情（包含换行符）
+            blood_project_details_raw = ''
+            if obj.category and obj.category.name == '血球':
+                blood_project_details_raw = obj.blood_project_details or '-'
+            else:
+                blood_project_details_raw = '-'
             
             # 构建行数据（按照list_display的顺序）
             row_data = [
@@ -4017,12 +4297,14 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                 '是' if obj.is_our_instrument else '否',
                 obj.get_our_sales_channel_display() or '',
                 str(obj.brand) if obj.brand else '',
-                obj.model or '',
+                # obj.model or '',
+                obj.model.model_name if obj.model else '',
                 obj.quantity or 0,
                 obj.installation_year or '',
                 obj.get_installation_location_display() or '', 
                 self.get_total_sample_volume(obj),
-                self.get_blood_project_details_display(obj),
+                # self.get_blood_project_details_display(obj),
+                blood_project_details_raw,
                 self.get_competition_relation_display(obj),
                 self.get_dealer_name_display(obj),
                 self.get_last_modified_by(obj),
@@ -4033,7 +4315,14 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             for col_num, value in enumerate(row_data, 1):
                 cell = ws.cell(row=row_num, column=col_num, value=value)
                 cell.border = thin_border
-                cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+                # 修改：为包含换行的列设置自动换行
+                if col_num == 14:  # 血球项目详情列
+                    cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+                else:
+                    cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        
+
+                # cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         
         # 自动调整列宽
         self._auto_adjust_column_width(ws)
@@ -4067,6 +4356,9 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         css = {
             'all': ('admin/css/freeze_firsttwo_column.css',)
         }
+        js = (
+            'admin/js/custom_cascade.js',  # 使用自定义的级联脚本
+        )
         
 
 @admin.register(MindrayBloodCellProject)
@@ -4372,14 +4664,15 @@ class SalesOpportunityForm(forms.ModelForm):
 class SalesOpportunityAdmin(GlobalAdmin):
     form = SalesOpportunityForm
     ordering = ['hospital_survey__id','opportunity_project','-createtime']
-    autocomplete_fields = ['hospital_survey']  # 移除salesperson
+    autocomplete_fields = ['hospital_survey','opportunity_model']   
     
     list_display = [
         'get_hospital_name',
         'get_hospital_district',
         'get_hospital_class', 
         'get_hospital_manager',  # 这就是销售人员，不需要单独显示salesperson了
-        'opportunity_model_short',
+        # 'opportunity_model_short',
+        'get_opportunity_model_display',  # 修改：新的显示方法
         'get_opportunity_project_colored',      
         'sample_volume',
         'landing_time',
@@ -4396,12 +4689,14 @@ class SalesOpportunityAdmin(GlobalAdmin):
         OpportunityProjectFilter,
         OpportunityLandingTimeFilter,
         OpportunityCreateTimeFilter,
+        'updatetime'
     ]
     
     search_fields = [
         'hospital_survey__hospital__hospitalname',
         'hospital_survey__qitian_manager__chinesename',
-        'opportunity_model',
+        # 'opportunity_model',
+        'opportunity_model__model_name',  # 修改这里
         'opportunity_status',
         'landing_time'
     ]
@@ -4503,14 +4798,27 @@ class SalesOpportunityAdmin(GlobalAdmin):
         return "将根据选择的医院调研自动设置"
     get_auto_salesperson_display.short_description = '销售人员'
     
-    def opportunity_model_short(self, obj):
-        """显示商机型号的简短版本"""
-        if len(obj.opportunity_model) > 20:
-            return obj.opportunity_model[:20] + '...'
-        return obj.opportunity_model
-    opportunity_model_short.short_description = '商机型号'
-    opportunity_model_short.admin_order_field = 'opportunity_model'
+    # def opportunity_model_short(self, obj):
+    #     """显示商机型号的简短版本"""
+    #     if len(obj.opportunity_model) > 20:
+    #         return obj.opportunity_model[:20] + '...'
+    #     return obj.opportunity_model
+    # opportunity_model_short.short_description = '商机型号'
+    # opportunity_model_short.admin_order_field = 'opportunity_model'
     
+    # 新增：商机型号显示方法
+    def get_opportunity_model_display(self, obj):
+        """显示商机型号的简短版本"""
+        if obj.opportunity_model:
+            model_name = obj.opportunity_model.model_name
+            if len(model_name) > 20:
+                return model_name[:20] + '...'
+            return model_name
+        return '-'
+    get_opportunity_model_display.short_description = '商机型号'
+    get_opportunity_model_display.admin_order_field = 'opportunity_model__model_name'
+
+
     def opportunity_status_short(self, obj):
         """显示商机情况的简短版本"""
         if obj.opportunity_status and len(obj.opportunity_status) > 30:
@@ -4553,8 +4861,10 @@ class SalesOpportunityAdmin(GlobalAdmin):
             if not request.user.is_superuser and request.user.username in ALLOWED_SALESMEN:
                 kwargs["queryset"] = kwargs["queryset"].filter(qitian_manager=request.user)
         
+        elif db_field.name == "opportunity_model":  # 新增：处理商机型号外键
+            kwargs["queryset"] = InstrumentModel.objects.filter(is_active=True)
+        
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
 
     def changelist_view(self, request, extra_context=None):
         """自定义列表页面，添加统计信息和图表数据"""
@@ -4815,7 +5125,8 @@ class SalesOpportunityAdmin(GlobalAdmin):
                 obj.hospital_survey.hospital.district if obj.hospital_survey and obj.hospital_survey.hospital else '',
                 obj.hospital_survey.hospital.hospitalclass if obj.hospital_survey and obj.hospital_survey.hospital else '',
                 obj.hospital_survey.qitian_manager.chinesename if obj.hospital_survey and obj.hospital_survey.qitian_manager else '',  # 销售人员（自动获取）
-                obj.opportunity_model or '',
+                # obj.opportunity_model or '',
+                obj.opportunity_model.model_name if obj.opportunity_model else '',
                 obj.get_opportunity_project_display(),
                 obj.sample_volume or 0,
                 obj.landing_time or '',
@@ -4889,7 +5200,8 @@ class SalesOpportunityAdmin(GlobalAdmin):
             )
             
             project_key = (
-                obj.opportunity_model or '',
+                # obj.opportunity_model or '',
+                obj.opportunity_model.model_name if obj.opportunity_model else '',
                 obj.get_opportunity_project_display() or '',
                 obj.opportunity_status or '',  # 添加商机情况
                 obj.createtime.strftime('%Y-%m-%d') if obj.createtime else ''

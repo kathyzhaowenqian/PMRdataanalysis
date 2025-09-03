@@ -8,7 +8,7 @@ from django.forms import Textarea
 from Marketing_Research.models import UserInfo
 from multiselectfield import MultiSelectField
 from django.core.validators import RegexValidator
-
+ 
 def get_compmany_default_value():
     return Company.objects.get(id=2).company
 
@@ -400,13 +400,23 @@ class MindrayHospitalSurvey(models.Model):
         """计算血球仪器汇总信息"""
         from django.db.models import Sum
         
-        # 获取血球仪器及其项目标本量汇总
+        # # 获取血球仪器及其项目标本量汇总
+        # blood_instruments = MindrayInstrumentSurvey.objects.filter(
+        #     hospital_survey=self,
+        #     is_active=True,
+        #     category__name="血球"
+        # ).prefetch_related('blood_projects')
+
+        # 获取血球仪器及其项目标本量汇总 - 修改：添加一致的排序
         blood_instruments = MindrayInstrumentSurvey.objects.filter(
             hospital_survey=self,
             is_active=True,
             category__name="血球"
-        ).prefetch_related('blood_projects')
-        
+        ).select_related(
+            'brand', 'model', 'category'
+        ).order_by('category__id', 'brand__id', 'createtime')  # 修改：添加排序规则
+
+
         summaries = []
         
         for instrument in blood_instruments:
@@ -420,7 +430,8 @@ class MindrayHospitalSurvey(models.Model):
             
             # 格式化：（品牌-型号-台数-装机年份-标本量总和）
             brand_name = instrument.brand.brand if instrument.brand else "未知"
-            model_name = instrument.model or "未知"
+            # model_name = instrument.model or "未知"
+            model_name = instrument.model.model_name if instrument.model else "未知"
             quantity = instrument.quantity or 0
             installation_year = instrument.installation_year or "未知"
             
@@ -449,7 +460,8 @@ class MindrayHospitalSurvey(models.Model):
             
             # 格式化：（品牌-型号-台数-装机年份-标本量）
             brand_name = instrument.brand.brand if instrument.brand else "未知"
-            model_name = instrument.model or "未知"
+            # model_name = instrument.model or "未知"
+            model_name = instrument.model.model_name if instrument.model else "未知"
             quantity = instrument.quantity or 0
             installation_year = instrument.installation_year or "未知"
             
@@ -478,7 +490,8 @@ class MindrayHospitalSurvey(models.Model):
             
             # 格式化：（品牌-型号-台数-装机年份-标本量）
             brand_name = instrument.brand.brand if instrument.brand else "未知"
-            model_name = instrument.model or "未知"
+            # model_name = instrument.model or "未知"
+            model_name = instrument.model.model_name if instrument.model else "未知"
             quantity = instrument.quantity or 0
             installation_year = instrument.installation_year or "未知"
             
@@ -528,7 +541,9 @@ class MindrayHospitalSurvey(models.Model):
         
         for opp in opportunities:
             # 格式化：（型号-项目-标本量-落地时间）
-            model_name = opp.opportunity_model or "未知"
+            # model_name = opp.opportunity_model or "未知"
+            model_name = opp.opportunity_model.model_name if opp.opportunity_model else "未知"
+
             project_name = opp.get_opportunity_project_display()
             sample_volume = opp.sample_volume or 0
             landing_time = opp.landing_time or "未知"
@@ -634,7 +649,22 @@ class MindrayInstrumentCategory(models.Model):
         self.save()
         # 级联假删除相关的仪器调研数据
         MindrayInstrumentSurvey.objects.filter(category=self).update(is_active=False)
-  
+
+class InstrumentModel(models.Model):
+    model_name = models.CharField(verbose_name='型号名称', max_length=255, blank=True, null=True)
+    brand = models.ForeignKey('Brand', models.CASCADE, db_column='brand', to_field='id', verbose_name='所属品牌', blank=True, null=True)
+    createtime = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updatetime = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    is_active = models.BooleanField(verbose_name='是否呈现', null=False, default=True)
+
+    class Meta:
+        db_table = 'marketing_research_v2\".\"MindrayInstrumentModel'
+        verbose_name_plural = '仪器型号列表'
+        ordering = ['model_name']
+
+    def __str__(self):
+        return self.model_name or "未知型号"
+
 class MindrayInstrumentSurvey(models.Model):
     IS_OUR_CHOICES = [
         (True, '是'),
@@ -651,6 +681,7 @@ class MindrayInstrumentSurvey(models.Model):
         ('inpatient', '病房'),
         ('fever_clinic', '发热门诊'),
         ('physical_exam', '体检'),
+        
     ]
 
     hospital_survey = models.ForeignKey("MindrayHospitalSurvey", db_column='hospital_survey',on_delete=models.CASCADE, verbose_name='医院调研')
@@ -660,7 +691,21 @@ class MindrayInstrumentSurvey(models.Model):
     our_sales_channel = models.CharField(max_length=20, choices=SALES_CHANNEL_CHOICES, blank=True, verbose_name='我司业务销售渠道')
     
     brand = models.ForeignKey("Brand", on_delete=models.SET_NULL, null=True, blank=True, verbose_name='品牌')
-    model = models.CharField(max_length=100, verbose_name='型号', blank=True, null=True)
+    model = models.ForeignKey("InstrumentModel", on_delete=models.SET_NULL, null=True, blank=True, verbose_name='型号')
+    
+    # model = ChainedForeignKey(
+    #     InstrumentModel,
+    #     chained_field="brand",  # 依赖的字段
+    #     chained_model_field="brand",  # InstrumentModel中对应的字段
+    #     show_all=False,  # 只显示相关的选项
+    #     auto_choose=True,  # 如果只有一个选项时自动选择
+    #     sort=True,  # 排序
+    #     verbose_name='型号',
+    #     null=True,
+    #     blank=True,
+    #     on_delete=models.SET_NULL
+    # )
+
     quantity = models.IntegerField(default=1, verbose_name='台数', blank=True, null=True)
     installation_year = models.CharField(
         max_length=4,
@@ -826,7 +871,7 @@ class MindrayInstrumentSurvey(models.Model):
         projects = MindrayBloodCellProject.objects.filter(
             instrument_survey=self,
             is_active=True
-        ).select_related('competitionrelation').order_by('project_type', 'id')  # 添加这个排序
+        ).select_related('competitionrelation').order_by('project_type','createtime', 'id')  # 添加这个排序
         
         if not projects.exists():
             self.blood_project_details = ""
@@ -902,8 +947,8 @@ def init_categories():
     for name, order in categories:
         MindrayInstrumentCategory.objects.get_or_create(name=name, defaults={'order': order})
 
+
 # ======================商机======================
- 
 class SalesOpportunity(models.Model):
     """销售商机表"""
     
@@ -926,11 +971,20 @@ class SalesOpportunity(models.Model):
         editable=False  # 添加这个，使其在admin表单中不可编辑
     )
     
-    # 其他字段保持不变...
-    opportunity_model = models.CharField(
-        max_length=100, 
-        verbose_name='商机型号',       
+    
+    # opportunity_model = models.CharField(
+    #     max_length=100, 
+    #     verbose_name='商机型号',       
+    # )
+
+    opportunity_model = models.ForeignKey(
+        'InstrumentModel',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='商机型号'
     )
+
     opportunity_project = models.CharField(
         max_length=10, 
         choices=PROJECT_CHOICES,
@@ -956,7 +1010,7 @@ class SalesOpportunity(models.Model):
     is_active = models.BooleanField(verbose_name='是否有效', default=True)
     
     class Meta:
-        db_table = 'marketing_research_v2\".\"SalesOpportunity'
+        db_table = 'marketing_research_v2\".\"MindraySalesOpportunity'
         verbose_name = '销售商机'
         verbose_name_plural = '销售商机管理'
         ordering = ['-createtime']

@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'SALESREPORT',
 
     'Mindray_Research',
+    
     'rangefilter',
     'nested_admin',
 ]
