@@ -238,6 +238,11 @@ SIMPLEUI_CONFIG = {
                 'icon': 'fa-solid fa-list',
                 'url': '/admin/Mindray_Research/salesopportunitysummary/'
                 },
+                {
+                'name': '仪器型号',
+                'icon': 'fa-solid fa-list',
+                'url': '/admin/Mindray_Research/instrumentmodel/'
+                },
             ]        
         },
         # #一级菜单：普美瑞直销调研表

@@ -233,6 +233,8 @@ class BrandAdmin(GlobalAdmin):
             queryset=queryset.filter(is_active=True).order_by('id')
         return queryset,use_distinct 
 
+    def has_add_permission(self, request, obj=None):
+        return False
     def has_change_permission(self, request, obj=None):
         return False
     def has_delete_permission(self, request, obj=None):
@@ -268,6 +270,12 @@ class InstrumentModelAdmin(GlobalAdmin):
         return queryset, use_distinct
 
  
+    def has_add_permission(self, request, obj=None):
+        return True
+    def has_change_permission(self, request, obj=None):
+        return False
+    def has_delete_permission(self, request, obj=None):
+        return False  # 全局禁用删除按钮
 
 
 @admin.register(Company)  
@@ -295,7 +303,6 @@ class MindrayInstrumentCategoryAdmin(GlobalAdmin):
         return super().get_queryset(request).filter(is_active=True)
 
  
- 
 class MindrayInstrumentSurveyForm(forms.ModelForm):
     class Meta:
         model = MindrayInstrumentSurvey
@@ -304,10 +311,18 @@ class MindrayInstrumentSurveyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # 始终显示所有可用的 model，不做品牌限制
-        self.fields['model'].queryset = InstrumentModel.objects.filter(
-            is_active=True
-        ).order_by('model_name')
+        # 修复：安全地设置各个字段的queryset
+        if 'model' in self.fields:
+            self.fields['model'].queryset = InstrumentModel.objects.filter(
+                is_active=True
+            ).order_by('model_name')
+            
+        # 其他字段也可以类似处理
+        if 'brand' in self.fields:
+            self.fields['brand'].queryset = Brand.objects.filter(is_active=True)
+            
+        if 'competitionrelation' in self.fields:
+            self.fields['competitionrelation'].queryset = CompetitionRelation.objects.filter(is_active=True)
     
     def clean(self):
         """自定义验证：确保选择的 model 属于选择的 brand"""
@@ -315,15 +330,15 @@ class MindrayInstrumentSurveyForm(forms.ModelForm):
         brand = cleaned_data.get('brand')
         model = cleaned_data.get('model')
         
-        if brand and model:
-            # 验证 model 是否属于选择的 brand
+        # 只有当两个字段都存在且有值时才进行验证
+        if brand and model and hasattr(model, 'brand'):
             if model.brand != brand:
                 raise forms.ValidationError({
                     'model': f'所选型号 "{model.model_name}" 不属于品牌 "{brand.brand}"，请重新选择。'
                 })
         
         return cleaned_data
-
+    
 class BloodCellProjectInlineForInstrument(admin.StackedInline):  
     model = MindrayBloodCellProject
     extra = 0
