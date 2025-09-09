@@ -692,19 +692,8 @@ class MindrayInstrumentSurvey(models.Model):
     
     brand = models.ForeignKey("Brand", on_delete=models.SET_NULL, null=True, blank=True, verbose_name='品牌')
     model = models.ForeignKey("InstrumentModel", on_delete=models.SET_NULL, null=True, blank=True, verbose_name='型号')
-    
-    # model = ChainedForeignKey(
-    #     InstrumentModel,
-    #     chained_field="brand",  # 依赖的字段
-    #     chained_model_field="brand",  # InstrumentModel中对应的字段
-    #     show_all=False,  # 只显示相关的选项
-    #     auto_choose=True,  # 如果只有一个选项时自动选择
-    #     sort=True,  # 排序
-    #     verbose_name='型号',
-    #     null=True,
-    #     blank=True,
-    #     on_delete=models.SET_NULL
-    # )
+    modelmemo = models.CharField(max_length=500, verbose_name='型号备注', blank=True, null=True)
+
 
     quantity = models.IntegerField(default=1, verbose_name='台数', blank=True, null=True)
     installation_year = models.CharField(

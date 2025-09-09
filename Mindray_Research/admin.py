@@ -431,9 +431,9 @@ class BloodCellInstrumentInline(BaseInstrumentInline):
         ('基本信息', {
             'fields': (
                 ('is_our_instrument', 'our_sales_channel'),
-                ('brand', 'model'),
-                ('quantity', 'installation_year'),
-                'installation_location',
+                ('brand', 'model'),                
+                ('modelmemo','quantity'),
+                ('installation_year','installation_location')
             ),
             'classes': ('primary-fieldset',)
         }),
@@ -511,6 +511,7 @@ class GlycationInstrumentInline(BaseInstrumentInline):
             'fields': (
                 ('is_our_instrument', 'our_sales_channel'),
                 ('brand', 'model'),
+                'modelmemo',
                 ('quantity', 'installation_year'),
                 ('sample_volume', 'installation_location'),
                 ('competitionrelation', 'dealer_name'),
@@ -587,6 +588,7 @@ class UrineInstrumentInline(BaseInstrumentInline):
             'fields': (
                 ('is_our_instrument', 'our_sales_channel'),
                 ('brand', 'model'),
+                'modelmemo',
                 ('quantity', 'installation_year'),
                 ('sample_volume', 'installation_location'),
                 ('competitionrelation', 'dealer_name'),
@@ -1360,6 +1362,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             '我司业务销售渠道',
             '品牌',
             '型号',
+            '型号备注',  # 新增
             '台数',
             '装机年份',
             '仪器安装地',
@@ -1421,6 +1424,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                 str(obj.brand) if obj.brand else '',
                 # obj.model or '',
                 obj.model.model_name if obj.model else '',
+                obj.modelmemo or '',  # 新增：型号备注
                 obj.quantity or 0,
                 obj.installation_year or '',
                 obj.get_installation_location_display() or '',  
@@ -1464,7 +1468,8 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             '尿液品牌-型号-台数-装机年份-标本量',
             '仪器分类',
             '是否我司仪器', '我司销售渠道',
-            '品牌', '型号', '台数', '装机年份', '安装地点',
+            '品牌', '型号', '型号备注',  # 新增：型号备注
+            '台数', '装机年份', '安装地点',
             '标本量总和', '血球项目-标本量-竞品关系点-经销商',
             '竞品关系点', '经销商名称',
             '血球项目类型', '血球项目标本量', '血球项目竞品关系点', '血球项目经销商',
@@ -1513,7 +1518,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                                 'start_row': instrument_start_row,
                                 'end_row': instrument_end_row,
                                 'start_col': 29,
-                                'end_col': 39,
+                                'end_col': 40,
                                 'type': 'instrument'
                             })
                     
@@ -1968,12 +1973,13 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             # 仪器分类信息（列28）
             instrument.category.name if instrument and instrument.category else '',
             
-            # 仪器调研信息（列29-39）
+            # 仪器调研信息（列29-40）
             '是' if instrument and instrument.is_our_instrument else ('否' if instrument else ''),
             dict(MindrayInstrumentSurvey.SALES_CHANNEL_CHOICES).get(instrument.our_sales_channel, instrument.our_sales_channel or '') if instrument and instrument.our_sales_channel else '',
             instrument.brand.brand if instrument and instrument.brand else '',
             # instrument.model if instrument else '',
             instrument.model.model_name if instrument and instrument.model else '',
+            instrument.modelmemo or '' if instrument else '',  # 新增：型号备注
             instrument.quantity if instrument else '',
             instrument.installation_year if instrument else '',
             dict(MindrayInstrumentSurvey.installation_location_CHOICES).get(instrument.installation_location, instrument.installation_location or '') if instrument and instrument.installation_location else '',
@@ -1982,13 +1988,13 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
             competition_relation_display,
             dealer_name_display,
             
-            # 血球项目详情（列40-43）
+            # 血球项目详情（列41-44）
             project.get_project_type_display() if project else '',
             project.sample_volume or 0 if project else '',
             project.competitionrelation.competitionrelation if project and project.competitionrelation else ('未知' if project else ''),
             project.dealer_name or '未知' if project and project.dealer_name else ('未知' if project else ''),
             
-            # 时间信息（列44-45）
+            # 时间信息（列45-46）
             hospital_survey.created_by.chinesename if hospital_survey and hospital_survey.created_by else '',
             self._format_datetime(hospital_survey.updatetime) if hospital_survey else ''
         ]
@@ -2846,6 +2852,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         'brand', 
         # 'model', 
         'get_model_display',
+        'get_modelmemo_display', 
         'quantity', 
         'installation_year', 
         'installation_location',
@@ -2885,6 +2892,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                 ('hospital_survey', 'category'),
                 ('is_our_instrument', 'our_sales_channel'),
                 ('brand', 'model'),
+                'modelmemo',  # 新增：单独一行显示型号备注
                 ('quantity', 'installation_year'),
                 ('sample_volume', 'installation_location'),
                 ('competitionrelation', 'dealer_name'),
@@ -2893,6 +2901,18 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         }),
     )
     
+
+    def get_modelmemo_display(self, obj):
+        """显示型号备注，长文本截断"""
+        if obj.modelmemo:
+            memo = obj.modelmemo.strip()
+            if len(memo) > 30:
+                return f"{memo[:30]}..."
+            return memo
+        return '-'
+    get_modelmemo_display.short_description = '型号备注'
+    get_modelmemo_display.admin_order_field = 'modelmemo'
+
 
     # 新增：型号显示方法
     def get_model_display(self, obj):
@@ -3101,6 +3121,8 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
     get_dealer_name_display.admin_order_field = 'dealer_name'
 
 
+ 
+
     # 5. 动态添加inline，只对血球仪器显示项目详情
     def get_inlines(self, request, obj):
         inlines = []
@@ -3204,8 +3226,9 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                         ('hospital_survey', 'category'),
                         ('is_our_instrument', 'our_sales_channel'),
                         ('brand', 'model'),
-                        ('quantity', 'installation_year'),
-                        'installation_location',
+                        ('modelmemo', 'quantity'),
+                        ('installation_year','installation_location')
+                        
                     ),
                     'classes': ('primary-fieldset',)
                 }),
@@ -3229,6 +3252,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                         ('hospital_survey', 'category'),
                         ('is_our_instrument', 'our_sales_channel'),
                         ('brand', 'model'),
+                        'modelmemo',  # 新增
                         ('quantity', 'installation_year'),
                         ('sample_volume', 'installation_location'),
                         ('competitionrelation', 'dealer_name'),
@@ -3929,7 +3953,8 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             
             # 第三部分：仪器调研信息
             '是否我司仪器', '我司销售渠道',
-            '品牌', '型号', '台数', '装机年份', '安装地点',
+            '品牌', '型号', '型号备注',  # 新增：型号备注
+            '台数', '装机年份', '安装地点',
             '标本量总和', '血球项目-标本量-竞品关系点-经销商',
             '竞品关系点', '经销商名称',
             
@@ -4017,7 +4042,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                                 'start_row': instrument_start_row,
                                 'end_row': instrument_end_row,
                                 'start_col': 29,
-                                'end_col': 39,
+                                'end_col': 40,
                                 'type': 'instrument'
                             })
                     
@@ -4199,12 +4224,13 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             # 仪器分类信息（列28）
             instrument.category.name if instrument and instrument.category else '',
             
-            # 仪器调研信息（列29-39）
+            # 仪器调研信息（列29-40）
             '是' if instrument and instrument.is_our_instrument else ('否' if instrument else ''),
             dict(MindrayInstrumentSurvey.SALES_CHANNEL_CHOICES).get(instrument.our_sales_channel, instrument.our_sales_channel or '') if instrument and instrument.our_sales_channel else '',
             instrument.brand.brand if instrument and instrument.brand else '',
             # instrument.model if instrument else '',
             instrument.model.model_name if instrument and instrument.model else '',
+            instrument.modelmemo or '' if instrument else '',  # 新增：型号备注
             instrument.quantity if instrument else '',
             instrument.installation_year if instrument else '',
             dict(MindrayInstrumentSurvey.installation_location_CHOICES).get(instrument.installation_location, instrument.installation_location or '') if instrument and instrument.installation_location else '',
@@ -4213,13 +4239,13 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             competition_relation_display,
             dealer_name_display,
             
-            # 血球项目详情（列40-43）
+            # 血球项目详情（列41-44）
             project.get_project_type_display() if project else '',
             project.sample_volume or 0 if project else '',
             project.competitionrelation.competitionrelation if project and project.competitionrelation else ('未知' if project else ''),
             project.dealer_name or '未知' if project and project.dealer_name else ('未知' if project else ''),
             
-            # 时间信息（列44-45）
+            # 时间信息（列45-46）
             hospital_survey.created_by.chinesename if hospital_survey and hospital_survey.created_by else '',
             self._format_datetime(hospital_survey.updatetime) if hospital_survey else ''
         ]
@@ -4258,6 +4284,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             '我司业务销售渠道',
             '品牌',
             '型号',
+            '型号备注',  # 新增
             '台数',
             '装机年份',
             '仪器安装地',
@@ -4314,6 +4341,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                 str(obj.brand) if obj.brand else '',
                 # obj.model or '',
                 obj.model.model_name if obj.model else '',
+                obj.modelmemo or '',  # 新增：型号备注
                 obj.quantity or 0,
                 obj.installation_year or '',
                 obj.get_installation_location_display() or '', 
