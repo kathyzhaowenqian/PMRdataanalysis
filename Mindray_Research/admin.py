@@ -936,8 +936,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         elif db_field.name in ["qitian_manager", "director_contact", "leader_contact", "operator_contact", "created_by"]:
             kwargs["queryset"] = UserInfoMindray.objects.filter(is_active=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-     
-    # 新增这个方法
+    
     def _sync_last_modified_by_to_instruments(self, hospital_survey, user):
         """将修改人同步到相关仪器调研记录（仅当仪器记录的last_modified_by为空时）"""
         try:
@@ -952,7 +951,23 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         except Exception as e:
             print(f"同步修改人到仪器调研时出错: {e}")
     
+    #新的
+    def _sync_last_modified_by_to_specific_instruments(self, instrument_ids, user):
+        """将修改人同步到指定的仪器调研记录"""
+        try:
+            if instrument_ids:
+                updated_count = MindrayInstrumentSurvey.objects.filter(
+                    id__in=instrument_ids,
+                    is_active=True
+                ).update(last_modified_by=user)
+                
+                if updated_count > 0:
+                    print(f"已同步修改人到 {updated_count} 条指定的仪器调研记录")
+        except Exception as e:
+            print(f"同步修改人到指定仪器调研时出错: {e}")
 
+     #老的
+   
     def save_model(self, request, obj, form, change):
         """只有在真正有改动时才更新 updatetime"""
         if not change:
@@ -965,6 +980,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         has_changes = False
         if change and form.changed_data:
             has_changes = True
+            
         
         # 如果没有改动，使用update_fields避免触发auto_now
         if change and not has_changes:
@@ -978,34 +994,120 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         if has_changes or not change:
             self._sync_last_modified_by_to_instruments(obj, request.user)
     
+    #新的
+    # def save_model(self, request, obj, form, change):
+    #     """只有在真正有改动时才更新 updatetime"""
+    #     has_changes = False
+        
+    #     if not change:
+    #         # 新建记录
+    #         obj.created_by = request.user
+    #         has_changes = True
+    #     else:
+    #         # 修改记录 - 只有在有实际表单字段改动时才更新修改人
+    #         if form.changed_data:
+    #             obj.created_by = request.user  # 只有真正有改动时才更新修改人
+    #             has_changes = True
+    #         # 如果没有字段改动，不要修改 created_by
+        
+    #     # 如果没有任何改动，直接返回，不保存
+    #     if change and not has_changes:
+    #         obj.refresh_from_db()
+    #         return
+        
+    #     super().save_model(request, obj, form, change)
+        
+    #     # 只有在有改动时才同步修改人到仪器记录
+    #     if has_changes:
+    #         self._sync_last_modified_by_to_instruments(obj, request.user)
+
+    #老的
+    # def save_formset(self, request, form, formset, change):
+    #     """改进的save_formset方法，只有实际变化时才更新统计和时间"""
+    #     # 检查formset是否有实际改动
+    #     has_formset_changes = False
+        
+    #     instances = formset.save(commit=False)
+        
+    #     # 检查新增、修改的实例
+    #     for instance in instances:
+    #         instance.hospital_survey = form.instance
+    #         instance.full_clean()
+    #         instance.save()
+    #         has_formset_changes = True
+        
+    #     # 检查删除的实例
+    #     for obj in formset.deleted_objects:
+    #         obj.is_active = False
+    #         obj.save()
+    #         has_formset_changes = True
+        
+    #     formset.save_m2m()
+        
+    #     # 只有在formset有变化时才重新计算统计并更新时间
+    #     if has_formset_changes:
+    #          # ✅ 关键修复：如果formset有变化，也要更新created_by
+    #         form.instance.created_by = request.user
+
+    #         # 保存完成后重新计算所有统计数据
+    #         form.instance.calculate_all_statistics()
+            
+    #         # 手动更新updatetime（因为我们需要显式控制）
+    #         from django.utils import timezone
+    #         form.instance.updatetime = timezone.now()
+            
+    #         form.instance.save(update_fields=[
+    #             'crp_total_volume', 'saa_total_volume', 
+    #             'esr_total_volume', 'routine_total_volume',
+    #             'glycation_total_volume', 'urine_total_volume',
+    #             'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
+    #             'blood_cell_summary', 'glycation_summary', 'urine_summary','sales_opportunities_summary',
+    #             'created_by',
+    #             'updatetime'  # 只有在有变化时才更新
+    #         ])
+            
+    #         # 只在有变化时才同步修改人
+    #         self._sync_last_modified_by_to_instruments(form.instance, request.user)
+
+    #新的
     def save_formset(self, request, form, formset, change):
         """改进的save_formset方法，只有实际变化时才更新统计和时间"""
         # 检查formset是否有实际改动
         has_formset_changes = False
+        modified_instruments = []  # ✅ 记录被修改的仪器
         
         instances = formset.save(commit=False)
         
         # 检查新增、修改的实例
         for instance in instances:
             instance.hospital_survey = form.instance
+            # ✅ 直接为被修改的实例设置修改人
+            instance.last_modified_by = request.user
             instance.full_clean()
             instance.save()
             has_formset_changes = True
+            modified_instruments.append(instance.id)  # 记录修改的仪器ID
         
         # 检查删除的实例
         for obj in formset.deleted_objects:
+            # ✅ 为被删除的实例也设置修改人
+            obj.last_modified_by = request.user
             obj.is_active = False
             obj.save()
             has_formset_changes = True
+            modified_instruments.append(obj.id)
         
         formset.save_m2m()
         
         # 只有在formset有变化时才重新计算统计并更新时间
         if has_formset_changes:
+            # 关键修复：如果formset有变化，也要更新created_by
+            form.instance.created_by = request.user
+            
             # 保存完成后重新计算所有统计数据
             form.instance.calculate_all_statistics()
             
-            # 手动更新updatetime（因为我们需要显式控制）
+            # 手动更新updatetime
             from django.utils import timezone
             form.instance.updatetime = timezone.now()
             
@@ -1015,12 +1117,14 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
                 'glycation_total_volume', 'urine_total_volume',
                 'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
                 'blood_cell_summary', 'glycation_summary', 'urine_summary','sales_opportunities_summary',
-                'updatetime'  # 只有在有变化时才更新
+                'created_by',
+                'updatetime'
             ])
             
-            # 只在有变化时才同步修改人
-            self._sync_last_modified_by_to_instruments(form.instance, request.user)
+            # ✅ 使用新的精确同步方法
+            self._sync_last_modified_by_to_specific_instruments(modified_instruments, request.user)
 
+            
     # 更新actions
     actions = ['download_excel','download_comprehensive_workbook','refresh_all_calculated_fields']
     
@@ -3098,6 +3202,93 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         return readonly_fields
 
    
+    # def save_model(self, request, obj, form, change):
+    #     """只有在实际有改动时才更新时间和触发联动更新"""
+    #     # 设置最后修改人
+    #     if hasattr(obj, 'last_modified_by'):
+    #         obj.last_modified_by = request.user
+        
+    #     # 检查是否有实际改动
+    #     has_changes = False
+    #     if not change:  # 新建记录
+    #         has_changes = True
+    #     elif form.changed_data:  # 修改且有字段变化
+    #         has_changes = True
+        
+    #     if not has_changes and change:
+    #         # 没有实际改动，只刷新数据不保存
+    #         obj.refresh_from_db()
+    #         return
+            
+    #     obj.full_clean()
+    #     super().save_model(request, obj, form, change)
+        
+    #     # 只有在有实际改动时才触发医院调研的统计计算
+    #     if has_changes and obj.hospital_survey:
+    #         obj.hospital_survey.calculate_all_statistics()
+            
+    #         # 手动更新hospital_survey的updatetime
+    #         from django.utils import timezone
+    #         obj.hospital_survey.updatetime = timezone.now()
+            
+    #         obj.hospital_survey.save(update_fields=[
+    #             'crp_total_volume', 'saa_total_volume', 
+    #             'esr_total_volume', 'routine_total_volume',
+    #             'glycation_total_volume', 'urine_total_volume',
+    #             'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
+    #             'blood_cell_summary', 'glycation_summary', 'urine_summary',
+    #             'updatetime'
+    #         ])
+    
+    # def save_formset(self, request, form, formset, change):
+    #     """只有在实际有改动时才更新时间和统计"""
+    #     # 检查是否是血球项目的formset
+    #     if hasattr(formset, 'model') and formset.model == MindrayBloodCellProject:
+    #         instances = formset.save(commit=False)
+    #         deleted_objects = formset.deleted_objects
+            
+    #         # 检查是否有实际改动
+    #         has_changes = bool(instances) or bool(deleted_objects)
+            
+    #         if not has_changes:
+    #             return  # 没有改动，直接返回
+            
+    #         for instance in instances:
+    #             instance.instrument_survey = form.instance
+    #             instance.save()
+            
+    #         for obj in deleted_objects:
+    #             obj.is_active = False
+    #             obj.save()
+            
+    #         formset.save_m2m()
+            
+    #         # 重新计算并更新仪器的所有汇总信息
+    #         form.instance.calculate_all_blood_summaries()
+    #         form.instance.save(update_fields=[
+    #             'sample_volume', 'blood_project_types', 
+    #             'blood_project_details',
+    #             'blood_competition_relations', 'blood_dealer_names'
+    #             # updatetime由auto_now自动处理
+    #         ])
+            
+    #         # 触发医院调研统计计算
+    #         if form.instance.hospital_survey:
+    #             from django.utils import timezone
+    #             form.instance.hospital_survey.calculate_all_statistics()
+    #             form.instance.hospital_survey.updatetime = timezone.now()
+    #             form.instance.hospital_survey.save(update_fields=[
+    #                 'crp_total_volume', 'saa_total_volume', 
+    #                 'esr_total_volume', 'routine_total_volume',
+    #                 'glycation_total_volume', 'urine_total_volume',
+    #                 'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
+    #                 'blood_cell_summary', 'glycation_summary', 'urine_summary',
+    #                 'updatetime'
+    #             ])
+    #     else:
+    #         # 非血球项目formset，使用默认处理
+    #         super().save_formset(request, form, formset, change)
+
     def save_model(self, request, obj, form, change):
         """只有在实际有改动时才更新时间和触发联动更新"""
         # 设置最后修改人
@@ -3121,6 +3312,9 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         
         # 只有在有实际改动时才触发医院调研的统计计算
         if has_changes and obj.hospital_survey:
+            # ✅ 新增：同时更新hospital_survey的created_by
+            obj.hospital_survey.created_by = request.user
+            
             obj.hospital_survey.calculate_all_statistics()
             
             # 手动更新hospital_survey的updatetime
@@ -3133,9 +3327,10 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                 'glycation_total_volume', 'urine_total_volume',
                 'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
                 'blood_cell_summary', 'glycation_summary', 'urine_summary',
+                'created_by',  # ✅ 新增：确保更新created_by
                 'updatetime'
             ])
-    
+
     def save_formset(self, request, form, formset, change):
         """只有在实际有改动时才更新时间和统计"""
         # 检查是否是血球项目的formset
@@ -3165,12 +3360,15 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                 'sample_volume', 'blood_project_types', 
                 'blood_project_details',
                 'blood_competition_relations', 'blood_dealer_names'
-                # updatetime由auto_now自动处理
             ])
             
             # 触发医院调研统计计算
             if form.instance.hospital_survey:
                 from django.utils import timezone
+                
+                # ✅ 新增：更新hospital_survey的created_by
+                form.instance.hospital_survey.created_by = request.user
+                
                 form.instance.hospital_survey.calculate_all_statistics()
                 form.instance.hospital_survey.updatetime = timezone.now()
                 form.instance.hospital_survey.save(update_fields=[
@@ -3179,13 +3377,96 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                     'glycation_total_volume', 'urine_total_volume',
                     'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
                     'blood_cell_summary', 'glycation_summary', 'urine_summary',
+                    'created_by',  # ✅ 新增：确保更新created_by
                     'updatetime'
                 ])
         else:
             # 非血球项目formset，使用默认处理
             super().save_formset(request, form, formset, change)
-
+            
   
+    # def delete_model(self, request, obj):
+    #     """删除单个仪器时级联删除血球项目并同步更新hospital_survey的统计信息"""
+    #     # 在删除前先保存hospital_survey引用
+    #     hospital_survey = obj.hospital_survey
+        
+    #     # 1. 先逻辑删除关联的血球项目
+    #     MindrayBloodCellProject.objects.filter(
+    #         instrument_survey=obj,
+    #         is_active=True
+    #     ).update(is_active=False)
+        
+    #     # 2. 如果是血球仪器，先清空相关汇总字段
+    #     if obj.is_blood_category:
+    #         obj.blood_project_details = ""
+    #         obj.blood_project_types = ""
+    #         obj.blood_competition_relations = ""
+    #         obj.blood_dealer_names = ""
+    #         obj.sample_volume = 0
+        
+    #     # 3. 执行删除操作（逻辑删除，设置is_active=False）
+    #     obj.is_active = False
+    #     obj.save()
+        
+    #     # 4. 删除后重新计算并更新hospital_survey统计
+    #     if hospital_survey:
+    #         from django.utils import timezone
+    #         hospital_survey.calculate_all_statistics()
+    #         hospital_survey.updatetime = timezone.now()
+    #         hospital_survey.save(update_fields=[
+    #             'crp_total_volume', 'saa_total_volume', 
+    #             'esr_total_volume', 'routine_total_volume',
+    #             'glycation_total_volume', 'urine_total_volume',
+    #             'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
+    #             'blood_cell_summary', 'glycation_summary', 'urine_summary',
+    #             'sales_opportunities_summary',
+    #             'updatetime'
+    #         ])
+
+    # def delete_queryset(self, request, queryset):
+    #     """批量删除仪器时级联删除血球项目并同步更新hospital_survey的统计信息"""
+    #     # 在删除前收集所有相关的hospital_survey
+    #     hospital_surveys = set()
+    #     for obj in queryset:
+    #         if obj.hospital_survey:
+    #             hospital_surveys.add(obj.hospital_survey)
+            
+    #         # 1. 先逻辑删除关联的血球项目
+    #         MindrayBloodCellProject.objects.filter(
+    #             instrument_survey=obj,
+    #             is_active=True
+    #         ).update(is_active=False)
+            
+    #         # 2. 如果是血球仪器，先清空相关汇总字段
+    #         if obj.is_blood_category:
+    #             obj.blood_project_details = ""
+    #             obj.blood_project_types = ""
+    #             obj.blood_competition_relations = ""
+    #             obj.blood_dealer_names = ""
+    #             obj.sample_volume = 0
+    #             obj.save(update_fields=[
+    #                 'blood_project_details', 'blood_project_types',
+    #                 'blood_competition_relations', 'blood_dealer_names', 'sample_volume'
+    #             ])
+        
+    #     # 3. 执行批量删除操作
+    #     queryset.update(is_active=False)
+        
+    #     # 4. 删除后重新计算并更新所有相关hospital_survey的统计
+    #     from django.utils import timezone
+    #     for hospital_survey in hospital_surveys:
+    #         hospital_survey.calculate_all_statistics()
+    #         hospital_survey.updatetime = timezone.now()
+    #         hospital_survey.save(update_fields=[
+    #             'crp_total_volume', 'saa_total_volume', 
+    #             'esr_total_volume', 'routine_total_volume',
+    #             'glycation_total_volume', 'urine_total_volume',
+    #             'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
+    #             'blood_cell_summary', 'glycation_summary', 'urine_summary',
+    #             'sales_opportunities_summary',
+    #             'updatetime'
+    #         ])
+
     def delete_model(self, request, obj):
         """删除单个仪器时级联删除血球项目并同步更新hospital_survey的统计信息"""
         # 在删除前先保存hospital_survey引用
@@ -3212,6 +3493,10 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         # 4. 删除后重新计算并更新hospital_survey统计
         if hospital_survey:
             from django.utils import timezone
+            
+            # ✅ 新增：更新hospital_survey的created_by
+            hospital_survey.created_by = request.user
+            
             hospital_survey.calculate_all_statistics()
             hospital_survey.updatetime = timezone.now()
             hospital_survey.save(update_fields=[
@@ -3221,6 +3506,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                 'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
                 'blood_cell_summary', 'glycation_summary', 'urine_summary',
                 'sales_opportunities_summary',
+                'created_by',  # ✅ 新增：确保更新created_by
                 'updatetime'
             ])
 
@@ -3256,6 +3542,9 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         # 4. 删除后重新计算并更新所有相关hospital_survey的统计
         from django.utils import timezone
         for hospital_survey in hospital_surveys:
+            # ✅ 新增：更新hospital_survey的created_by
+            hospital_survey.created_by = request.user
+            
             hospital_survey.calculate_all_statistics()
             hospital_survey.updatetime = timezone.now()
             hospital_survey.save(update_fields=[
@@ -3265,6 +3554,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
                 'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
                 'blood_cell_summary', 'glycation_summary', 'urine_summary',
                 'sales_opportunities_summary',
+                'created_by',  # ✅ 新增：确保更新created_by
                 'updatetime'
             ])
 
@@ -4340,6 +4630,34 @@ class MindrayBloodCellProjectAdmin(GlobalAdmin):
                 'updatetime'
             ])
 
+    # def save_model(self, request, obj, form, change):
+    #     """保存单个项目后触发计算，并更新仪器标本量"""
+    #     super().save_model(request, obj, form, change)
+        
+    #     # 更新仪器的汇总信息
+    #     if obj.instrument_survey:
+    #         obj.instrument_survey.calculate_all_blood_summaries()
+    #         obj.instrument_survey.save(update_fields=[
+    #             'sample_volume', 'blood_project_types', 
+    #             'blood_project_details',               # 新增字段
+    #             'blood_competition_relations', 'blood_dealer_names', 'updatetime'
+    #         ])
+        
+    #     # 触发医院调研的全部统计计算
+    #     if obj.instrument_survey and obj.instrument_survey.hospital_survey:
+    #         from django.utils import timezone
+    #         hospital_survey = obj.instrument_survey.hospital_survey
+    #         hospital_survey.calculate_all_statistics()
+    #         hospital_survey.updatetime = timezone.now()
+    #         hospital_survey.save(update_fields=[
+    #             'crp_total_volume', 'saa_total_volume', 
+    #             'esr_total_volume', 'routine_total_volume',
+    #             'glycation_total_volume', 'urine_total_volume',  # 新增
+    #             'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
+    #             'blood_cell_summary', 'glycation_summary', 'urine_summary',
+    #             'updatetime'
+    #         ])
+ 
     def save_model(self, request, obj, form, change):
         """保存单个项目后触发计算，并更新仪器标本量"""
         super().save_model(request, obj, form, change)
@@ -4349,7 +4667,7 @@ class MindrayBloodCellProjectAdmin(GlobalAdmin):
             obj.instrument_survey.calculate_all_blood_summaries()
             obj.instrument_survey.save(update_fields=[
                 'sample_volume', 'blood_project_types', 
-                'blood_project_details',               # 新增字段
+                'blood_project_details',
                 'blood_competition_relations', 'blood_dealer_names', 'updatetime'
             ])
         
@@ -4357,17 +4675,22 @@ class MindrayBloodCellProjectAdmin(GlobalAdmin):
         if obj.instrument_survey and obj.instrument_survey.hospital_survey:
             from django.utils import timezone
             hospital_survey = obj.instrument_survey.hospital_survey
+            
+            # ✅ 新增：更新hospital_survey的created_by
+            hospital_survey.created_by = request.user
+            
             hospital_survey.calculate_all_statistics()
             hospital_survey.updatetime = timezone.now()
             hospital_survey.save(update_fields=[
                 'crp_total_volume', 'saa_total_volume', 
                 'esr_total_volume', 'routine_total_volume',
-                'glycation_total_volume', 'urine_total_volume',  # 新增
+                'glycation_total_volume', 'urine_total_volume',
                 'blood_cell_total_count', 'glycation_total_count', 'urine_total_count',
                 'blood_cell_summary', 'glycation_summary', 'urine_summary',
+                'created_by',  # ✅ 新增：确保更新created_by
                 'updatetime'
             ])
- 
+
     # 权限控制方法
     def has_add_permission(self, request):
         """所有销售都可以新增血球项目"""
