@@ -91,16 +91,16 @@ class YearMonthDateWidget(DateInput):
 
 class GlobalAdmin(admin.ModelAdmin):
     def delete_queryset(self,request, queryset):
-        print('im in global delete_queryset')
+        # print('im in global delete_queryset')
         queryset.update(is_active=False)
 
     def delete_model(self, request, obj):
-        print('im in global delete_model')
+        # print('im in global delete_model')
         obj.is_active = False 
         obj.save()
 
     def get_queryset(self, request):
-        print('im in global get_queryset')
+        # print('im in global get_queryset')
         return super().get_queryset(request).filter(is_active=True)
 
 
@@ -715,7 +715,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         'created_by',
         'updatetime'
     ]
-    
+    list_per_page = 10
     list_filter = [
         'hospital__district', 
         'hospital__hospitalclass',
@@ -2651,10 +2651,10 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         instrument_chart_labels = [item[1] for item in instrument_data_filtered]
         
         # 添加调试信息（可以在生产环境中删除）
-        print(f"主任客情统计调试: {director_stats}")
-        print(f"主任客情显示: {director_familiarity_display}")
-        print(f"组长客情统计调试: {leader_stats}")
-        print(f"组长客情显示: {leader_familiarity_display}")
+        # print(f"主任客情统计调试: {director_stats}")
+        # print(f"主任客情显示: {director_familiarity_display}")
+        # print(f"组长客情统计调试: {leader_stats}")
+        # print(f"组长客情显示: {leader_familiarity_display}")
         
         extra_context.update({
             # 基本统计
@@ -2839,8 +2839,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
     ordering = ['hospital_survey__id','category','brand','createtime']
     form = MindrayInstrumentSurveyForm
     autocomplete_fields = ['hospital_survey','brand','competitionrelation']
-    
-    
+    list_per_page = 20
     list_display = [
         'hospital_survey', 
         'get_hospital_district',
@@ -3143,11 +3142,11 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """根据权限限制外键选择范围"""
-        print(f"=== formfield_for_foreignkey called ===")
-        print(f"db_field.name: {db_field.name}")
-        print(f"request.user: {request.user}")
-        print(f"request.user.is_superuser: {request.user.is_superuser}")
-        print(f"request.user.username: {request.user.username}")
+        # print(f"=== formfield_for_foreignkey called ===")
+        # print(f"db_field.name: {db_field.name}")
+        # print(f"request.user: {request.user}")
+        # print(f"request.user.is_superuser: {request.user.is_superuser}")
+        # print(f"request.user.username: {request.user.username}")
         
         if db_field.name == "hospital_survey":
             kwargs["queryset"] = MindrayHospitalSurvey.objects.filter(is_active=True)
@@ -3156,27 +3155,27 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             if not request.user.is_superuser and request.user.username in ALLOWED_SALESMEN:
                 kwargs["queryset"] = kwargs["queryset"].filter(qitian_manager=request.user)
                 
-            print(f"hospital_survey queryset count: {kwargs['queryset'].count()}")
+            # print(f"hospital_survey queryset count: {kwargs['queryset'].count()}")
         
         elif db_field.name == "category":
             kwargs["queryset"] = MindrayInstrumentCategory.objects.filter(is_active=True).order_by('order')
-            print(f"category queryset count: {kwargs['queryset'].count()}")
+            # print(f"category queryset count: {kwargs['queryset'].count()}")
             
         elif db_field.name == "brand":
             kwargs["queryset"] = Brand.objects.filter(is_active=True)
-            print(f"brand queryset count: {kwargs['queryset'].count()}")
-            print(f"brand queryset first 5: {list(kwargs['queryset'].values('id', 'brand')[:5])}")
+            # print(f"brand queryset count: {kwargs['queryset'].count()}")
+            # print(f"brand queryset first 5: {list(kwargs['queryset'].values('id', 'brand')[:5])}")
             
         elif db_field.name == "model":
             # ✅ 关键修改：为 model 字段设置完整的 queryset
             # 不要基于 brand 进行过滤，让前端 JavaScript 处理级联逻辑
             # 后端只需要确保包含所有可能的选项以通过验证
             kwargs["queryset"] = InstrumentModel.objects.filter(is_active=True).order_by('model_name')
-            print(f"model queryset count: {kwargs['queryset'].count()}")
+            # print(f"model queryset count: {kwargs['queryset'].count()}")
             
         elif db_field.name == "competitionrelation":
             kwargs["queryset"] = CompetitionRelation.objects.filter(is_active=True)
-            print(f"competitionrelation queryset count: {kwargs['queryset'].count()}")
+            # print(f"competitionrelation queryset count: {kwargs['queryset'].count()}")
             
         elif db_field.name == "last_modified_by":
             kwargs["queryset"] = UserInfoMindray.objects.filter(is_active=True)
@@ -4708,7 +4707,7 @@ class SalesOpportunityAdmin(GlobalAdmin):
     form = SalesOpportunityForm
     ordering = ['hospital_survey__id','opportunity_project','-createtime']
     autocomplete_fields = ['hospital_survey','opportunity_model']   
-    
+    list_per_page = 20
     list_display = [
         'get_hospital_name',
         'get_hospital_district',

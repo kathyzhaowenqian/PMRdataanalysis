@@ -652,7 +652,7 @@ class MindrayInstrumentCategory(models.Model):
 
 class InstrumentModel(models.Model):
     model_name = models.CharField(verbose_name='型号名称', max_length=255, blank=True, null=True)
-    brand = models.ForeignKey('Brand', models.CASCADE, db_column='brand', to_field='id', verbose_name='所属品牌', blank=True, null=True)
+    brand = models.ForeignKey('Brand', models.CASCADE, db_column='brand', to_field='id', verbose_name='所属品牌')
     createtime = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updatetime = models.DateTimeField(auto_now=True, verbose_name='更新时间')
     is_active = models.BooleanField(verbose_name='是否呈现', null=False, default=True)
@@ -977,7 +977,7 @@ class SalesOpportunity(models.Model):
     opportunity_project = models.CharField(
         max_length=10, 
         choices=PROJECT_CHOICES,
-        verbose_name='商机项目'
+        verbose_name='商机项目',blank=True,null=True
     )
     sample_volume = models.IntegerField(
         verbose_name='商机标本量',         
@@ -987,7 +987,7 @@ class SalesOpportunity(models.Model):
         max_length=7,
         verbose_name='落地时间',
         help_text='格式：YYYY-MM，如：2024-03',
-        validators=[RegexValidator(r'^\d{4}-\d{2}$', '格式：YYYY-MM')]
+        validators=[RegexValidator(r'^\d{4}-\d{2}$', '格式：YYYY-MM')],blank=True,null=True
     )
     opportunity_status = models.TextField(
         verbose_name='商机情况',
