@@ -2221,225 +2221,42 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
     refresh_all_calculated_fields.type = 'info'
     refresh_all_calculated_fields.style = 'color:white;'
 
-    # def changelist_view(self, request, extra_context=None):
-    #     """自定义列表页面，添加统计信息和图表数据"""
-    #     extra_context = extra_context or {}
-        
-    #     # 获取当前查询集
-    #     queryset = self.get_queryset(request)
-        
-    #     # 应用搜索和过滤
-    #     cl = self.get_changelist_instance(request)
-    #     queryset = cl.get_queryset(request)
-        
-    #     from django.db.models import Sum, Count, Avg, Q
-    #     from django.utils import timezone
-    #     from datetime import timedelta
-        
-    #     # 1. 基本统计
-    #     total_hospitals = queryset.count()
-        
-    #     # 2. 标本量统计汇总 - 确保所有字段都包含
-    #     volume_stats = queryset.aggregate(
-    #         total_routine=Sum('routine_total_volume'),
-    #         total_crp=Sum('crp_total_volume'),
-    #         total_saa=Sum('saa_total_volume'),
-    #         total_esr=Sum('esr_total_volume'),
-    #         total_glycation=Sum('glycation_total_volume'),
-    #         total_urine=Sum('urine_total_volume'),
-    #     )
-        
-        
-    #     # 3. 仪器台数统计汇总
-    #     instrument_stats = queryset.aggregate(
-    #         total_blood_cell=Sum('blood_cell_total_count'),
-    #         total_glycation_count=Sum('glycation_total_count'),
-    #         total_urine_count=Sum('urine_total_count'),
-    #     )
-        
-    #     # 4. 按医院级别统计
-    #     class_stats = queryset.values(
-    #         'hospital__hospitalclass'
-    #     ).annotate(
-    #         count=Count('id')
-    #     ).exclude(
-    #         hospital__hospitalclass__isnull=True
-    #     ).order_by('-count')
-        
-    #     # 5. 客情统计
-    #     director_familiarity_stats = queryset.values('director_familiarity').annotate(
-    #         count=Count('id')
-    #     )
-    #     leader_familiarity_stats = queryset.values('leader_familiarity').annotate(
-    #         count=Count('id')
-    #     )
-        
-    #     familiarity_map = {
-    #         'red': '不认识',
-    #         'yellow': '有商机在跟进',
-    #         'green': '有明确代理商',
-    #         'blue': '成单'
-    #     }
-        
-    #     director_familiarity_display = {}
-    #     leader_familiarity_display = {}
-        
-    #     for item in director_familiarity_stats:
-    #         key = item['director_familiarity']
-    #         if key:
-    #             director_familiarity_display[familiarity_map.get(key, key)] = item['count']
-        
-    #     for item in leader_familiarity_stats:
-    #         key = item['leader_familiarity']
-    #         if key:
-    #             leader_familiarity_display[familiarity_map.get(key, key)] = item['count']
-        
-    #     # 6. 修改时间统计
-    #     today = timezone.now().date()
-    #     week_start = today - timedelta(days=today.weekday())
-    #     month_start = today.replace(day=1)
-        
-    #     this_week_count = queryset.filter(updatetime__date__gte=week_start).count()
-    #     this_month_count = queryset.filter(updatetime__date__gte=month_start).count()
-        
-    #     # 7. 医院标本量排名（Top15）
-    #     hospital_sample_rankings = []
-    #     for hospital in queryset.select_related('hospital'):
-    #         total_sample = (
-    #             (hospital.crp_total_volume or 0) +
-    #             (hospital.saa_total_volume or 0) +
-    #             (hospital.esr_total_volume or 0) +
-    #             (hospital.routine_total_volume or 0) +
-    #             (hospital.glycation_total_volume or 0) +
-    #             (hospital.urine_total_volume or 0)
-    #         )
-    #         if total_sample > 0:
-    #             hospital_sample_rankings.append({
-    #                 'hospital_name': hospital.hospital.hospitalname,
-    #                 'total_sample': total_sample,
-    #                 'district': hospital.hospital.district,
-    #                 'rank': 0  # 将在排序后设置
-    #             })
-        
-    #     # 按总标本量排序并添加排名
-    #     hospital_sample_rankings.sort(key=lambda x: x['total_sample'], reverse=True)
-    #     for i, hospital in enumerate(hospital_sample_rankings[:15], 1):
-    #         hospital['rank'] = i
-        
-    #     # 8. 医院仪器台数排名（Top15）
-    #     hospital_instrument_rankings = []
-    #     for hospital in queryset.select_related('hospital'):
-    #         total_instruments = (
-    #             (hospital.blood_cell_total_count or 0) +
-    #             (hospital.glycation_total_count or 0) +
-    #             (hospital.urine_total_count or 0)
-    #         )
-    #         if total_instruments > 0:
-    #             hospital_instrument_rankings.append({
-    #                 'hospital_name': hospital.hospital.hospitalname,
-    #                 'total_instruments': total_instruments,
-    #                 'district': hospital.hospital.district,
-    #                 'rank': 0  # 将在排序后设置
-    #             })
-        
-    #     # 按总仪器台数排序并添加排名
-    #     hospital_instrument_rankings.sort(key=lambda x: x['total_instruments'], reverse=True)
-    #     for i, hospital in enumerate(hospital_instrument_rankings[:15], 1):
-    #         hospital['rank'] = i
-        
-    #     # 9. 修改：医院商机数量排名（基于SalesOpportunity数量）
-    #     from .models import SalesOpportunity  # 确保导入SalesOpportunity
-        
-    #     hospital_opportunity_rankings = []
-    #     for hospital in queryset.select_related('hospital'):
-    #         # 统计该医院调研记录的商机数量
-    #         opportunity_count = SalesOpportunity.objects.filter(
-    #             hospital_survey=hospital,  # 使用正确的字段名
-    #             is_active=True
-    #         ).count()
-            
-    #         if opportunity_count > 0:
-    #             hospital_opportunity_rankings.append({
-    #                 'hospital_name': hospital.hospital.hospitalname,
-    #                 'opportunity_count': opportunity_count,
-    #                 'district': hospital.hospital.district,
-    #                 'rank': 0  # 将在排序后设置
-    #             })
-        
-    #     # 按商机数量排序并添加排名
-    #     hospital_opportunity_rankings.sort(key=lambda x: x['opportunity_count'], reverse=True)
-    #     for i, hospital in enumerate(hospital_opportunity_rankings[:15], 1):
-    #         hospital['rank'] = i
-        
-    #     # 准备图表数据 - 修正标本量数据
-    #     # 标本量分布数据（按值降序排序） - 确保包含所有类型
-    #     volume_data_raw = [
-    #         (volume_stats['total_routine'] or 0, '血常规'),
-    #         (volume_stats['total_crp'] or 0, 'CRP'),
-    #         (volume_stats['total_saa'] or 0, 'SAA'),  # 确保SAA包含
-    #         (volume_stats['total_esr'] or 0, '血沉'),
-    #         (volume_stats['total_glycation'] or 0, '糖化'),
-    #         (volume_stats['total_urine'] or 0, '尿液'),  # 确保尿液包含
-    #     ]
-
-       
-
-
-    #     # 过滤掉值为0的项目（避免图表中显示0值）
-    #     volume_data_filtered = [(value, label) for value, label in volume_data_raw if value > 0]
-    #     volume_data_filtered.sort(key=lambda x: x[0], reverse=True)
-        
-    #     volume_chart_data = [item[0] for item in volume_data_filtered]
-    #     volume_chart_labels = [item[1] for item in volume_data_filtered]
-        
-    #     # 仪器台数分布数据（按值降序排序）
-    #     instrument_data_raw = [
-    #         (instrument_stats['total_blood_cell'] or 0, '血球仪器'),
-    #         (instrument_stats['total_glycation_count'] or 0, '糖化仪器'),
-    #         (instrument_stats['total_urine_count'] or 0, '尿液仪器'),
-    #     ]
-    #     # 过滤掉值为0的项目
-    #     instrument_data_filtered = [(value, label) for value, label in instrument_data_raw if value > 0]
-    #     instrument_data_filtered.sort(key=lambda x: x[0], reverse=True)
-        
-    #     instrument_chart_data = [item[0] for item in instrument_data_filtered]
-    #     instrument_chart_labels = [item[1] for item in instrument_data_filtered]
-        
-    #     extra_context.update({
-    #         # 基本统计
-    #         'total_hospitals': total_hospitals,
-    #         'this_week_count': this_week_count,
-    #         'this_month_count': this_month_count,
-    #         'total_all_samples': sum(volume_chart_data) if volume_chart_data else 0,
-    #         'total_all_instruments': sum(instrument_chart_data) if instrument_chart_data else 0,
-            
-    #         # 图表数据
-    #         'volume_chart_data': volume_chart_data,
-    #         'volume_chart_labels': volume_chart_labels,
-    #         'instrument_chart_data': instrument_chart_data,
-    #         'instrument_chart_labels': instrument_chart_labels,
-            
-    #         # 传统统计保留
-    #         'volume_stats': volume_stats,
-    #         'instrument_stats': instrument_stats,
-    #         'class_stats': class_stats,
-    #         'director_familiarity_stats': director_familiarity_display,
-    #         'leader_familiarity_stats': leader_familiarity_display,
-            
-    #         # 排名数据
-    #         'hospital_sample_rankings': hospital_sample_rankings[:15],
-    #         'hospital_instrument_rankings': hospital_instrument_rankings[:15],
-    #         'hospital_opportunity_rankings': hospital_opportunity_rankings[:15],
-    #     })
-        
-    #     #    # 添加这个调试，看看传递给模板的数据
-    #     # print(f"传递给模板的 volume_chart_data: {extra_context['volume_chart_data']}")
-    #     # print(f"传递给模板的 volume_chart_labels: {extra_context['volume_chart_labels']}")
-    #     # print("=== 调试结束 ===")
-        
-    #     return super().changelist_view(request, extra_context=extra_context)    
 
     def changelist_view(self, request, extra_context=None):
+        # 在开头添加URL参数清理
+        if request.GET:
+            cleaned_params = {}
+            has_amp_encoding = False
+            
+            for key, value in request.GET.items():
+                if key.startswith('amp;'):
+                    clean_key = key.replace('amp;', '')
+                    cleaned_params[clean_key] = value
+                    has_amp_encoding = True
+                else:
+                    cleaned_params[key] = value
+            
+            if has_amp_encoding:
+                from django.http import HttpResponseRedirect
+                from django.urls import reverse
+                from urllib.parse import urlencode
+                
+                url = reverse('admin:{}_{}_changelist'.format(
+                    self.model._meta.app_label,
+                    self.model._meta.model_name
+                ))
+                
+                if cleaned_params:
+                    url += '?' + urlencode(cleaned_params, doseq=True)
+                
+                return HttpResponseRedirect(url)
+        
+        # extra_context = extra_context or {}
+
+
+
+
+
         """自定义列表页面，添加统计信息和图表数据"""
         extra_context = extra_context or {}
         
@@ -3544,6 +3361,41 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
   
     def changelist_view(self, request, extra_context=None):
         """自定义列表页面，添加统计信息"""
+
+        # 在开头添加URL参数清理
+        if request.GET:
+            cleaned_params = {}
+            has_amp_encoding = False
+            
+            for key, value in request.GET.items():
+                if key.startswith('amp;'):
+                    clean_key = key.replace('amp;', '')
+                    cleaned_params[clean_key] = value
+                    has_amp_encoding = True
+                else:
+                    cleaned_params[key] = value
+            
+            if has_amp_encoding:
+                from django.http import HttpResponseRedirect
+                from django.urls import reverse
+                from urllib.parse import urlencode
+                
+                url = reverse('admin:{}_{}_changelist'.format(
+                    self.model._meta.app_label,
+                    self.model._meta.model_name
+                ))
+                
+                if cleaned_params:
+                    url += '?' + urlencode(cleaned_params, doseq=True)
+                
+                return HttpResponseRedirect(url)
+        
+        # extra_context = extra_context or {}
+
+
+
+
+
         extra_context = extra_context or {}
         
         # 获取当前查询集（应用了筛选条件后的结果）
@@ -4909,6 +4761,35 @@ class SalesOpportunityAdmin(GlobalAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def changelist_view(self, request, extra_context=None):
+
+        # 在开头添加URL参数清理
+        if request.GET:
+            cleaned_params = {}
+            has_amp_encoding = False
+            
+            for key, value in request.GET.items():
+                if key.startswith('amp;'):
+                    clean_key = key.replace('amp;', '')
+                    cleaned_params[clean_key] = value
+                    has_amp_encoding = True
+                else:
+                    cleaned_params[key] = value
+            
+            if has_amp_encoding:
+                from django.http import HttpResponseRedirect
+                from django.urls import reverse
+                from urllib.parse import urlencode
+                
+                url = reverse('admin:{}_{}_changelist'.format(
+                    self.model._meta.app_label,
+                    self.model._meta.model_name
+                ))
+                
+                if cleaned_params:
+                    url += '?' + urlencode(cleaned_params, doseq=True)
+                
+                return HttpResponseRedirect(url)
+            
         """自定义列表页面，添加统计信息和图表数据"""
         extra_context = extra_context or {}
         
@@ -6100,6 +5981,34 @@ class SalesOpportunitySummaryAdmin(GlobalAdmin):
         return queryset
     
     def changelist_view(self, request, extra_context=None):
+        # 在开头添加URL参数清理
+        if request.GET:
+            cleaned_params = {}
+            has_amp_encoding = False
+            
+            for key, value in request.GET.items():
+                if key.startswith('amp;'):
+                    clean_key = key.replace('amp;', '')
+                    cleaned_params[clean_key] = value
+                    has_amp_encoding = True
+                else:
+                    cleaned_params[key] = value
+            
+            if has_amp_encoding:
+                from django.http import HttpResponseRedirect
+                from django.urls import reverse
+                from urllib.parse import urlencode
+                
+                url = reverse('admin:{}_{}_changelist'.format(
+                    self.model._meta.app_label,
+                    self.model._meta.model_name
+                ))
+                
+                if cleaned_params:
+                    url += '?' + urlencode(cleaned_params, doseq=True)
+                
+                return HttpResponseRedirect(url)
+            
         """重写changelist_view以添加统计信息"""
         extra_context = extra_context or {}
         
