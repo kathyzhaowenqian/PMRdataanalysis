@@ -24,7 +24,7 @@ Upload_File_2 = os.path.join(os.path.dirname(__file__), folder_name1, folder_nam
 
 class Upload2(View):
     def get(self,request):
-        if request.user.username=='admin' or  request.user.username=='syp' or  request.user.username=='cxy':               
+        if request.user.username=='admin' or  request.user.username=='zwq8zhj' or  request.user.username=='cxy':               
 
             # # login_user = request.user.chinesename
             # if os.path.exists(Upload_File_2):  # 判断文件是否存在
@@ -59,7 +59,7 @@ class Upload2(View):
 class Download2(View):
     def get(self,request):
         # login_user = request.user.chinesename
-        if request.user.username=='admin' or  request.user.username=='syp' or  request.user.username=='cxy':  
+        if request.user.username=='admin' or  request.user.username=='zwq8zhj' or  request.user.username=='cxy':  
             file_path = Upload_File_2
             
             if not os.path.exists(file_path):

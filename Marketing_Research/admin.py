@@ -21,10 +21,10 @@ from django.contrib.admin import SimpleListFilter
 from django.db.models import Case, When, Value, IntegerField
 
 # 页面标题
-admin.site.site_title="普美瑞智能分析系统"
+admin.site.site_title="智能数据集成系统"
 
 # 登录页导航条和首页导航条标题
-admin.site.site_header="普美瑞智能分析系统"
+admin.site.site_header="智能数据集成系统"
 
 # 主页标题
 admin.site.index_title="欢迎你"
@@ -1373,7 +1373,93 @@ class PMRResearchListAdmin(GlobalAdmin):
     salestarget_25_q4.admin_order_field = '-salestarget__q4target'
 
 
-#目标完成月
+# # 2026
+#     @admin.display(description='26/Q1目标')
+#     def salestarget_26_q1(self, obj):
+#         if obj.salestarget_set.filter(year='2026',is_active=True)[0].q1target == 0:
+#             color_code='black'
+#             ret='--'
+#         else:
+#             color_code='green'
+#             ret=obj.salestarget_set.filter(year='2026',is_active=True)[0].q1target
+#         return format_html(
+#                 '<span style="color:{};">{}</span>',
+#                 color_code,ret)
+#     salestarget_26_q1.admin_order_field = '-salestarget__q1target'
+
+#     @admin.display(description='26/Q2目标')
+#     def salestarget_26_q2(self, obj):
+#         if obj.salestarget_set.filter(year='2026',is_active=True)[0].q2target == 0:
+#             color_code='black'
+#             ret='--'
+#         else:
+#             color_code='green'
+#             ret=obj.salestarget_set.filter(year='2026',is_active=True)[0].q2target
+#         return format_html(
+#                 '<span style="color:{};">{}</span>',
+#                 color_code,ret)
+#     salestarget_26_q2.admin_order_field = '-salestarget__q2target'
+
+#     @admin.display(description='26/Q3目标')
+#     def salestarget_26_q3(self, obj):
+#         if obj.salestarget_set.filter(year='2026',is_active=True)[0].q3target == 0:
+#             color_code='black'
+#             ret='--'
+#         else:
+#             color_code='green'
+#             ret=obj.salestarget_set.filter(year='2026',is_active=True)[0].q3target
+#         return format_html(
+#                 '<span style="color:{};">{}</span>',
+#                 color_code,ret)
+#     salestarget_26_q3.admin_order_field = '-salestarget__q3target'
+
+
+#     @admin.display(description='26/Q4目标')
+#     def salestarget_26_q4(self, obj):
+#         if obj.salestarget_set.filter(year='2026',is_active=True)[0].q4target == 0:
+#             color_code='black'
+#             ret='--'
+#         else:
+#             color_code='green'
+#             ret=obj.salestarget_set.filter(year='2026',is_active=True)[0].q4target
+#         return format_html(
+#                 '<span style="color:{};">{}</span>',
+#                 color_code,ret)
+#     salestarget_26_q4.admin_order_field = '-salestarget__q4target'
+
+    def _get_quarter_target(self, obj, year, quarter):
+        """通用方法获取季度目标"""
+        target = obj.salestarget_set.filter(year=year, is_active=True).first()
+        target_field = f'q{quarter}target'
+        
+        if not target or getattr(target, target_field, 0) == 0:
+            color_code = 'black'
+            ret = '--'
+        else:
+            color_code = 'green'
+            ret = getattr(target, target_field)
+        
+        return format_html(
+            '<span style="color:{};">{}</span>',
+            color_code, ret)
+
+    @admin.display(description='26/Q1目标')
+    def salestarget_26_q1(self, obj):
+        return self._get_quarter_target(obj, '2026', 1)
+
+    @admin.display(description='26/Q2目标')
+    def salestarget_26_q2(self, obj):
+        return self._get_quarter_target(obj, '2026', 2)
+
+    @admin.display(description='26/Q3目标')
+    def salestarget_26_q3(self, obj):
+        return self._get_quarter_target(obj, '2026', 3)
+
+    @admin.display(description='26/Q4目标')
+    def salestarget_26_q4(self, obj):
+        return self._get_quarter_target(obj, '2026', 4)
+
+    #目标完成月
     @admin.display(description='23/Q1目标月')
     def completemonth_23_q1(self, obj):
         return obj.salestarget_set.filter(year='2023',is_active=True)[0].q1completemonth
@@ -1442,6 +1528,56 @@ class PMRResearchListAdmin(GlobalAdmin):
         return obj.salestarget_set.filter(year='2025',is_active=True)[0].q4completemonth
     completemonth_25_q4.admin_order_field = 'salestarget__q4completemonth'
 
+
+    # # 2026
+    # @admin.display(description='26/Q1目标月')
+    # def completemonth_26_q1(self, obj):
+    #     return obj.salestarget_set.filter(year='2026',is_active=True)[0].q1completemonth
+    # completemonth_26_q1.admin_order_field = 'salestarget__q1completemonth'
+
+    # @admin.display(description='26/Q2目标月')
+    # def completemonth_26_q2(self, obj):
+    #     return obj.salestarget_set.filter(year='2026',is_active=True)[0].q2completemonth
+    # completemonth_26_q2.admin_order_field = 'salestarget__q2completemonth'
+
+
+    # @admin.display(description='26/Q3目标月')
+    # def completemonth_26_q3(self, obj):
+    #     return obj.salestarget_set.filter(year='2026',is_active=True)[0].q3completemonth
+    # completemonth_26_q3.admin_order_field = 'salestarget__q3completemonth'
+
+
+    # @admin.display(description='26/Q4目标月')
+    # def completemonth_26_q4(self, obj):
+    #     return obj.salestarget_set.filter(year='2026',is_active=True)[0].q4completemonth
+    # completemonth_26_q4.admin_order_field = 'salestarget__q4completemonth'
+
+    def _get_complete_month(self, obj, year, quarter):
+        """通用方法获取完成月份"""
+        target = obj.salestarget_set.filter(year=year, is_active=True).first()
+        if not target:
+            return '--'
+        return getattr(target, f'q{quarter}completemonth', '--') or '--'
+
+    @admin.display(description='26/Q1目标月')
+    def completemonth_26_q1(self, obj):
+        return self._get_complete_month(obj, '2026', 1)
+    completemonth_26_q1.admin_order_field = 'salestarget__q1completemonth'
+
+    @admin.display(description='26/Q2目标月')
+    def completemonth_26_q2(self, obj):
+        return self._get_complete_month(obj, '2026', 2)
+    completemonth_26_q2.admin_order_field = 'salestarget__q2completemonth'
+
+    @admin.display(description='26/Q3目标月')
+    def completemonth_26_q3(self, obj):
+        return self._get_complete_month(obj, '2026', 3)
+    completemonth_26_q3.admin_order_field = 'salestarget__q3completemonth'
+
+    @admin.display(description='26/Q4目标月')
+    def completemonth_26_q4(self, obj):
+        return self._get_complete_month(obj, '2026', 4)
+    completemonth_26_q4.admin_order_field = 'salestarget__q4completemonth'
 
 #23年全年实际完成额
     @admin.display(description='23年开票额')
@@ -1520,6 +1656,62 @@ class PMRResearchListAdmin(GlobalAdmin):
         return '{:,.0f}'.format(obj.salestarget_set.filter(year='2025',is_active=True)[0].q4actualsales)
     actualsales_25_q4.admin_order_field = '-actualsales_25_q4'
 
+    # # 2026
+    # @admin.display(description='26/Q1实际')
+    # def actualsales_26_q1(self, obj):
+    #     return '{:,.0f}'.format(obj.salestarget_set.filter(year='2026',is_active=True)[0].q1actualsales)
+    # actualsales_26_q1.admin_order_field = '-actualsales_26_q1'
+
+
+    # @admin.display(description='26/Q2实际')
+    # def actualsales_26_q2(self, obj):
+    #     return '{:,.0f}'.format(obj.salestarget_set.filter(year='2026',is_active=True)[0].q2actualsales)
+    # actualsales_26_q2.admin_order_field = '-actualsales_26_q2'
+
+
+    # @admin.display(description='26/Q3实际')
+    # def actualsales_26_q3(self, obj):
+    #     return '{:,.0f}'.format(obj.salestarget_set.filter(year='2026',is_active=True)[0].q3actualsales)
+    # actualsales_26_q3.admin_order_field = '-actualsales_26_q3'
+
+
+    # @admin.display(description='26/Q4实际')
+    # def actualsales_26_q4(self, obj):
+    #     return '{:,.0f}'.format(obj.salestarget_set.filter(year='2026',is_active=True)[0].q4actualsales)
+    # actualsales_26_q4.admin_order_field = '-actualsales_26_q4'
+
+
+    def _get_actual_sales(self, obj, year, quarter):
+        """通用方法获取实际销售额"""
+        target = obj.salestarget_set.filter(year=year, is_active=True).first()
+        if not target:
+            return '--'
+        
+        sales = getattr(target, f'q{quarter}actualsales', None)
+        if sales is None:
+            return '--'
+        
+        return '{:,.0f}'.format(sales)
+
+    @admin.display(description='26/Q1实际')
+    def actualsales_26_q1(self, obj):
+        return self._get_actual_sales(obj, '2026', 1)
+    actualsales_26_q1.admin_order_field = '-actualsales_26_q1'
+
+    @admin.display(description='26/Q2实际')
+    def actualsales_26_q2(self, obj):
+        return self._get_actual_sales(obj, '2026', 2)
+    actualsales_26_q2.admin_order_field = '-actualsales_26_q2'
+
+    @admin.display(description='26/Q3实际')
+    def actualsales_26_q3(self, obj):
+        return self._get_actual_sales(obj, '2026', 3)
+    actualsales_26_q3.admin_order_field = '-actualsales_26_q3'
+
+    @admin.display(description='26/Q4实际')
+    def actualsales_26_q4(self, obj):
+        return self._get_actual_sales(obj, '2026', 4)
+    actualsales_26_q4.admin_order_field = '-actualsales_26_q4'
 
 #每季度实际完成率
     @admin.display(description='23/Q1完成率')
@@ -1717,6 +1909,107 @@ class PMRResearchListAdmin(GlobalAdmin):
             return '{:.1f}%'.format(finishrate*100)        
     finishrate_25_q4.admin_order_field = '-salestarget__q4finishrate'
 
+# # 2026
+#     @admin.display(description='26/Q1完成率')
+#     def finishrate_26_q1(self, obj):
+#         sales_target = obj.salestarget_set.filter(year='2026',is_active=True)[0]
+#         if sales_target.q1target and sales_target.q1target != 0:#如果target不是0
+#             finishrate = sales_target.q1actualsales / sales_target.q1target
+#             sales_target.q1finishrate = finishrate
+#             sales_target.save()
+#             return '{:.1f}%'.format(finishrate*100)
+
+#         else: #如果target是0 但actual不是0 #如果target是0 actual是0
+#             finishrate=0
+#             sales_target.q1finishrate = finishrate
+#             sales_target.save()
+#             return '{:.1f}%'.format(finishrate*100)        
+#     finishrate_26_q1.admin_order_field = '-salestarget__q1finishrate'
+
+#     @admin.display(description='26/Q2完成率')
+#     def finishrate_26_q2(self, obj):
+#         sales_target = obj.salestarget_set.filter(year='2026',is_active=True)[0]
+#         if sales_target.q2target and sales_target.q2target != 0:#如果target不是0
+#             finishrate = sales_target.q2actualsales / sales_target.q2target
+#             sales_target.q2finishrate = finishrate
+#             sales_target.save()
+#             return '{:.1f}%'.format(finishrate*100)
+
+#         else: #如果target是0 但actual不是0 #如果target是0 actual是0
+#             finishrate=0
+#             sales_target.q2finishrate = finishrate
+#             sales_target.save()
+#             return '{:.1f}%'.format(finishrate*100)        
+#     finishrate_26_q2.admin_order_field = '-salestarget__q2finishrate'
+    
+#     @admin.display(description='26/Q3完成率')
+#     def finishrate_26_q3(self, obj):
+#         sales_target = obj.salestarget_set.filter(year='2026',is_active=True)[0]
+#         if sales_target.q3target and sales_target.q3target != 0:#如果target不是0
+#             finishrate = sales_target.q3actualsales / sales_target.q3target
+#             sales_target.q3finishrate = finishrate
+#             sales_target.save()
+#             return '{:.1f}%'.format(finishrate*100)
+
+#         else: #如果target是0 但actual不是0 #如果target是0 actual是0
+#             finishrate=0
+#             sales_target.q3finishrate = finishrate
+#             sales_target.save()
+#             return '{:.1f}%'.format(finishrate*100)        
+#     finishrate_26_q3.admin_order_field = '-salestarget__q3finishrate'
+    
+#     @admin.display(description='26/Q4完成率')
+#     def finishrate_26_q4(self, obj):
+#         sales_target = obj.salestarget_set.filter(year='2026',is_active=True)[0]
+#         if sales_target.q4target and sales_target.q4target != 0:#如果target不是0
+#             finishrate = sales_target.q4actualsales / sales_target.q4target
+#             sales_target.q4finishrate = finishrate
+#             sales_target.save()
+#             return '{:.1f}%'.format(finishrate*100)
+
+#         else: #如果target是0 但actual不是0 #如果target是0 actual是0
+#             finishrate=0
+#             sales_target.q4finishrate = finishrate
+#             sales_target.save()
+#             return '{:.1f}%'.format(finishrate*100)        
+#     finishrate_26_q4.admin_order_field = '-salestarget__q4finishrate'
+
+
+    def _get_finish_rate(self, obj, year, quarter):
+        """获取完成率（只读，不保存）"""
+        sales_target = obj.salestarget_set.filter(year=year, is_active=True).first()
+        
+        if not sales_target:
+            return '--'
+        
+        target = getattr(sales_target, f'q{quarter}target', 0)
+        actual = getattr(sales_target, f'q{quarter}actualsales', 0)
+        
+        if target and target != 0:
+            finishrate = actual / target
+            return '{:.1f}%'.format(finishrate * 100)
+        else:
+            return '0.0%'
+
+    @admin.display(description='26/Q1完成率')
+    def finishrate_26_q1(self, obj):
+        return self._get_finish_rate(obj, '2026', 1)
+    finishrate_26_q1.admin_order_field = '-salestarget__q1finishrate'
+
+    @admin.display(description='26/Q2完成率')
+    def finishrate_26_q2(self, obj):
+        return self._get_finish_rate(obj, '2026', 2)
+    finishrate_26_q2.admin_order_field = '-salestarget__q2finishrate'
+
+    @admin.display(description='26/Q3完成率')
+    def finishrate_26_q3(self, obj):
+        return self._get_finish_rate(obj, '2026', 3)
+    finishrate_26_q3.admin_order_field = '-salestarget__q3finishrate'
+
+    @admin.display(description='26/Q4完成率')
+    def finishrate_26_q4(self, obj):
+        return self._get_finish_rate(obj, '2026', 4)
+    finishrate_26_q4.admin_order_field = '-salestarget__q4finishrate'
 
     #通过display计算的仪器值，不做任何保存！！！
     @admin.display(description='test仪器总数')

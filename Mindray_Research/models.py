@@ -277,9 +277,9 @@ class MindrayHospitalSurvey(models.Model):
     ]
 
     hospital = models.OneToOneField("Hospital", on_delete=models.CASCADE, verbose_name='医院')
-    qitian_manager = models.ForeignKey('UserInfoMindray', models.CASCADE, db_column='qitian_manager',to_field='id',related_name='qitian_manager',verbose_name= '其田负责人')
+    qitian_manager = models.ForeignKey('UserInfoMindray', models.CASCADE, db_column='qitian_manager',to_field='id',related_name='qitian_manager',verbose_name= '我司负责人')
 
-    mindray_manager = models.CharField(max_length=100, verbose_name='迈瑞负责人', blank=True, null=True)
+    mindray_manager = models.CharField(max_length=100, verbose_name='品牌负责人', blank=True, null=True)
     
     # 主任信息
     director_name = models.CharField(max_length=100, verbose_name='主任姓名', blank=True, null=True)

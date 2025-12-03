@@ -46,7 +46,7 @@ class Submit(View):
                     'today':today
                 }
                 return render(request,'report/report.html',context=context)
-        if request.user.username=='admin' :               
+        if request.user.username=='admin' or request.user.username=='zwq8zhj':               
 
             # login_user = request.user.id
             # companyid=user_company_dict[login_user]

@@ -111,7 +111,7 @@ class GlobalAdmin(admin.ModelAdmin):
 
 
 class SalesmanFilter(SimpleListFilter):
-    title = '其田负责人' 
+    title = '我司负责人' 
     parameter_name = 'userinfo'
 
     def lookups(self, request, model_admin):
@@ -717,7 +717,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
     ]
     list_per_page = 10
     list_filter = [
-        'hospital__district', 
+        # 'hospital__district', 
         'hospital__hospitalclass',
         SalesmanFilter,
         'sales_mode',
@@ -728,7 +728,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
     
     search_fields = [
         'hospital__hospitalname', 
-        'mindray_manager', 
+        # 'mindray_manager', 
         'director_name',
         'leader_name',
         'operator_name'
@@ -1142,7 +1142,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         
         # 定义表头 - 修改这部分
         headers = [
-            '医院名称', '区域', '级别', '其田负责人', '迈瑞负责人',
+            '医院名称', '区域', '级别', '我司负责人', '品牌负责人',
             '主任姓名','主任对接人','主任客情',
             '组长姓名','组长对接人','组长客情', 
             '销售模式', '分销渠道',
@@ -1350,7 +1350,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         
         # Sheet1 表头
         headers1 = [
-            '医院名称', '区域', '级别', '其田负责人', '迈瑞负责人',
+            '医院名称', '区域', '级别', '我司负责人', '品牌负责人',
             '主任姓名','主任对接人','主任客情',
             '组长姓名','组长对接人','组长客情', 
             '销售模式', '分销渠道',
@@ -1559,7 +1559,7 @@ class MindrayHospitalSurveyAdmin(nested_admin.NestedModelAdmin, GlobalAdmin):
         
         # Sheet3 表头（完整版）
         headers3 = [
-            '医院', '区域', '级别', '其田负责人', '迈瑞负责人',
+            '医院', '区域', '级别', '我司负责人', '品牌负责人',
             '主任姓名', '主任对接人', '主任客情',
             '组长姓名', '组长对接人', '组长客情',
             '操作老师姓名', '操作老师对接人',
@@ -4077,7 +4077,7 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
         # 定义完整表头
         headers = [
             # 第一部分：医院调研信息（这些字段需要按医院合并）
-            '医院', '区域', '级别', '其田负责人', '迈瑞负责人',
+            '医院', '区域', '级别', '我司负责人', '品牌负责人',
             '主任姓名', '主任对接人', '主任客情',
             '组长姓名', '组长对接人', '组长客情',
             '操作老师姓名', '操作老师对接人',
