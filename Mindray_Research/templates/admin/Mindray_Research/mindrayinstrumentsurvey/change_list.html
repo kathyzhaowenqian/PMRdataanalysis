@@ -3,6 +3,8 @@
 
 {% block extrahead %}
     {{ block.super }}
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
         .stats-container {
             background: #f8f9fa;
@@ -53,6 +55,104 @@
             background: #f8d7da;
             border-color: #f5c6cb;
         }
+
+        /* 饼状图样式 */
+        .sample-chart-container {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .chart-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+        .doughnut-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 280px;
+            position: relative;
+        }
+        .doughnut-canvas {
+            max-width: 280px !important;
+            max-height: 280px !important;
+            width: 280px !important;
+            height: 280px !important;
+        }
+
+        /* 图表行布局 */
+        .charts-row-1,
+        .charts-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .charts-row-3 {
+            display: grid;
+            grid-template-columns: 1fr;
+            margin-top: 2rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .charts-row-1,
+            .charts-row-2 {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        /* 图表卡片样式 */
+        .chart-item {
+            background: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 450px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .chart-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .year-chart {
+            min-height: 400px;
+        }
+
+        .chart-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
     </style>
 {% endblock %}
 
@@ -85,54 +185,540 @@
             </div>
         </div>
         
-        <!-- 标本量详细分布（样式和分类统计一致） -->
-        <div class="category-stats">
-            <strong>📊 标本量分布：</strong>
-            <span class="category-stat-item">血球仪器: {{ blood_sample_volume }} 例</span>
-            <span class="category-stat-item">糖化仪器: {{ glycation_sample_volume }} 例</span>
-            <span class="category-stat-item">尿液仪器: {{ urine_sample_volume }} 例</span>
+        <!-- 第二层: 标本量饼图 + 分类统计柱状图 -->
+        <div class="charts-row-1">
+            <!-- 1. 标本量分布饼图 (保持不变) -->
+            <div class="chart-item">
+                <div class="chart-title">📊 标本量分布</div>
+                <div class="doughnut-container">
+                    <canvas id="sampleVolumeChart" class="doughnut-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- 2. 分类统计柱状图 (NEW) -->
+            <div class="chart-item">
+                <div class="chart-title">🔬 分类统计</div>
+                <div style="height: 320px; position: relative;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
         </div>
-        
-        <!-- 仪器分类统计（血球在前） -->
-        {% if category_stats %}
-        <div class="category-stats">
-            <strong>🔬 分类统计：</strong>
-            {% for category, stats in category_stats.items %}
-                <span class="category-stat-item">{{ category }}: {{ stats.count }}个记录/{{ stats.quantity }}台设备</span>
-            {% endfor %}
+
+        <!-- 第三层: 品牌分布 + 设备归属 -->
+        <div class="charts-row-2">
+            <!-- 3. 品牌分布Top5水平条形图 (NEW) -->
+            <div class="chart-item">
+                <div class="chart-title">🏷️ 品牌分布 Top5</div>
+                <div style="height: 320px; position: relative;">
+                    <canvas id="brandChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 4. 设备归属环形图 (NEW) -->
+            <div class="chart-item">
+                <div class="chart-title">🏢 设备归属</div>
+                <div class="doughnut-container">
+                    <canvas id="ownershipChart" class="doughnut-canvas"></canvas>
+                </div>
+            </div>
         </div>
-        {% endif %}
-        
-        <!-- 品牌统计 -->
-        {% if brand_stats %}
-        <div class="brand-stats">
-            <strong>🏷️ 品牌分布 (Top5)：</strong>
-            {% for brand in brand_stats %}
-                <span class="brand-stat-item">{{ brand.brand__brand }}: {{ brand.count }}个/{{ brand.total_quantity }}台</span>
-            {% endfor %}
+
+        <!-- 第四层: 装机年份分布 (全宽) -->
+        <div class="charts-row-3">
+            <div class="chart-item year-chart">
+                <div class="chart-title">📅 装机年份分布</div>
+                <div style="height: 350px; position: relative;">
+                    <canvas id="yearChart"></canvas>
+                </div>
+            </div>
         </div>
-        {% endif %}
-        
-        <!-- 我司vs竞品统计 -->
-        <div class="ownership-stats">
-            <strong>🏢 设备归属：</strong>
-            <span class="ownership-stat-item ownership-our">我司设备: {{ our_stats.count }}个记录 ({{ our_stats.quantity }}台, {{ our_percentage }}%)</span>
-            <span class="ownership-stat-item ownership-competitor">竞品设备: {{ competitor_stats.count }}个记录 ({{ competitor_stats.quantity }}台)</span>
-        </div>
-        
-        <!-- 装机年份分布 -->
-        {% if year_stats %}
-        <div class="category-stats">
-            <strong>📅 装机年份分布：</strong>
-            {% for year, count in year_stats.items %}
-                <span class="category-stat-item">{{ year }}年: {{ count }}台</span>
-            {% endfor %}
-        </div>
-        {% endif %}
     </div>
     {% endif %}
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
+
+    <script>
+    // 等待页面完全加载
+    window.addEventListener('load', function() {
+        console.log('页面加载完成，开始初始化标本量分布饼状图...');
+
+        // 检查Chart.js是否加载
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js未加载');
+            return;
+        }
+
+        console.log('Chart.js已加载，版本:', Chart.version);
+
+        // 从Django模板获取数据
+        var sampleVolumeData = [
+            {{ blood_sample_volume|default:0 }},
+            {{ glycation_sample_volume|default:0 }},
+            {{ urine_sample_volume|default:0 }}
+        ];
+        var sampleVolumeLabels = ['血球仪器', '糖化仪器', '尿液仪器'];
+
+        console.log('标本量数据:', sampleVolumeData);
+        console.log('标本量标签:', sampleVolumeLabels);
+
+        // 定义颜色方案
+        const colors = [
+            '#FF6B6B',  // 红色 - 血球
+            '#F5A512',  // 橙色 - 糖化
+            '#45B7D1'   // 蓝色 - 尿液
+        ];
+
+        // 创建标本量分布饼状图
+        var canvas = document.getElementById('sampleVolumeChart');
+        if (canvas && sampleVolumeData.some(v => v > 0)) {
+            console.log('开始创建标本量分布图...');
+            try {
+                var chart = new Chart(canvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: sampleVolumeLabels,
+                        datasets: [{
+                            data: sampleVolumeData,
+                            backgroundColor: colors,
+                            borderColor: '#ffffff',
+                            borderWidth: 3,
+                            hoverBackgroundColor: colors,
+                            hoverBorderColor: '#ffffff',
+                            hoverBorderWidth: 5,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    font: {
+                                        family: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+                                        size: 11,
+                                        weight: '600'
+                                    },
+                                    color: '#2d3748',
+                                    generateLabels: function(chart) {
+                                        const data = chart.data;
+                                        if (data.labels.length && data.datasets.length) {
+                                            const dataset = data.datasets[0];
+                                            const total = dataset.data.reduce((a, b) => a + b, 0);
+
+                                            return data.labels.map((label, i) => {
+                                                const value = dataset.data[i];
+                                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+
+                                                return {
+                                                    text: `${label}: ${value.toLocaleString()} (${percentage}%)`,
+                                                    fillStyle: dataset.backgroundColor[i],
+                                                    strokeStyle: '#ffffff',
+                                                    lineWidth: 2,
+                                                    pointStyle: 'circle',
+                                                    hidden: false,
+                                                    index: i
+                                                };
+                                            });
+                                        }
+                                        return [];
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(45, 55, 72, 0.95)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                padding: 12,
+                                bodyFont: {
+                                    size: 13,
+                                    weight: '500'
+                                },
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                displayColors: true,
+                                boxWidth: 12,
+                                boxHeight: 12,
+                                callbacks: {
+                                    title: function(context) {
+                                        return '🧪 ' + context[0].label;
+                                    },
+                                    label: function(context) {
+                                        var value = context.parsed || 0;
+                                        var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        var percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+                                        return [
+                                            `标本量: ${value.toLocaleString()} 例`,
+                                            `占比: ${percentage}%`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        onClick: function(event, elements) {
+                            if (elements.length > 0) {
+                                const element = elements[0];
+                                const label = this.data.labels[element.index];
+                                const value = this.data.datasets[0].data[element.index];
+                                console.log(`点击了: ${label}, 值: ${value}`);
+                            }
+                        }
+                    }
+                });
+                console.log('标本量分布图创建成功');
+            } catch (error) {
+                console.error('创建标本量分布图失败:', error);
+            }
+        } else {
+            console.log('标本量分布图：无数据或canvas不存在');
+        }
+
+        // ========== 2. 分类统计分组柱状图 ==========
+        var categoryStatsRaw = {{ category_stats_json|safe }};
+        var categoryLabels = ['血球', '糖化', '尿液'];
+        var categoryCountData = [];
+        var categoryQuantityData = [];
+
+        categoryLabels.forEach(function(label) {
+            if (categoryStatsRaw[label]) {
+                categoryCountData.push(categoryStatsRaw[label].count);
+                categoryQuantityData.push(categoryStatsRaw[label].quantity);
+            } else {
+                categoryCountData.push(0);
+                categoryQuantityData.push(0);
+            }
+        });
+
+        var categoryChartCanvas = document.getElementById('categoryChart');
+        if (categoryChartCanvas && (categoryCountData.some(v => v > 0) || categoryQuantityData.some(v => v > 0))) {
+            console.log('创建分类统计柱状图...');
+            try {
+                new Chart(categoryChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [
+                            {
+                                label: '记录数',
+                                data: categoryCountData,
+                                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                borderRadius: 8,
+                                barThickness: 40
+                            },
+                            {
+                                label: '设备台数',
+                                data: categoryQuantityData,
+                                backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                                borderColor: '#764ba2',
+                                borderWidth: 2,
+                                borderRadius: 8,
+                                barThickness: 40
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    font: { family: "'Inter', 'Helvetica Neue', Arial, sans-serif", size: 12, weight: '600' },
+                                    color: '#2d3748'
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(45, 55, 72, 0.95)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                padding: 12,
+                                callbacks: {
+                                    title: function(context) {
+                                        return '🔬 ' + context[0].label;
+                                    },
+                                    label: function(context) {
+                                        var label = context.dataset.label || '';
+                                        var value = context.parsed.y;
+                                        return label + ': ' + value + (label === '记录数' ? '个' : '台');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 5, font: { size: 11 } },
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 12, weight: '600' } }
+                            }
+                        }
+                    }
+                });
+                console.log('分类统计柱状图创建成功');
+            } catch (error) {
+                console.error('创建分类统计柱状图失败:', error);
+            }
+        }
+
+        // ========== 3. 品牌分布Top5水平条形图 ==========
+        var brandLabels = {{ brand_labels|safe }};
+        var brandCounts = {{ brand_counts|safe }};
+        var brandQuantities = {{ brand_quantities|safe }};
+
+        var brandChartCanvas = document.getElementById('brandChart');
+        if (brandChartCanvas && brandLabels.length > 0) {
+            console.log('创建品牌分布水平条形图...');
+            try {
+                new Chart(brandChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: brandLabels,
+                        datasets: [
+                            {
+                                label: '记录数',
+                                data: brandCounts,
+                                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                borderRadius: 6
+                            },
+                            {
+                                label: '设备台数',
+                                data: brandQuantities,
+                                backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                                borderColor: '#764ba2',
+                                borderWidth: 2,
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { padding: 12, usePointStyle: true, font: { size: 11, weight: '600' } }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(45, 55, 72, 0.95)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                padding: 12,
+                                callbacks: {
+                                    title: function(context) {
+                                        return '🏷️ ' + context[0].label;
+                                    },
+                                    label: function(context) {
+                                        var label = context.dataset.label || '';
+                                        return label + ': ' + context.parsed.x + (label === '记录数' ? '个' : '台');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 5, font: { size: 10 } },
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { font: { size: 11, weight: '600' } }
+                            }
+                        }
+                    }
+                });
+                console.log('品牌分布水平条形图创建成功');
+            } catch (error) {
+                console.error('创建品牌分布水平条形图失败:', error);
+            }
+        }
+
+        // ========== 4. 设备归属环形图 ==========
+        var ownershipData = [
+            {{ our_stats.quantity|default:0 }},
+            {{ competitor_stats.quantity|default:0 }}
+        ];
+        var ownershipLabels = ['我司设备', '竞品设备'];
+        var ownershipColors = ['#10b981', '#ef4444'];
+
+        var ownershipCanvas = document.getElementById('ownershipChart');
+        if (ownershipCanvas && ownershipData.some(v => v > 0)) {
+            console.log('创建设备归属环形图...');
+            try {
+                new Chart(ownershipCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ownershipLabels,
+                        datasets: [{
+                            data: ownershipData,
+                            backgroundColor: ownershipColors,
+                            borderColor: '#ffffff',
+                            borderWidth: 3,
+                            hoverBackgroundColor: ownershipColors,
+                            hoverBorderColor: '#ffffff',
+                            hoverBorderWidth: 5,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    font: { size: 12, weight: '600' },
+                                    color: '#2d3748',
+                                    generateLabels: function(chart) {
+                                        const data = chart.data;
+                                        if (data.labels.length && data.datasets.length) {
+                                            const dataset = data.datasets[0];
+                                            const total = dataset.data.reduce((a, b) => a + b, 0);
+
+                                            return data.labels.map((label, i) => {
+                                                const value = dataset.data[i];
+                                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+
+                                                return {
+                                                    text: `${label}: ${value}台 (${percentage}%)`,
+                                                    fillStyle: dataset.backgroundColor[i],
+                                                    strokeStyle: '#ffffff',
+                                                    lineWidth: 2,
+                                                    pointStyle: 'circle',
+                                                    hidden: false,
+                                                    index: i
+                                                };
+                                            });
+                                        }
+                                        return [];
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(45, 55, 72, 0.95)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                padding: 12,
+                                callbacks: {
+                                    title: function(context) {
+                                        return '🏢 ' + context[0].label;
+                                    },
+                                    label: function(context) {
+                                        var value = context.parsed || 0;
+                                        var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        var percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+                                        return [
+                                            `设备台数: ${value} 台`,
+                                            `占比: ${percentage}%`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+                console.log('设备归属环形图创建成功');
+            } catch (error) {
+                console.error('创建设备归属环形图失败:', error);
+            }
+        }
+
+        // ========== 5. 装机年份分布柱状图 ==========
+        var yearLabels = {{ year_labels|safe }};
+        var yearCounts = {{ year_counts|safe }};
+
+        var yearChartCanvas = document.getElementById('yearChart');
+        if (yearChartCanvas && yearCounts.length > 0) {
+            console.log('创建装机年份分布柱状图...');
+            try {
+                new Chart(yearChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: yearLabels,
+                        datasets: [{
+                            label: '装机台数',
+                            data: yearCounts,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            barThickness: 50
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(45, 55, 72, 0.95)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#3b82f6',
+                                borderWidth: 2,
+                                padding: 12,
+                                callbacks: {
+                                    title: function(context) {
+                                        return '📅 ' + context[0].label + '年';
+                                    },
+                                    label: function(context) {
+                                        return '装机台数: ' + context.parsed.y + ' 台';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 5, font: { size: 11 } },
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 12, weight: '600' } }
+                            }
+                        }
+                    }
+                });
+                console.log('装机年份分布柱状图创建成功');
+            } catch (error) {
+                console.error('创建装机年份分布柱状图失败:', error);
+            }
+        }
+
+        console.log('所有图表初始化完成');
+    });
+    </script>
 {% endblock %}

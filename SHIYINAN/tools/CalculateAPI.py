@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg
 import pandas as pd
 import os
 import xlrd
@@ -207,8 +207,8 @@ def SHIYINAN(rawdata,filename):
 #     consumption_to_sql_df.rename(columns={'日期':'date','科室':'department','编码':'productcode','产品名称':'productname','规格':'spec','单位':'unit','厂商':'brand','批号':'batchcode','有效期':'expiredate','数量':'quantity','是否签回':'signback','送货人':'deliverperson'}, inplace=True)
  
 #     #【【【【【【【【【【【【链接数据库！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-#     to_sql_connect = create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
-#     # to_sql_connect = create_engine('postgresql+psycopg2://' + 'postgres' + ':' + 'Kathy83305136' + '@139.224.61.6' + ':'+'5432'+'/'+'postgres')
+#     to_sql_connect = create_engine('postgresql+psycopg://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
+#     # to_sql_connect = create_engine('postgresql+psycopg://' + 'postgres' + ':' + 'Kathy83305136' + '@139.224.61.6' + ':'+'5432'+'/'+'postgres')
 
 #     # print('settings.PG_DBNAME',settings.PG_DBNAME)
 #     to_sql_connect_conn = to_sql_connect.connect()

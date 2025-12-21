@@ -116,7 +116,8 @@ DATABASES = {
 
     #'default':{},
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        "ENGINE": "django.db.backends.postgresql",
         'NAME': PG_DBNAME,
         'USER': PG_DBUSER,
         'PASSWORD': PG_PASSWORD,
@@ -127,6 +128,12 @@ DATABASES = {
         }
     },
 }
+
+ 
+
+
+
+
 REDIS_LOCATION= "redis://{}:{}/2".format(os.environ.get('REDIS_INTERNAL_HOST'),os.environ.get('REDIS_INTERNAL_PORT'))
 REDIS_PASSWORD=os.environ.get('REDIS_PASSWORD')
 

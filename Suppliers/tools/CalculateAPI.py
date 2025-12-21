@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg
 import pandas as pd
 import os
 import xlrd
@@ -34,7 +34,7 @@ def RawSaveToSql(rawdata,project,table,seq):
     # print('detail_to_sql_df',detail_to_sql_df)
     detail_to_sql_df.rename(columns={'序号':'no','发票类型':'invoicetype','发票号':'invoicecode','发票日期':'invoicedate','供应商':'supplier','存货编码':'productcode','存货名称':'productname','规格型号':'spec','主计量':'unit','税率':'taxrate','数量':'quantity','原币无税单价':'pricewithouttax','原币单价':'price','原币金额':'sumwithouttax','原币税额':'tax','原币价税合计':'sum','订单号':'ordercode','入库单号':'entrycode','项目名称':'project','品牌':'brand','走账方式':'paycompany','年份':'year','季度':'quarter','月份':'month'},inplace=True)
     # print('detail_to_sql_df',detail_to_sql_df)
-    detail_to_sql_connect = create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
+    detail_to_sql_connect = create_engine('postgresql+psycopg://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
     print('settings.PG_DBNAME',settings.PG_DBNAME)
     detail_to_sql_connect_conn = detail_to_sql_connect.connect()
 
@@ -60,7 +60,7 @@ def RawSaveToSql(rawdata,project,table,seq):
 
 
 def TransformData(table2122,table23,table24,project,filename,Supplier_Rank_table,supplierrank_id_seq_table,Supplier_Product_Summary_table,supplierproductsummary_id_seq_table,Product_Rank_table,productrank_id_seq_table):
-    conn = psycopg2.connect(
+    conn = psycopg.connect(
         dbname=settings.PG_DBNAME,
         user=settings.PG_DBUSER,
         password=settings.PG_PASSWORD,
@@ -125,7 +125,7 @@ def TransformData(table2122,table23,table24,project,filename,Supplier_Rank_table
     
     new_suppliers = supplierlist_df[~supplierlist_df['supplier'].isin(supplier_info_df['supplier'])]
     print('new_suppliers',new_suppliers)
-    connect =create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
+    connect =create_engine('postgresql+psycopg://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
     if not new_suppliers.empty:
         print('将新的供应商数据插入表2中')
         new_data_to_insert = new_suppliers.copy()
@@ -275,7 +275,7 @@ def TransformData(table2122,table23,table24,project,filename,Supplier_Rank_table
         supplier_product_summary_to_sql.rename(columns={'排序':'rank','供应商排序':'supplierrank','供应商':'supplier','联系方式':'contact','账期':'payterm','税率':'tax','配送方式':'delivery','存货编码':'productcode','存货名称':'productname','规格型号':'spec','单位':'unit','品牌':'brand','最近发票日期':'recentdate','单价':'price','21年采购数量':'qty21','22年采购数量':'qty22','23年采购数量':'qty23','采购总数量':'totalqty','21年采购金额':'sum21','22年采购金额':'sum22','23年采购金额':'sum23','采购总金额':'totalsum'},inplace=True)
         product_rank_to_sql.rename(columns={'排序':'rank','存货编码':'productcode','存货名称':'productname','规格型号':'spec','单位':'unit','供应商':'supplier','品牌':'brand','最近发票日期':'recentdate','单价':'price', '21年采购数量':'qty21','22年采购数量':'qty22','23年采购数量':'qty23','采购总数量':'totalqty','21年采购金额':'sum21','22年采购金额':'sum22','23年采购金额':'sum23','采购总金额':'totalsum'},inplace=True)
 
-    to_sql_connect = create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
+    to_sql_connect = create_engine('postgresql+psycopg://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
     to_sql_connect_conn = to_sql_connect.connect()
     print('数据库链接成功')
     to_sql_connect_conn.execute('TRUNCATE TABLE "SUPPLIERS"."{}" CASCADE'.format(Supplier_Rank_table))

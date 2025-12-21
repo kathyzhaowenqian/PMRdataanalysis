@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg
 import pandas as pd
 import os
 import xlrd
@@ -383,8 +383,8 @@ def SHIYUAN(rawdata,filename):
 
 
     # #【【【【【【【【【【【【链接数据库！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-    # to_sql_connect = create_engine('postgresql+psycopg2://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
-    # # to_sql_connect = create_engine('postgresql+psycopg2://' + 'postgres' + ':' + 'Kathy83305136' + '@139.224.61.6' + ':'+'5432'+'/'+'postgres')
+    # to_sql_connect = create_engine('postgresql+psycopg://' + settings.PG_DBUSER + ':' + settings.PG_PASSWORD + '@'+settings.PG_HOST + ':'+settings.PG_PORT+'/'+settings.PG_DBNAME)
+    # # to_sql_connect = create_engine('postgresql+psycopg://' + 'postgres' + ':' + 'Kathy83305136' + '@139.224.61.6' + ':'+'5432'+'/'+'postgres')
     # print('to_sql_connect??:::',to_sql_connect)
 
     # # print('settings.PG_DBNAME',settings.PG_DBNAME)

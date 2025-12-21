@@ -5,7 +5,7 @@ from django.http import JsonResponse,HttpResponse,HttpResponseRedirect
 from Suppliers.tools.CalculateAPI import *
 import pandas as pd
 from datetime import date
-import psycopg2
+import psycopg
 import pandas as pd
 import os
 import xlrd

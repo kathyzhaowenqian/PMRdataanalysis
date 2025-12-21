@@ -3840,26 +3840,58 @@ class MindrayInstrumentSurveyAdmin(GlobalAdmin):
             'blood_sample_volume': blood_sample_volume,
             'glycation_sample_volume': glycation_sample_volume,
             'urine_sample_volume': urine_sample_volume,
-            
+
             # 分类统计
             'category_stats': category_stats,
             'brand_stats': brand_stats,
             'district_stats': district_stats,
-            
+
             # 我司vs竞品 - 修复版本
             'our_stats': our_stats,
             'competitor_stats': competitor_stats,
             'null_stats': null_stats,  # 新增：空值统计
             'our_percentage': round(our_stats['count'] / total_instruments * 100, 1) if total_instruments > 0 else 0,
             'competitor_percentage': round(competitor_stats['count'] / total_instruments * 100, 1) if total_instruments > 0 else 0,
-            
+
             # 时间统计 - 使用修复后的年份统计
             'year_stats': filtered_year_stats,  # 使用过滤后的年份统计
             'all_year_stats': year_stats,       # 如果需要，也可以提供全部年份统计
             'this_week_count': this_week_count,
             'this_month_count': this_month_count,
         })
-        
+
+        # JSON 序列化图表数据
+        import json
+
+        # 1. 分类统计 JSON 序列化
+        category_stats_json = json.dumps(category_stats)
+
+        # 2. 品牌统计 - 提取为三个列表
+        brand_labels = []
+        brand_counts = []
+        brand_quantities = []
+        for brand in brand_stats:
+            brand_labels.append(brand['brand__brand'] or '未知品牌')
+            brand_counts.append(brand['count'])
+            brand_quantities.append(brand['total_quantity'] or 0)
+
+        # 3. 装机年份 - 提取为两个有序列表（降序）
+        year_labels = []
+        year_counts = []
+        for year in sorted(filtered_year_stats.keys(), reverse=True):
+            year_labels.append(str(year))
+            year_counts.append(filtered_year_stats[year])
+
+        # 4. 更新 extra_context，添加 JSON 序列化的数据
+        extra_context.update({
+            'category_stats_json': category_stats_json,
+            'brand_labels': json.dumps(brand_labels),
+            'brand_counts': json.dumps(brand_counts),
+            'brand_quantities': json.dumps(brand_quantities),
+            'year_labels': json.dumps(year_labels),
+            'year_counts': json.dumps(year_counts),
+        })
+
         return super().changelist_view(request, extra_context=extra_context)
 
 
