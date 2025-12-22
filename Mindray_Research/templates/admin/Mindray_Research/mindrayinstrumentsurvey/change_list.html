@@ -100,18 +100,18 @@
         }
 
         /* 图表行布局 */
-        .charts-row-1,
+        .charts-row-1 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
         .charts-row-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-top: 1.5rem;
-        }
-
-        .charts-row-3 {
-            display: grid;
-            grid-template-columns: 1fr;
-            margin-top: 2rem;
         }
 
         /* 响应式设计 */
@@ -201,9 +201,9 @@
             </div>
         </div>
         
-        <!-- 第二层: 标本量饼图 + 分类统计柱状图 -->
+        <!-- 第一层: 标本量饼图 + 分类统计柱状图 + 品牌分布Top5 -->
         <div class="charts-row-1">
-            <!-- 1. 标本量分布饼图 (保持不变) -->
+            <!-- 1. 标本量分布饼图 -->
             <div class="chart-item">
                 <div class="chart-title">📊 标本量分布</div>
                 <div class="doughnut-container">
@@ -211,37 +211,35 @@
                 </div>
             </div>
 
-            <!-- 2. 分类统计柱状图 (NEW) -->
+            <!-- 2. 分类统计柱状图 -->
             <div class="chart-item">
                 <div class="chart-title">🔬 分类统计</div>
                 <div style="height: 320px; position: relative;">
                     <canvas id="categoryChart"></canvas>
                 </div>
             </div>
-        </div>
 
-        <!-- 第三层: 品牌分布 + 设备归属 -->
-        <div class="charts-row-2">
-            <!-- 3. 品牌分布Top5水平条形图 (NEW) -->
+            <!-- 3. 品牌分布Top5水平条形图 -->
             <div class="chart-item">
                 <div class="chart-title">🏷️ 品牌分布 Top5</div>
                 <div style="height: 320px; position: relative;">
                     <canvas id="brandChart"></canvas>
                 </div>
             </div>
+        </div>
 
-            <!-- 4. 设备归属环形图 (NEW) -->
+        <!-- 第二层: 设备归属 + 装机年份分布 -->
+        <div class="charts-row-2">
+            <!-- 4. 设备归属环形图 -->
             <div class="chart-item">
                 <div class="chart-title">🏢 设备归属</div>
                 <div class="doughnut-container">
                     <canvas id="ownershipChart" class="doughnut-canvas"></canvas>
                 </div>
             </div>
-        </div>
 
-        <!-- 第四层: 装机年份分布 (全宽) -->
-        <div class="charts-row-3">
-            <div class="chart-item year-chart">
+            <!-- 5. 装机年份分布 -->
+            <div class="chart-item">
                 <div class="chart-title">📅 装机年份分布</div>
                 <div style="height: 350px; position: relative;">
                     <canvas id="yearChart"></canvas>
@@ -624,7 +622,7 @@
             {{ competitor_stats.quantity|default:0 }}
         ];
         var ownershipLabels = ['我司设备', '竞品设备'];
-        var ownershipColors = ['#10b981', '#ef4444'];
+        var ownershipColors = [modernColors[0], modernColors[4]];  // 深蓝、莫兰迪灰绿，与标本量分布配色一致
 
         var ownershipCanvas = document.getElementById('ownershipChart');
         if (ownershipCanvas && ownershipData.some(v => v > 0)) {
