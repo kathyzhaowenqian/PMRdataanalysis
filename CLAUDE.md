@@ -38,6 +38,13 @@ python manage.py makemigrations <app_name>
 python manage.py shell
 ```
 
+**IMPORTANT**: When modifying any `models.py` file (adding/changing fields, models, or choices), you MUST remind the user to run database migrations:
+```bash
+python manage.py makemigrations <app_name>
+python manage.py migrate
+```
+However, note that many models in this project have `managed=False`, which means Django won't create/modify database tables. In these cases, database schema changes must be handled manually or through external migration tools.
+
 ### Static Files
 ```bash
 # Collect static files (production)

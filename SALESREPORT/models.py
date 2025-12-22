@@ -1,7 +1,23 @@
 from django.db import models
 
- 
+
 from Marketing_Research.models import UserInfo
+
+
+SALES_STAGE_CHOICES = [
+    ('线索获取', '线索获取'),
+    ('线索验证/建档', '线索验证/建档'),
+    ('商机立项', '商机立项'),
+    ('需求调研', '需求调研'),
+    ('方案/报价', '方案/报价'),
+    ('测试/验证', '测试/验证'),
+    ('准入/关键人认可', '准入/关键人认可'),
+    ('商务谈判', '商务谈判'),
+    ('招采/挂网/比选', '招采/挂网/比选'),
+    ('中标/赢单', '中标/赢单'),
+    ('装机/验收', '装机/验收'),
+    ('收单', '收单'),
+]
 
 
 class ReportUserInfo(UserInfo):   
@@ -47,7 +63,7 @@ class SalesReport(models.Model):
     desc = models.TextField(verbose_name='工作简述',max_length=255, blank=False, null=False)
     type = models.CharField(verbose_name='工作类型',max_length=255, blank=False, null=False)
     state = models.CharField(verbose_name='最新推进状态',max_length=255, blank=False, null=False)
-    stage = models.CharField(verbose_name='已完成阶段',max_length=255, blank=False, null=False)
+    stage = models.CharField(verbose_name='已完成阶段',max_length=255, blank=False, null=False, choices=SALES_STAGE_CHOICES)
     date2 = models.DateField(verbose_name='上一阶段反馈时间',blank=True, null=False)
     date3 = models.DateField(verbose_name='最近计划反馈时间',blank=True, null=False)
     operator = models.ForeignKey('ReportUserInfo', models.CASCADE, db_column='operator',to_field='id',related_name='operatorreport',verbose_name= '最后操作人')   
@@ -56,7 +72,7 @@ class SalesReport(models.Model):
     is_active=models.BooleanField(verbose_name='是否呈现',null=False, default = True)
 
     class Meta:
-        managed=False
+        managed=True
         db_table = 'marketing_research_v2\".\"JcReport'
         verbose_name_plural = '集成业务日报'
 
