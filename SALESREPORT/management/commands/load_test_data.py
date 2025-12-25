@@ -1,0 +1,848 @@
+"""
+销售日报测试数据生成命令
+用法: python manage.py load_test_data
+"""
+
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from datetime import date, timedelta
+from decimal import Decimal
+
+from SALESREPORT.models import (
+    Customer, Project, ProjectStageHistory, SalesReport,
+    ReportUserInfo, Company
+)
+
+
+class Command(BaseCommand):
+    help = '为SALESREPORT模块生成测试数据'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--clean',
+            action='store_true',
+            help='清理旧的测试数据'
+        )
+
+    def handle(self, *args, **options):
+        self.stdout.write(self.style.SUCCESS('开始生成测试数据...'))
+
+        # 确认 salesman 和 company 存在
+        try:
+            salesman = ReportUserInfo.objects.get(id=1)
+            company = Company.objects.get(id=4)
+        except ReportUserInfo.DoesNotExist:
+            self.stdout.write(self.style.ERROR('错误：找不到 ID=1 的销售人员'))
+            return
+        except Company.DoesNotExist:
+            self.stdout.write(self.style.ERROR('错误：找不到 ID=4 的公司'))
+            return
+
+        self.stdout.write(f'销售人员: {salesman.chinesename or salesman.username}')
+        self.stdout.write(f'公司: {company.company}')
+
+        # 清理旧的测试数据（可选）
+        if options['clean']:
+            self.cleanup_test_data()
+
+        # 创建测试数据
+        self.create_customers()
+        self.create_projects(salesman, company)
+
+        self.stdout.write(self.style.SUCCESS('[成功] 测试数据生成完成！'))
+
+    def cleanup_test_data(self):
+        """清理测试数据"""
+        self.stdout.write('清理旧数据中...')
+
+        # 获取测试客户
+        test_customers = Customer.objects.filter(name__contains='测试')
+        customer_count = test_customers.count()
+
+        # 先删除关联的项目（级联删除会自动删除阶段历史和日报）
+        test_projects = Project.objects.filter(customer__in=test_customers)
+        project_count = test_projects.count()
+        test_projects.delete()
+
+        # 再删除客户
+        test_customers.delete()
+
+        self.stdout.write(f'已删除 {customer_count} 个测试客户和 {project_count} 个测试项目及相关数据')
+
+    def create_customers(self):
+        """创建测试客户"""
+        self.stdout.write('创建客户数据...')
+
+        customers_data = [
+            {
+                'name': '测试医院A-市中心人民医院',
+                'region': '江苏省南京市',
+                'customer_type': 'hospital',
+                'level': 'A',
+                'contact_person': '张主任',
+                'contact_phone': '138****1234',
+                'address': '南京市玄武区中山东路1号',
+                'remark': '三甲医院，检验科规模大，年采购预算充足'
+            },
+            {
+                'name': '测试医院B-区第一医院',
+                'region': '江苏省苏州市',
+                'customer_type': 'hospital',
+                'level': 'B',
+                'contact_person': '李科长',
+                'contact_phone': '139****5678',
+                'address': '苏州市姑苏区人民路88号',
+                'remark': '二甲医院，正在升三甲，设备更新需求旺盛'
+            },
+            {
+                'name': '测试医院C-社区卫生服务中心',
+                'region': '江苏省无锡市',
+                'customer_type': 'hospital',
+                'level': 'C',
+                'contact_person': '王医生',
+                'contact_phone': '137****9012',
+                'address': '无锡市滨湖区太湖大道200号',
+                'remark': '社区医院，预算有限，价格敏感'
+            },
+        ]
+
+        for data in customers_data:
+            customer, created = Customer.objects.get_or_create(
+                name=data['name'],
+                defaults=data
+            )
+            if created:
+                self.stdout.write(f'  [OK] 创建客户: {customer.name}')
+
+    def create_projects(self, salesman, company):
+        """创建测试项目及相关数据"""
+        self.stdout.write('创建项目数据...')
+
+        # 获取客户
+        customers = Customer.objects.filter(name__contains='测试')
+        if customers.count() < 3:
+            self.stdout.write(self.style.ERROR('错误：客户数据不足'))
+            return
+
+        customer_a, customer_b, customer_c = customers[0], customers[1], customers[2]
+
+        # 项目1: 早期阶段，刚开始跟进
+        self.create_project_early_stage(customer_a, salesman, company)
+
+        # 项目2: 中期阶段，正在推进
+        self.create_project_mid_stage(customer_b, salesman, company)
+
+        # 项目3: 后期阶段，即将成交
+        self.create_project_late_stage(customer_a, salesman, company)
+
+        # 项目4: 已赢单
+        self.create_project_won(customer_b, salesman, company)
+
+        # 项目5: 已输单
+        self.create_project_lost(customer_c, salesman, company)
+
+    def create_project_early_stage(self, customer, salesman, company):
+        """项目1: 早期阶段（线索验证/建档）"""
+        self.stdout.write('\n创建项目1: 早期阶段项目...')
+
+        today = date.today()
+        start_date = today - timedelta(days=15)
+
+        project = Project.objects.create(
+            name='血常规分析仪采购项目',
+            project_code=f'PRJ{today.strftime("%y%m%d")}001ABC',
+            customer=customer,
+            company=company,
+            salesman=salesman,
+            current_stage='线索验证/建档',
+            status='active',
+            win_probability=15,
+            estimated_amount=Decimal('180000.00'),
+            expected_close_date=today + timedelta(days=90),
+            description='客户检验科需要更换老旧的血常规分析仪，初步接触阶段',
+            operator=salesman,
+            createtime=timezone.make_aware(timezone.datetime.combine(start_date, timezone.datetime.min.time()))
+        )
+        self.stdout.write(f'  [OK] 项目: {project.name} ({project.project_code})')
+
+        # 阶段历史
+        stage_1_date = start_date
+        ProjectStageHistory.objects.create(
+            project=project,
+            from_stage=None,
+            to_stage='线索获取',
+            change_time=timezone.make_aware(timezone.datetime.combine(stage_1_date, timezone.datetime.min.time())),
+            change_reason='市场部推荐线索，客户有设备采购意向',
+            operator=salesman
+        )
+
+        stage_2_date = start_date + timedelta(days=5)
+        ProjectStageHistory.objects.create(
+            project=project,
+            from_stage='线索获取',
+            to_stage='线索验证/建档',
+            change_time=timezone.make_aware(timezone.datetime.combine(stage_2_date, timezone.datetime.min.time())),
+            change_reason='完成初次拜访，确认客户有真实采购需求，已建立客户档案',
+            operator=salesman
+        )
+
+        # 销售日报（覆盖整个项目周期）
+        reports = [
+            {
+                'date': start_date,
+                'type': '客户活动',
+                'desc': '首次拜访检验科张主任，了解现有设备使用情况。目前使用老设备已5年，故障率高，有更换需求。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': start_date + timedelta(days=2),
+                'type': '客户活动',
+                'desc': '电话跟进，张主任确认有采购意向，要求提供产品基本资料和价格范围。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': stage_2_date,
+                'type': '阶段推进',
+                'desc': '项目从【线索获取】推进到【线索验证/建档】。完成初次拜访，确认客户有真实采购需求，已建立客户档案。',
+                'state': '阶段推进：线索获取 → 线索验证/建档，赢单概率提升至15%'
+            },
+            {
+                'date': today - timedelta(days=7),
+                'type': '内部工作',
+                'desc': '准备产品介绍PPT和技术参数文档，重点突出性能优势和性价比。',
+                'state': '【内部工作】阶段保持：线索验证/建档'
+            },
+            {
+                'date': today - timedelta(days=3),
+                'type': '客户活动',
+                'desc': '二次拜访，展示产品资料，张主任反馈良好，提出需要了解售后服务细节。',
+                'state': '【客户活动】阶段保持：线索验证/建档'
+            },
+            {
+                'date': today - timedelta(days=1),
+                'type': '内部工作',
+                'desc': '与售后部门沟通，确认该区域服务响应时间和保修政策，准备下次提供详细方案。',
+                'state': '【内部工作】阶段保持：线索验证/建档'
+            },
+        ]
+
+        for report_data in reports:
+            SalesReport.objects.create(
+                project=project,
+                salesman=salesman,
+                company=company,
+                date1=report_data['date'],
+                type=report_data['type'],
+                desc=report_data['desc'],
+                state=report_data['state'],
+                next_plan_date=report_data['date'] + timedelta(days=3),
+                operator=salesman
+            )
+
+        self.stdout.write(f'  [OK] 创建了 {len(reports)} 条日报记录')
+
+    def create_project_mid_stage(self, customer, salesman, company):
+        """项目2: 中期阶段（方案/报价）"""
+        self.stdout.write('\n创建项目2: 中期阶段项目...')
+
+        today = date.today()
+        start_date = today - timedelta(days=45)
+
+        project = Project.objects.create(
+            name='生化分析仪升级项目',
+            project_code=f'PRJ{today.strftime("%y%m%d")}002DEF',
+            customer=customer,
+            company=company,
+            salesman=salesman,
+            current_stage='方案/报价',
+            status='active',
+            win_probability=40,
+            estimated_amount=Decimal('520000.00'),
+            expected_close_date=today + timedelta(days=60),
+            description='客户现有生化仪处理能力不足，计划升级为高通量设备',
+            operator=salesman,
+            createtime=timezone.make_aware(timezone.datetime.combine(start_date, timezone.datetime.min.time()))
+        )
+        self.stdout.write(f'  [OK] 项目: {project.name} ({project.project_code})')
+
+        # 阶段历史（已推进多个阶段）
+        stages = [
+            {'from': None, 'to': '线索获取', 'days': 0, 'date': start_date, 'reason': 'KA经理推荐，客户主动咨询'},
+            {'from': '线索获取', 'to': '线索验证/建档', 'days': 3, 'date': start_date + timedelta(days=3), 'reason': '完成初访，确认预算充足'},
+            {'from': '线索验证/建档', 'to': '商机立项', 'days': 7, 'date': start_date + timedelta(days=10), 'reason': '客户明确采购时间表，项目正式立项'},
+            {'from': '商机立项', 'to': '需求调研', 'days': 12, 'date': start_date + timedelta(days=22), 'reason': '完成需求调研会，确定设备型号和配置要求'},
+            {'from': '需求调研', 'to': '方案/报价', 'days': 15, 'date': start_date + timedelta(days=37), 'reason': '提交完整技术方案和商务报价'},
+        ]
+
+        for stage in stages:
+            ProjectStageHistory.objects.create(
+                project=project,
+                from_stage=stage['from'],
+                to_stage=stage['to'],
+                change_time=timezone.make_aware(timezone.datetime.combine(stage['date'], timezone.datetime.min.time())),
+                change_reason=stage['reason'],
+                operator=salesman
+            )
+
+        # 销售日报（覆盖整个项目周期）
+        reports = [
+            {
+                'date': start_date,
+                'type': '客户活动',
+                'desc': 'KA经理引荐，首次拜访李科长，了解医院升三甲计划和设备采购需求。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': start_date + timedelta(days=3),
+                'type': '阶段推进',
+                'desc': '项目从【线索获取】推进到【线索验证/建档】。完成初访，确认预算充足，客户有明确的采购计划。',
+                'state': '阶段推进：线索获取 → 线索验证/建档，赢单概率提升至10%'
+            },
+            {
+                'date': start_date + timedelta(days=7),
+                'type': '客户活动',
+                'desc': '电话沟通，李科长确认设备科已将生化仪升级列入年度采购计划，预算约50万。',
+                'state': '【客户活动】阶段保持：线索验证/建档'
+            },
+            {
+                'date': start_date + timedelta(days=10),
+                'type': '阶段推进',
+                'desc': '项目从【线索验证/建档】推进到【商机立项】。客户明确采购时间表为Q1，项目正式立项。',
+                'state': '阶段推进：线索验证/建档 → 商机立项，赢单概率提升至20%'
+            },
+            {
+                'date': start_date + timedelta(days=15),
+                'type': '客户活动',
+                'desc': '拜访检验科，了解现有设备使用情况和痛点，现设备日样本量200，升级后需达到500。',
+                'state': '【客户活动】阶段保持：商机立项'
+            },
+            {
+                'date': start_date + timedelta(days=22),
+                'type': '阶段推进',
+                'desc': '项目从【商机立项】推进到【需求调研】。组织需求调研会，参会人员包括检验科主任、财务科长、设备科长。',
+                'state': '阶段推进：商机立项 → 需求调研，赢单概率提升至30%'
+            },
+            {
+                'date': start_date + timedelta(days=23),
+                'type': '客户活动',
+                'desc': '需求调研会议，详细记录了样本量、检测项目、空间要求等需求。客户要求配置ISE模块。',
+                'state': '【客户活动】阶段保持：需求调研'
+            },
+            {
+                'date': start_date + timedelta(days=30),
+                'type': '内部工作',
+                'desc': '根据调研结果，制定技术方案，选定BC-6800型号，配置ISE模块和自动进样系统。',
+                'state': '【内部工作】阶段保持：需求调研'
+            },
+            {
+                'date': start_date + timedelta(days=37),
+                'type': '阶段推进',
+                'desc': '项目从【需求调研】推进到【方案/报价】。正式提交技术方案和商务报价，总价52万元。',
+                'state': '阶段推进：需求调研 → 方案/报价，赢单概率提升至40%'
+            },
+            {
+                'date': today - timedelta(days=5),
+                'type': '客户活动',
+                'desc': '价格谈判，客户希望优惠8%，我方承诺优惠5%+延长保修期1年。',
+                'state': '【客户活动】阶段保持：方案/报价'
+            },
+            {
+                'date': today - timedelta(days=2),
+                'type': '客户活动',
+                'desc': '电话确认，客户基本接受方案，需要向院长汇报后确定。预计下周给答复。',
+                'state': '【客户活动】阶段保持：方案/报价'
+            },
+            {
+                'date': today,
+                'type': '内部工作',
+                'desc': '协调技术支持部门准备产品演示，计划下周安排客户到展厅参观实机。',
+                'state': '【内部工作】阶段保持：方案/报价'
+            },
+        ]
+
+        for report_data in reports:
+            SalesReport.objects.create(
+                project=project,
+                salesman=salesman,
+                company=company,
+                date1=report_data['date'],
+                type=report_data['type'],
+                desc=report_data['desc'],
+                state=report_data['state'],
+                next_plan_date=report_data['date'] + timedelta(days=4),
+                operator=salesman
+            )
+
+        self.stdout.write(f'  [OK] 创建了 {len(reports)} 条日报记录')
+
+    def create_project_late_stage(self, customer, salesman, company):
+        """项目3: 后期阶段（招采/挂网/比选）"""
+        self.stdout.write('\n创建项目3: 后期阶段项目...')
+
+        today = date.today()
+        start_date = today - timedelta(days=80)
+
+        project = Project.objects.create(
+            name='免疫分析仪集采项目',
+            project_code=f'PRJ{today.strftime("%y%m%d")}003GHI',
+            customer=customer,
+            company=company,
+            salesman=salesman,
+            current_stage='招采/挂网/比选',
+            status='active',
+            win_probability=80,
+            estimated_amount=Decimal('850000.00'),
+            expected_close_date=today + timedelta(days=15),
+            description='医院集中采购化学发光免疫分析系统，已进入招标评审阶段',
+            operator=salesman,
+            createtime=timezone.make_aware(timezone.datetime.combine(start_date, timezone.datetime.min.time()))
+        )
+        self.stdout.write(f'  [OK] 项目: {project.name} ({project.project_code})')
+
+        # 阶段历史（已推进到后期）
+        stages = [
+            {'from': None, 'to': '线索获取', 'date': start_date, 'reason': '院长办公会确定采购计划'},
+            {'from': '线索获取', 'to': '商机立项', 'date': start_date + timedelta(days=5), 'reason': '列入年度采购计划'},
+            {'from': '商机立项', 'to': '需求调研', 'date': start_date + timedelta(days=15), 'reason': '完成技术参数论证'},
+            {'from': '需求调研', 'to': '方案/报价', 'date': start_date + timedelta(days=30), 'reason': '提交初步方案'},
+            {'from': '方案/报价', 'to': '测试/验证', 'date': start_date + timedelta(days=45), 'reason': '客户现场测试样本，验证设备性能'},
+            {'from': '测试/验证', 'to': '准入/关键人认可', 'date': start_date + timedelta(days=55), 'reason': '检验科主任和院长认可方案'},
+            {'from': '准入/关键人认可', 'to': '商务谈判', 'date': start_date + timedelta(days=60), 'reason': '进入价格谈判，商定最终价格85万'},
+            {'from': '商务谈判', 'to': '招采/挂网/比选', 'date': start_date + timedelta(days=70), 'reason': '进入公开招标流程，已提交投标文件'},
+        ]
+
+        for stage in stages:
+            ProjectStageHistory.objects.create(
+                project=project,
+                from_stage=stage['from'],
+                to_stage=stage['to'],
+                change_time=timezone.make_aware(timezone.datetime.combine(stage['date'], timezone.datetime.min.time())),
+                change_reason=stage['reason'],
+                operator=salesman
+            )
+
+        # 销售日报（覆盖整个项目周期）
+        reports = [
+            {
+                'date': start_date,
+                'type': '客户活动',
+                'desc': '院长办公会确定免疫分析仪采购计划，首次拜访检验科主任，了解项目背景和需求。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': start_date + timedelta(days=2),
+                'type': '客户活动',
+                'desc': '电话跟进，确认项目已列入年度采购计划，预算充足，时间表为Q1完成招标。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': start_date + timedelta(days=5),
+                'type': '阶段推进',
+                'desc': '项目从【线索获取】推进到【商机立项】。医院正式将免疫分析仪列入年度采购计划，项目立项。',
+                'state': '阶段推进：线索获取 → 商机立项，赢单概率提升至25%'
+            },
+            {
+                'date': start_date + timedelta(days=10),
+                'type': '客户活动',
+                'desc': '拜访检验科和设备科，了解现有免疫检测设备使用情况，日样本量约150例，需要提升到300例。',
+                'state': '【客户活动】阶段保持：商机立项'
+            },
+            {
+                'date': start_date + timedelta(days=15),
+                'type': '阶段推进',
+                'desc': '项目从【商机立项】推进到【需求调研】。组织需求调研会，确定技术参数和配置要求。',
+                'state': '阶段推进：商机立项 → 需求调研，赢单概率提升至35%'
+            },
+            {
+                'date': start_date + timedelta(days=18),
+                'type': '客户活动',
+                'desc': '需求调研深入讨论，客户要求设备支持化学发光技术，检测项目至少80项，配备自动装载系统。',
+                'state': '【客户活动】阶段保持：需求调研'
+            },
+            {
+                'date': start_date + timedelta(days=25),
+                'type': '内部工作',
+                'desc': '根据需求调研结果，准备技术方案，选定CL-2000i型号，配置全自动装载系统和冷藏模块。',
+                'state': '【内部工作】阶段保持：需求调研'
+            },
+            {
+                'date': start_date + timedelta(days=30),
+                'type': '阶段推进',
+                'desc': '项目从【需求调研】推进到【方案/报价】。正式提交初步技术方案和商务报价，预算85万元。',
+                'state': '阶段推进：需求调研 → 方案/报价，赢单概率提升至45%'
+            },
+            {
+                'date': start_date + timedelta(days=38),
+                'type': '客户活动',
+                'desc': '方案讨论会，检验科对技术方案表示认可，要求补充试剂成本分析和售后服务方案。',
+                'state': '【客户活动】阶段保持：方案/报价'
+            },
+            {
+                'date': start_date + timedelta(days=45),
+                'type': '阶段推进',
+                'desc': '项目从【方案/报价】推进到【测试/验证】。客户现场测试样本，验证设备性能指标。',
+                'state': '阶段推进：方案/报价 → 测试/验证，赢单概率提升至60%'
+            },
+            {
+                'date': start_date + timedelta(days=48),
+                'type': '客户活动',
+                'desc': '现场测试验证，运行100例临床样本，结果与参考方法相关性达0.98，客户非常满意。',
+                'state': '【客户活动】阶段保持：测试/验证'
+            },
+            {
+                'date': start_date + timedelta(days=55),
+                'type': '阶段推进',
+                'desc': '项目从【测试/验证】推进到【准入/关键人认可】。检验科主任和院长正式认可技术方案。',
+                'state': '阶段推进：测试/验证 → 准入/关键人认可，赢单概率提升至70%'
+            },
+            {
+                'date': start_date + timedelta(days=60),
+                'type': '阶段推进',
+                'desc': '项目从【准入/关键人认可】推进到【商务谈判】。进入价格谈判阶段，商定最终价格85万元。',
+                'state': '阶段推进：准入/关键人认可 → 商务谈判，赢单概率提升至75%'
+            },
+            {
+                'date': start_date + timedelta(days=63),
+                'type': '客户活动',
+                'desc': '价格谈判，客户要求优惠5%，我方同意并承诺提供3年延保服务。',
+                'state': '【客户活动】阶段保持：商务谈判'
+            },
+            {
+                'date': start_date + timedelta(days=70),
+                'type': '阶段推进',
+                'desc': '项目从【商务谈判】推进到【招采/挂网/比选】。医院启动公开招标流程，已提交投标文件。',
+                'state': '阶段推进：商务谈判 → 招采/挂网/比选，赢单概率提升至80%'
+            },
+            {
+                'date': start_date + timedelta(days=71),
+                'type': '内部工作',
+                'desc': '准备投标文件，包括技术标书、商务标书、资质证明材料，确保所有文件符合招标要求。',
+                'state': '【内部工作】阶段保持：招采/挂网/比选'
+            },
+            {
+                'date': start_date + timedelta(days=73),
+                'type': '客户活动',
+                'desc': '拜访评审专家，介绍产品技术优势，重点说明与竞品的差异化功能。',
+                'state': '【客户活动】阶段保持：招采/挂网/比选'
+            },
+            {
+                'date': today - timedelta(days=4),
+                'type': '客户活动',
+                'desc': '电话确认开标时间和地点，检验科主任透露我们的技术评分最高。',
+                'state': '【客户活动】阶段保持：招采/挂网/比选'
+            },
+            {
+                'date': today - timedelta(days=1),
+                'type': '内部工作',
+                'desc': '与商务部门确认合同模板，准备中标后的合同签订事宜。',
+                'state': '【内部工作】阶段保持：招采/挂网/比选'
+            },
+        ]
+
+        for report_data in reports:
+            SalesReport.objects.create(
+                project=project,
+                salesman=salesman,
+                company=company,
+                date1=report_data['date'],
+                type=report_data['type'],
+                desc=report_data['desc'],
+                state=report_data['state'],
+                next_plan_date=report_data['date'] + timedelta(days=2),
+                operator=salesman
+            )
+
+        self.stdout.write(f'  [OK] 创建了 {len(reports)} 条日报记录')
+
+    def create_project_won(self, customer, salesman, company):
+        """项目4: 已赢单"""
+        self.stdout.write('\n创建项目4: 已赢单项目...')
+
+        today = date.today()
+        start_date = today - timedelta(days=90)
+        win_date = today - timedelta(days=7)
+
+        project = Project.objects.create(
+            name='尿液分析仪更新项目',
+            project_code=f'PRJ{today.strftime("%y%m%d")}004JKL',
+            customer=customer,
+            company=company,
+            salesman=salesman,
+            current_stage='收单',
+            status='won',
+            win_probability=100,
+            estimated_amount=Decimal('120000.00'),
+            actual_amount=Decimal('115000.00'),
+            expected_close_date=win_date,
+            actual_close_date=win_date,
+            description='客户检验科尿液分析仪设备更新，已成功签约',
+            operator=salesman,
+            createtime=timezone.make_aware(timezone.datetime.combine(start_date, timezone.datetime.min.time()))
+        )
+        self.stdout.write(f'  [OK] 项目: {project.name} ({project.project_code})')
+
+        # 阶段历史（完整流程）
+        stages = [
+            {'from': None, 'to': '线索获取', 'date': start_date, 'reason': '老客户复购需求'},
+            {'from': '线索获取', 'to': '商机立项', 'date': start_date + timedelta(days=7), 'reason': '确认预算到位'},
+            {'from': '商机立项', 'to': '方案/报价', 'date': start_date + timedelta(days=20), 'reason': '快速提供方案'},
+            {'from': '方案/报价', 'to': '商务谈判', 'date': start_date + timedelta(days=40), 'reason': '价格谈判，优惠5000元'},
+            {'from': '商务谈判', 'to': '中标/赢单', 'date': start_date + timedelta(days=60), 'reason': '客户确认采购，签订合同'},
+            {'from': '中标/赢单', 'to': '装机/验收', 'date': start_date + timedelta(days=75), 'reason': '设备到货安装，完成培训'},
+            {'from': '装机/验收', 'to': '收单', 'date': win_date, 'reason': '项目赢单，成交金额：115000.00元。客户验收合格，款项已到账'},
+        ]
+
+        for stage in stages:
+            ProjectStageHistory.objects.create(
+                project=project,
+                from_stage=stage['from'],
+                to_stage=stage['to'],
+                change_time=timezone.make_aware(timezone.datetime.combine(stage['date'], timezone.datetime.min.time())),
+                change_reason=stage['reason'],
+                operator=salesman
+            )
+
+        # 销售日报（覆盖整个项目周期）
+        reports = [
+            {
+                'date': start_date,
+                'type': '客户活动',
+                'desc': '老客户复购，拜访李科长，了解尿液分析仪更新需求。现有设备已使用8年，需要更换。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': start_date + timedelta(days=3),
+                'type': '客户活动',
+                'desc': '电话确认，客户预算已到位，要求尽快提供方案和报价。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': start_date + timedelta(days=7),
+                'type': '阶段推进',
+                'desc': '项目从【线索获取】推进到【商机立项】。老客户确认预算到位，项目正式立项。',
+                'state': '阶段推进：线索获取 → 商机立项，赢单概率提升至40%'
+            },
+            {
+                'date': start_date + timedelta(days=12),
+                'type': '客户活动',
+                'desc': '二次拜访，了解详细需求，客户要求设备处理速度快、操作简便、维护成本低。',
+                'state': '【客户活动】阶段保持：商机立项'
+            },
+            {
+                'date': start_date + timedelta(days=20),
+                'type': '阶段推进',
+                'desc': '项目从【商机立项】推进到【方案/报价】。快速提供技术方案和报价，总价12万元。',
+                'state': '阶段推进：商机立项 → 方案/报价，赢单概率提升至60%'
+            },
+            {
+                'date': start_date + timedelta(days=28),
+                'type': '客户活动',
+                'desc': '方案讨论，客户对技术方案满意，但希望价格能有优惠。',
+                'state': '【客户活动】阶段保持：方案/报价'
+            },
+            {
+                'date': start_date + timedelta(days=40),
+                'type': '阶段推进',
+                'desc': '项目从【方案/报价】推进到【商务谈判】。价格谈判，客户要求优惠5000元。',
+                'state': '阶段推进：方案/报价 → 商务谈判，赢单概率提升至75%'
+            },
+            {
+                'date': start_date + timedelta(days=45),
+                'type': '客户活动',
+                'desc': '价格谈判，我方同意优惠5000元，最终价格确定为11.5万元。',
+                'state': '【客户活动】阶段保持：商务谈判'
+            },
+            {
+                'date': start_date + timedelta(days=55),
+                'type': '内部工作',
+                'desc': '内部协调，准备合同和发货事宜，确认交货期为15天。',
+                'state': '【内部工作】阶段保持：商务谈判'
+            },
+            {
+                'date': start_date + timedelta(days=60),
+                'type': '阶段推进',
+                'desc': '项目从【商务谈判】推进到【中标/赢单】。客户正式签订采购合同，金额11.5万元。',
+                'state': '阶段推进：商务谈判 → 中标/赢单，赢单概率提升至95%'
+            },
+            {
+                'date': start_date + timedelta(days=70),
+                'type': '客户活动',
+                'desc': '设备到货，协调安装调试工作，培训检验科操作人员。',
+                'state': '【客户活动】阶段保持：中标/赢单'
+            },
+            {
+                'date': start_date + timedelta(days=75),
+                'type': '阶段推进',
+                'desc': '项目从【中标/赢单】推进到【装机/验收】。设备已送达医院并完成安装调试和人员培训。',
+                'state': '阶段推进：中标/赢单 → 装机/验收，赢单概率提升至98%'
+            },
+            {
+                'date': start_date + timedelta(days=80),
+                'type': '客户活动',
+                'desc': '客户验收测试，运行一周无故障，性能稳定，客户非常满意。',
+                'state': '【客户活动】阶段保持：装机/验收'
+            },
+            {
+                'date': win_date,
+                'type': '阶段推进',
+                'desc': '项目赢单！实际成交金额：115000.00元。客户验收合格，对产品性能和服务非常满意，款项已全额到账。',
+                'state': '✅ 项目赢单！成交金额：¥115,000.00元'
+            },
+        ]
+
+        for report_data in reports:
+            SalesReport.objects.create(
+                project=project,
+                salesman=salesman,
+                company=company,
+                date1=report_data['date'],
+                type=report_data['type'],
+                desc=report_data['desc'],
+                state=report_data['state'],
+                operator=salesman
+            )
+
+        self.stdout.write(f'  [OK] 创建了 {len(reports)} 条日报记录')
+
+    def create_project_lost(self, customer, salesman, company):
+        """项目5: 已输单"""
+        self.stdout.write('\n创建项目5: 已输单项目...')
+
+        today = date.today()
+        start_date = today - timedelta(days=60)
+        lost_date = today - timedelta(days=10)
+
+        project = Project.objects.create(
+            name='凝血分析仪采购项目',
+            project_code=f'PRJ{today.strftime("%y%m%d")}005MNO',
+            customer=customer,
+            company=company,
+            salesman=salesman,
+            current_stage='商务谈判',
+            status='lost',
+            win_probability=70,
+            estimated_amount=Decimal('280000.00'),
+            lost_reason='competitor',
+            lost_stage='商务谈判',
+            competitor_info='罗氏诊断',
+            lost_detail='客户最终选择罗氏诊断的方案，主要原因是对方提供了更长的免费试剂期（6个月 vs 我方3个月），虽然我方价格更优但客户更看重试剂支持。',
+            description='社区医院凝血检测设备采购，最终输给竞争对手',
+            operator=salesman,
+            createtime=timezone.make_aware(timezone.datetime.combine(start_date, timezone.datetime.min.time()))
+        )
+        self.stdout.write(f'  [OK] 项目: {project.name} ({project.project_code})')
+
+        # 阶段历史
+        stages = [
+            {'from': None, 'to': '线索获取', 'date': start_date, 'reason': '客户主动询价'},
+            {'from': '线索获取', 'to': '商机立项', 'date': start_date + timedelta(days=10), 'reason': '确认有采购计划'},
+            {'from': '商机立项', 'to': '需求调研', 'date': start_date + timedelta(days=20), 'reason': '完成需求沟通'},
+            {'from': '需求调研', 'to': '方案/报价', 'date': start_date + timedelta(days=30), 'reason': '提交方案和报价'},
+            {'from': '方案/报价', 'to': '商务谈判', 'date': start_date + timedelta(days=45), 'reason': '进入价格和试剂谈判'},
+        ]
+
+        for stage in stages:
+            ProjectStageHistory.objects.create(
+                project=project,
+                from_stage=stage['from'],
+                to_stage=stage['to'],
+                change_time=timezone.make_aware(timezone.datetime.combine(stage['date'], timezone.datetime.min.time())),
+                change_reason=stage['reason'],
+                operator=salesman
+            )
+
+        # 销售日报（覆盖整个项目周期）
+        reports = [
+            {
+                'date': start_date,
+                'type': '客户活动',
+                'desc': '客户主动询价凝血分析仪，了解基本需求和预算情况。预算约30万元。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': start_date + timedelta(days=5),
+                'type': '客户活动',
+                'desc': '首次拜访王医生，了解社区医院凝血检测需求，现无凝血仪，需新增。',
+                'state': '【客户活动】阶段保持：线索获取'
+            },
+            {
+                'date': start_date + timedelta(days=10),
+                'type': '阶段推进',
+                'desc': '项目从【线索获取】推进到【商机立项】。确认客户有采购计划，预算已申请。',
+                'state': '阶段推进：线索获取 → 商机立项，赢单概率提升至20%'
+            },
+            {
+                'date': start_date + timedelta(days=15),
+                'type': '客户活动',
+                'desc': '二次拜访，详细了解需求，客户要求设备操作简单、试剂成本低。',
+                'state': '【客户活动】阶段保持：商机立项'
+            },
+            {
+                'date': start_date + timedelta(days=20),
+                'type': '阶段推进',
+                'desc': '项目从【商机立项】推进到【需求调研】。完成需求沟通，客户重点关注试剂成本和售后服务。',
+                'state': '阶段推进：商机立项 → 需求调研，赢单概率提升至35%'
+            },
+            {
+                'date': start_date + timedelta(days=25),
+                'type': '内部工作',
+                'desc': '准备技术方案，选定CA-560型号，强调性价比优势。',
+                'state': '【内部工作】阶段保持：需求调研'
+            },
+            {
+                'date': start_date + timedelta(days=30),
+                'type': '阶段推进',
+                'desc': '项目从【需求调研】推进到【方案/报价】。提交方案和报价，总价28万元。',
+                'state': '阶段推进：需求调研 → 方案/报价，赢单概率提升至50%'
+            },
+            {
+                'date': start_date + timedelta(days=35),
+                'type': '内部工作',
+                'desc': '完善商务方案，提供3个月免费试剂期，价格比竞争对手罗氏优惠8%。',
+                'state': '【内部工作】阶段保持：方案/报价'
+            },
+            {
+                'date': start_date + timedelta(days=40),
+                'type': '客户活动',
+                'desc': '方案讨论，客户对价格满意，但提出希望延长免费试剂期。竞争对手罗氏提供6个月。',
+                'state': '【客户活动】阶段保持：方案/报价'
+            },
+            {
+                'date': start_date + timedelta(days=45),
+                'type': '阶段推进',
+                'desc': '项目从【方案/报价】推进到【商务谈判】。进入价格和试剂期谈判阶段。',
+                'state': '阶段推进：方案/报价 → 商务谈判，赢单概率提升至70%'
+            },
+            {
+                'date': start_date + timedelta(days=46),
+                'type': '客户活动',
+                'desc': '价格谈判，客户要求延长试剂期到6个月与罗氏对齐，我方因成本考虑只能提供4个月。',
+                'state': '【客户活动】阶段保持：商务谈判'
+            },
+            {
+                'date': start_date + timedelta(days=48),
+                'type': '内部工作',
+                'desc': '内部协调，申请延长试剂期到5个月，但公司政策限制无法达到6个月。',
+                'state': '【内部工作】阶段保持：商务谈判'
+            },
+            {
+                'date': lost_date,
+                'type': '内部工作',
+                'desc': '项目输单。流失原因：竞争对手中标。流失阶段：商务谈判。详细说明：客户最终选择罗氏诊断的方案，主要原因是对方提供了更长的免费试剂期（6个月 vs 我方最多5个月），虽然我方价格更优但客户更看重试剂支持和长期使用成本。',
+                'state': '❌ 项目输单 - 流失原因：竞争对手中标，流失阶段：商务谈判'
+            },
+        ]
+
+        for report_data in reports:
+            SalesReport.objects.create(
+                project=project,
+                salesman=salesman,
+                company=company,
+                date1=report_data['date'],
+                type=report_data['type'],
+                desc=report_data['desc'],
+                state=report_data['state'],
+                operator=salesman
+            )
+
+        self.stdout.write(f'  [OK] 创建了 {len(reports)} 条日报记录')

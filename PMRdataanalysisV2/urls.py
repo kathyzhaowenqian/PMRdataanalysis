@@ -9,11 +9,11 @@ from Mindray_Research.views import get_models_by_brand
 urlpatterns = [
     path('admin/get_models_by_brand/', get_models_by_brand, name='get_models_by_brand'),
 
+    path('_nested_admin/', include('nested_admin.urls')),
     path('admin/', admin.site.urls),
 
 
     # path('chaining/', include('smart_selects.urls')),
-    # path('_nested_admin/', include('nested_admin.urls')),
 
 
     path('', mainsite_view),

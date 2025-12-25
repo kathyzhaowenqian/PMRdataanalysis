@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售漏斗分析</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.13/lib/theme-chalk/index.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.15.13/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #303133;
+            margin-bottom: 20px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card .label {
+            font-size: 14px;
+            color: #909399;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #303133;
+        }
+
+        .summary-card .value.primary {
+            color: #1E3A8A;
+        }
+
+        .summary-card .value.success {
+            color: #06B6D4;
+        }
+
+        .summary-card .value.warning {
+            color: #7DAEA3;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #303133;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1E3A8A;
+        }
+
+        .chart {
+            width: 100%;
+            height: 600px;
+        }
+
+        .funnel-charts-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .funnel-chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .funnel-chart {
+            width: 100%;
+            height: 800px;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="page-title">📊 销售漏斗分析</div>
+
+        <!-- 筛选条件 -->
+        <div class="filters">
+            <el-row :gutter="20">
+                <el-col :span="6">
+                    <el-select v-model="filters.days" placeholder="时间范围" @change="loadData">
+                        <el-option label="最近30天" :value="30"></el-option>
+                        <el-option label="最近90天" :value="90"></el-option>
+                        <el-option label="最近180天" :value="180"></el-option>
+                        <el-option label="最近1年" :value="365"></el-option>
+                        <el-option label="全部" :value="99999"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col :span="6">
+                    <el-button type="primary" @click="loadData">刷新数据</el-button>
+                </el-col>
+            </el-row>
+        </div>
+
+        <!-- 汇总卡片 -->
+        {% verbatim %}
+        <div class="summary-cards" v-if="summary">
+            <div class="summary-card">
+                <div class="label">总项目数</div>
+                <div class="value primary">{{ summary.total_projects }}</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">进行中项目</div>
+                <div class="value">{{ summary.active_projects }}</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">已赢单项目</div>
+                <div class="value success">{{ summary.won_projects }}</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">赢单率</div>
+                <div class="value warning">{{ summary.won_rate }}%</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">赢单总金额</div>
+                <div class="value success">¥{{ formatAmount(summary.total_won_amount) }}</div>
+            </div>
+        </div>
+        {% endverbatim %}
+
+        <!-- 漏斗图并排显示 -->
+        <div class="funnel-charts-row">
+            <!-- 严格漏斗图 -->
+            <div class="funnel-chart-container">
+                <div class="chart-title">
+                    销售阶段漏斗 - 严格模式
+                    <span style="font-size: 12px; color: #909399; font-weight: normal; margin-left: 15px;">
+                        只统计实际填报过该阶段的项目数
+                    </span>
+                </div>
+                <div id="funnelChartStrict" class="funnel-chart"></div>
+            </div>
+
+            <!-- 补齐漏斗图（带跳填率标注） -->
+            <div class="funnel-chart-container">
+                <div class="chart-title">
+                    销售阶段漏斗 - 补齐模式
+                    <span style="font-size: 12px; color: #909399; font-weight: normal; margin-left: 15px;">
+                        到达后续阶段算完成前面阶段 | 跳填率显示在标签和颜色中
+                    </span>
+                </div>
+                <div id="funnelChartFilled" class="funnel-chart"></div>
+            </div>
+        </div>
+
+        <!-- 销售人员业绩分析 -->
+        <div class="chart-container">
+            <div class="chart-title">
+                销售人员业绩排行榜
+                <span style="font-size: 12px; color: #909399; font-weight: normal; margin-left: 15px;">
+                    按赢单金额排序 | 显示赢单率、在途项目金额
+                </span>
+            </div>
+            <div id="performanceChart" class="chart"></div>
+        </div>
+
+        <!-- 阶段跳填分析 -->
+        <div class="chart-container">
+            <div class="chart-title">
+                阶段跳填/漏填分析
+                <span style="font-size: 12px; color: #909399; font-weight: normal; margin-left: 15px;">
+                    显示到达后续阶段但未填报该阶段的项目比例
+                </span>
+            </div>
+            <div id="skipFillChart" class="chart"></div>
+        </div>
+
+        <!-- 停留时间分析 -->
+        <div class="chart-container">
+            <div class="chart-title">
+                各阶段停留时间分析（天）
+                <span style="font-size: 12px; color: #909399; font-weight: normal; margin-left: 15px;">
+                    仅统计实际填报过该阶段的项目 | 柱状图=中位数，折线=平均值
+                </span>
+            </div>
+            <div id="durationChart" class="chart"></div>
+        </div>
+
+        <!-- 月度趋势 -->
+        <div class="chart-container">
+            <div class="chart-title">月度新增项目趋势</div>
+            <div id="trendChart" class="chart"></div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    filters: {
+                        days: 90,
+                        salesman: null,
+                        company: null,
+                    },
+                    summary: null,
+
+                    // 新增字段
+                    stageStatsStrict: null,  // 严格漏斗数据
+                    stageStatsFilled: null,  // 补齐漏斗数据
+
+                    // 保留兼容字段
+                    stageStats: null,
+                    stageStatsOrdered: null,
+
+                    // 其他字段
+                    conversionRates: null,
+                    stageDuration: null,
+                    stageDurationAnalysis: null,  // 停留时间分析（包含中位数、样本量）
+                    skipFillStats: null,  // 跳填分析数据
+                    monthlyTrend: null,
+                    performanceData: null,  // 销售人员业绩数据
+                    loading: false,
+                }
+            },
+            mounted() {
+                this.loadData();
+            },
+            methods: {
+                async loadData() {
+                    this.loading = true;
+                    try {
+                        const params = {
+                            days: this.filters.days,
+                        };
+
+                        // 并行请求两个API
+                        const [funnelResponse, performanceResponse] = await Promise.all([
+                            axios.get('/SALESREPORT/api/funnel-data/', { params }),
+                            axios.get('/SALESREPORT/api/salesman-performance/', { params })
+                        ]);
+
+                        const data = funnelResponse.data;
+                        const performanceData = performanceResponse.data;
+
+                        this.summary = data.summary;
+
+                        // 新增字段赋值
+                        this.stageStatsStrict = data.stage_stats_strict;
+                        this.stageStatsFilled = data.stage_stats_filled;
+
+                        // 保留兼容字段赋值
+                        this.stageStats = data.stage_stats;
+                        this.stageStatsOrdered = data.stage_stats_ordered;
+
+                        this.conversionRates = data.conversion_rates;
+                        this.stageDuration = data.stage_duration;
+                        this.stageDurationAnalysis = data.stage_duration_analysis;  // 新增字段
+                        this.skipFillStats = data.skip_fill_stats;
+                        this.monthlyTrend = data.monthly_trend;
+                        this.performanceData = performanceData.performance_data;  // 销售人员业绩数据
+
+                        this.$nextTick(() => {
+                            // 新增：渲染两个漏斗图
+                            this.renderFunnelChartStrict();
+                            this.renderFunnelChartFilled();
+
+                            // 现有图表
+                            this.renderPerformanceChart();  // 新增：销售人员业绩图表
+                            this.renderSkipFillChart();
+                            this.renderDurationChart();
+                            this.renderTrendChart();
+                        });
+                    } catch (error) {
+                        this.$message.error('加载数据失败');
+                        console.error(error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                renderFunnelChartStrict() {
+                    const chart = echarts.init(document.getElementById('funnelChartStrict'));
+                    const data = this.stageStatsStrict;
+
+                    const option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: (params) => {
+                                const stageIndex = params.dataIndex;
+                                const conversionData = this.conversionRates[stageIndex];
+
+                                let html = `<div style="padding: 5px;">`;
+                                html += `<strong style="font-size: 14px;">${params.name}</strong><br/><br/>`;
+                                html += `实际填报过该阶段: <strong>${params.value}</strong> 个项目<br/>`;
+                                html += `<span style="font-size: 11px; color: #909399;">（严格统计：必须实际填报才计入）</span>`;
+
+                                // 显示到下一阶段的转化率
+                                if (conversionData && stageIndex < this.stageStatsStrict.length - 1) {
+                                    // 计算整体推进率（分母 = 漏斗显示数）
+                                    const overall_rate = conversionData.entered_count > 0
+                                        ? Math.round(conversionData.direct_count / conversionData.entered_count * 1000) / 10
+                                        : 0;
+
+                                    html += `<hr style="border: none; border-top: 1px dashed #ddd; margin: 8px 0;"/>`;
+
+                                    // 整体推进率（所有进入该阶段的项目中已推进的比例）
+                                    html += `<div style="margin: 8px 0; padding: 6px; background: #EBF5FF; border-left: 3px solid #1E3A8A;">`;
+                                    html += `<span style="color: #1E3A8A;">📊 整体推进率</span><br/>`;
+                                    html += `<strong style="color: #1E3A8A; font-size: 16px;">${overall_rate}%</strong> `;
+                                    html += `(${conversionData.direct_count} ÷ ${conversionData.entered_count})<br/>`;
+                                    html += `<span style="font-size: 11px; color: #909399;">已推进${conversionData.direct_count}个，还有${conversionData.in_progress_count}个在途</span>`;
+                                    html += `</div>`;
+                                }
+
+                                html += `</div>`;
+                                return html;
+                            }
+                        },
+                        series: [{
+                            type: 'funnel',
+                            left: '10%',
+                            top: 80,
+                            bottom: 80,
+                            width: '80%',
+                            sort: 'none',
+                            gap: 2,
+                            label: {
+                                show: true,
+                                position: 'inside',
+                                formatter: (params) => {
+                                    const stageIndex = params.dataIndex;
+                                    const conversionData = this.conversionRates[stageIndex];
+
+                                    // 最后一个阶段没有下一阶段，不显示转化率
+                                    if (!conversionData || stageIndex >= this.stageStatsStrict.length - 1) {
+                                        return `${params.name}: ${params.value}`;
+                                    }
+
+                                    // 计算整体推进率（与漏斗数字一致的分母）
+                                    const overall_rate = conversionData.entered_count > 0
+                                        ? Math.round(conversionData.direct_count / conversionData.entered_count * 1000) / 10
+                                        : 0;
+
+                                    // 显示整体推进率（更直观）
+                                    return `${params.name}: ${params.value}\n↓ ${overall_rate}%`;
+                                },
+                                fontSize: 12,
+                                lineHeight: 18,
+                                color: '#fff',
+                                fontWeight: '300'
+                            },
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 1,
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    {offset: 0, color: '#3B5BA5'},
+                                    {offset: 1, color: '#1E3A8A'}
+                                ])
+                            },
+                            data: data
+                        }]
+                    };
+
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+
+                renderFunnelChartFilled() {
+                    const chart = echarts.init(document.getElementById('funnelChartFilled'));
+                    const data = this.stageStatsFilled;
+
+                    const option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: (params) => {
+                                const stageIndex = params.dataIndex;
+                                const conversionData = this.conversionRates[stageIndex];
+
+                                let html = `<div style="padding: 5px;">`;
+                                html += `<strong style="font-size: 14px;">${params.name}</strong><br/><br/>`;
+
+                                if (!conversionData) {
+                                    html += `到达该阶段或后续: <strong>${params.value}</strong> 个项目`;
+                                    html += `</div>`;
+                                    return html;
+                                }
+
+                                html += `到达该阶段或后续: <strong>${params.value}</strong> 个项目<br/>`;
+                                html += `实际填报该阶段: <strong>${params.value - conversionData.never_filled_count}</strong> 个<br/>`;
+                                html += `跳过未填: <strong style="color: #F56C6C;">${conversionData.never_filled_count}</strong> 个<br/>`;
+                                html += `<span style="font-size: 11px; color: #909399;">（补齐统计：到达后续阶段算完成该阶段）</span>`;
+
+                                // 显示补齐模式转化率和跳填率
+                                if (stageIndex < this.stageStatsFilled.length - 1) {
+                                    // 计算补齐模式的转化率
+                                    const currentStageValue = this.stageStatsFilled[stageIndex].value;
+                                    const nextStageValue = this.stageStatsFilled[stageIndex + 1].value;
+                                    const nextStageName = this.stageStatsFilled[stageIndex + 1].name;
+                                    const filledConversionRate = currentStageValue > 0
+                                        ? Math.round(nextStageValue / currentStageValue * 1000) / 10
+                                        : 0;
+
+                                    html += `<hr style="border: none; border-top: 1px dashed #ddd; margin: 8px 0;"/>`;
+                                    html += `<div style="margin: 8px 0; padding: 6px; background: #ECFEFF; border-left: 3px solid #06B6D4;">`;
+                                    html += `到 ${nextStageName} 转化率: <strong style="color: #06B6D4; font-size: 16px;">${filledConversionRate}%</strong><br/>`;
+                                    html += `<span style="font-size: 11px; color: #909399;">（${nextStageValue} ÷ ${currentStageValue} = ${filledConversionRate}%）</span>`;
+                                    html += `</div>`;
+
+                                    if (conversionData.skip_fill_rate > 0) {
+                                        html += `<div style="margin: 8px 0; padding: 6px; background: #EEE8E5; border-left: 3px solid #C8B5B0;">`;
+                                        html += `跳填率: <strong style="color: #B5A49A; font-size: 16px;">${conversionData.skip_fill_rate}%</strong><br/>`;
+                                        html += `<span style="font-size: 11px; color: #909399;">（${conversionData.never_filled_count}个项目到达后续阶段但未填报该阶段）</span>`;
+                                        html += `</div>`;
+                                    }
+                                }
+
+                                html += `</div>`;
+                                return html;
+                            }
+                        },
+                        series: [{
+                            type: 'funnel',
+                            left: '10%',
+                            top: 80,
+                            bottom: 80,
+                            width: '80%',
+                            sort: 'none',
+                            gap: 2,
+                            label: {
+                                show: true,
+                                position: 'inside',
+                                formatter: (params) => {
+                                    const stageIndex = params.dataIndex;
+                                    const conversionData = this.conversionRates[stageIndex];
+
+                                    // 最后一个阶段没有下一阶段，不显示转化率
+                                    if (!conversionData || stageIndex >= this.stageStatsFilled.length - 1) {
+                                        return `${params.name}: ${params.value}`;
+                                    }
+
+                                    // 计算补齐模式的转化率：下一阶段数量 / 当前阶段数量
+                                    const currentStageValue = this.stageStatsFilled[stageIndex].value;
+                                    const nextStageValue = this.stageStatsFilled[stageIndex + 1].value;
+                                    const filledConversionRate = currentStageValue > 0
+                                        ? Math.round(nextStageValue / currentStageValue * 1000) / 10
+                                        : 0;
+
+                                    // 显示补齐模式转化率和跳填率（如果有）
+                                    let label = `${params.name}: ${params.value}\n↓ ${filledConversionRate}%`;
+                                    if (conversionData.skip_fill_rate > 0) {
+                                        label += `\n(跳填: ${conversionData.skip_fill_rate}%)`;
+                                    }
+                                    return label;
+                                },
+                                fontSize: 12,
+                                lineHeight: 18,
+                                color: '#fff',
+                                fontWeight: '300'
+                            },
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 1,
+                                // 根据是否有跳填设置颜色：有跳填=灰色，无跳填=青色
+                                color: (params) => {
+                                    const stageIndex = params.dataIndex;
+                                    const conversionData = this.conversionRates[stageIndex];
+                                    const skipRate = conversionData?.skip_fill_rate || 0;
+
+                                    if (skipRate > 0) {
+                                        // 有跳填：灰色渐变
+                                        return new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                            {offset: 0, color: '#A0AEC0'},
+                                            {offset: 1, color: '#718096'}
+                                        ]);
+                                    } else {
+                                        // 无跳填：青色渐变
+                                        return new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                            {offset: 0, color: '#22D3EE'},
+                                            {offset: 1, color: '#06B6D4'}
+                                        ]);
+                                    }
+                                }
+                            },
+                            data: data
+                        }]
+                    };
+
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+
+                renderConversionChart() {
+                    const chart = echarts.init(document.getElementById('conversionChart'));
+                    const xData = this.conversionRates.map(item => `${item.from_stage}\n→\n${item.to_stage}`);
+
+                    // 双重转化率数据
+                    const strictData = this.conversionRates.map(item => item.standard_conversion_rate);  // 严格模式
+                    const filledData = this.conversionRates.map(item => item.process_conversion_rate);   // 补齐模式
+
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {type: 'shadow'},
+                            formatter: function (params) {
+                                const index = params[0].dataIndex;
+                                const data = this.conversionRates[index];
+
+                                let html = `<div style="padding: 5px;">`;
+                                html += `<strong style="font-size: 14px;">${data.from_stage} → ${data.to_stage}</strong><br/><br/>`;
+
+                                // 基础数据
+                                html += `<div style="margin: 8px 0; color: #909399;">`;
+                                html += `进入该阶段: <strong>${data.entered_count}</strong> 个项目<br/>`;
+                                html += `已离开该阶段: <strong>${data.left_count}</strong> 个项目<br/>`;
+                                html += `还在该阶段: <strong>${data.in_progress_count}</strong> 个项目`;
+                                html += `</div>`;
+
+                                html += `<hr style="border: none; border-top: 1px dashed #ddd; margin: 10px 0;"/>`;
+
+                                // 严格模式转化率
+                                html += `<div style="margin: 8px 0; padding: 8px; background: #E8F3F0; border-left: 3px solid #7DAEA3;">`;
+                                html += `<span style="color: #7DAEA3;">🎯 严格模式转化率</span><br/>`;
+                                html += `<span style="font-size: 11px; color: #909399;">（只统计实际填报该阶段的项目）</span><br/>`;
+                                html += `直接推进: <strong>${data.direct_count}</strong> 个<br/>`;
+                                html += `转化率: <strong style="color: #7DAEA3; font-size: 16px;">${data.standard_conversion_rate}%</strong>`;
+                                html += `</div>`;
+
+                                // 补齐模式转化率
+                                html += `<div style="margin: 8px 0; padding: 8px; background: #EBF0F4; border-left: 3px solid #9DB4C0;">`;
+                                html += `<span style="color: #8FA3B0;">📊 补齐模式转化率</span><br/>`;
+                                html += `<span style="font-size: 11px; color: #909399;">（到达后续阶段算完成该阶段）</span><br/>`;
+                                html += `总推进: <strong>${data.total_progressed}</strong> 个 (${data.direct_count} 直接 + ${data.skip_count} 跳阶段)<br/>`;
+                                html += `转化率: <strong style="color: #9DB4C0; font-size: 16px;">${data.process_conversion_rate}%</strong>`;
+                                html += `</div>`;
+
+                                // 跳填提示
+                                if (data.skip_fill_rate > 0) {
+                                    html += `<div style="margin: 8px 0; padding: 6px; background: #EEE8E5; border-left: 3px solid #C8B5B0;">`;
+                                    html += `⚠️ 跳填率: <strong style="color: #B5A49A;">${data.skip_fill_rate}%</strong> `;
+                                    html += `(${data.never_filled_count}个项目到达后续阶段但未填报该阶段)`;
+                                    html += `</div>`;
+                                }
+
+                                html += `</div>`;
+                                return html;
+                            }.bind(this)
+                        },
+                        legend: {
+                            data: ['严格模式转化率', '补齐模式转化率'],
+                            top: 10
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: xData,
+                            axisLabel: {interval: 0, rotate: 0, fontSize: 10}
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '转化率(%)',
+                            max: 100,
+                            axisLabel: {formatter: '{value}%'}
+                        },
+                        series: [
+                            {
+                                name: '严格模式转化率',
+                                type: 'bar',
+                                data: strictData,
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        {offset: 0, color: '#A8C5BA'},
+                                        {offset: 1, color: '#7DAEA3'}
+                                    ])
+                                },
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: '{c}%',
+                                    fontSize: 11,
+                                    color: '#555',
+                                    fontWeight: 'normal'
+                                },
+                                barWidth: '35%'
+                            },
+                            {
+                                name: '补齐模式转化率',
+                                type: 'line',
+                                data: filledData,
+                                itemStyle: {color: '#9DB4C0'},
+                                lineStyle: {width: 3, type: 'dashed'},
+                                symbol: 'circle',
+                                symbolSize: 8,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function(params) {
+                                        const data = this.conversionRates[params.dataIndex];
+                                        return data.in_progress_count > 0 ?
+                                            `${params.value}% (${data.in_progress_count}在途)` :
+                                            `${params.value}%`;
+                                    }.bind(this),
+                                    fontSize: 10,
+                                    color: '#666',
+                                    fontWeight: 'normal'
+                                }
+                            }
+                        ]
+                    };
+
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+
+                renderDurationChart() {
+                    if (!this.stageDurationAnalysis || this.stageDurationAnalysis.length === 0) {
+                        return;  // 没有数据时不渲染
+                    }
+
+                    const chart = echarts.init(document.getElementById('durationChart'));
+                    const xData = this.stageDurationAnalysis.map(item => item.stage);
+                    const medianData = this.stageDurationAnalysis.map(item => item.median_days);
+                    const avgData = this.stageDurationAnalysis.map(item => item.avg_days);
+
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'shadow' },
+                            formatter: function (params) {
+                                const index = params[0].dataIndex;
+                                const data = this.stageDurationAnalysis[index];
+
+                                let html = `<div style="padding: 8px;">`;
+                                html += `<strong style="font-size: 14px;">${data.stage}</strong><br/><br/>`;
+
+                                if (data.sample_size > 0) {
+                                    // 显示中位数和平均值
+                                    html += `<div style="margin: 6px 0;">`
+                                    html += `<span style="color: #1E3A8A;">■</span> 中位数: <strong style="color: #1E3A8A; font-size: 16px;">${data.median_days}</strong> 天<br/>`;
+                                    html += `<span style="color: #06B6D4;">●</span> 平均值: <strong style="color: #06B6D4; font-size: 16px;">${data.avg_days}</strong> 天`;
+                                    html += `</div>`;
+
+                                    html += `<hr style="border: none; border-top: 1px dashed #ddd; margin: 8px 0;"/>`;
+
+                                    // 显示样本量
+                                    html += `<div style="color: #606266;">`
+                                    html += `样本量: <strong>${data.sample_size}</strong> 个项目<br/>`;
+                                    html += `<span style="font-size: 11px; color: #909399;">（实际填报过该阶段的项目数）</span>`;
+                                    html += `</div>`;
+
+                                    // 显示跳过率（如果有）
+                                    if (data.skip_rate > 0) {
+                                        html += `<hr style="border: none; border-top: 1px dashed #ddd; margin: 8px 0;"/>`;
+                                        html += `<div style="padding: 6px; background: #EEE8E5; border-left: 3px solid #C8B5B0; margin-top: 6px;">`;
+                                        html += `<span style="color: #B5A49A;">⚠️ 跳填率: <strong>${data.skip_rate}%</strong></span><br/>`;
+                                        html += `<span style="font-size: 11px; color: #909399;">部分项目跳过此阶段直接到后续阶段</span>`;
+                                        html += `</div>`;
+                                    }
+                                } else {
+                                    html += `<span style="color: #909399; font-style: italic;">无项目实际经历此阶段</span>`;
+                                }
+
+                                html += `</div>`;
+                                return html;
+                            }.bind(this)
+                        },
+                        legend: {
+                            data: ['中位数（更准确）', '平均值（参考）'],
+                            top: 10
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: xData,
+                            axisLabel: {
+                                interval: 0,
+                                rotate: 45,
+                                fontSize: 11
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '停留天数',
+                            axisLabel: {
+                                formatter: '{value} 天'
+                            }
+                        },
+                        series: [
+                            {
+                                name: '中位数（更准确）',
+                                type: 'bar',
+                                data: medianData,
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: '#3B5BA5' },
+                                        { offset: 1, color: '#1E3A8A' }
+                                    ])
+                                },
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function(params) {
+                                        const data = this.stageDurationAnalysis[params.dataIndex];
+                                        return data.sample_size > 0 ? `${params.value}天` : 'N/A';
+                                    }.bind(this),
+                                    fontSize: 11,
+                                    color: '#555',
+                                    fontWeight: 'normal'
+                                },
+                                barWidth: '50%'
+                            },
+                            {
+                                name: '平均值（参考）',
+                                type: 'line',
+                                data: avgData,
+                                itemStyle: { color: '#06B6D4' },
+                                lineStyle: { width: 3, type: 'dashed' },
+                                symbol: 'circle',
+                                symbolSize: 8,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function(params) {
+                                        const data = this.stageDurationAnalysis[params.dataIndex];
+                                        if (data.sample_size === 0) return '';
+                                        // 只在平均值和中位数差异较大时显示
+                                        if (Math.abs(data.avg_days - data.median_days) > data.median_days * 0.2) {
+                                            return `${params.value}天`;
+                                        }
+                                        return '';
+                                    }.bind(this),
+                                    fontSize: 10,
+                                    color: '#666',
+                                    fontWeight: 'normal'
+                                }
+                            }
+                        ]
+                    };
+
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+
+                renderTrendChart() {
+                    const chart = echarts.init(document.getElementById('trendChart'));
+                    const xData = this.monthlyTrend.map(item => item.month);
+                    const yData = this.monthlyTrend.map(item => item.count);
+
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            formatter: '{b}: {c} 个项目'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: xData,
+                            axisLabel: {
+                                interval: 0,
+                                rotate: 45
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '项目数'
+                        },
+                        series: [{
+                            type: 'line',
+                            data: yData,
+                            smooth: true,
+                            itemStyle: {
+                                color: '#06B6D4'
+                            },
+                            areaStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                    offset: 0,
+                                    color: 'rgba(6, 182, 212, 0.3)'
+                                }, {
+                                    offset: 1,
+                                    color: 'rgba(6, 182, 212, 0.1)'
+                                }])
+                            },
+                            label: {
+                                show: true,
+                                position: 'top',
+                                color: '#555',
+                                fontWeight: 'normal'
+                            }
+                        }]
+                    };
+
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+
+                renderSkipFillChart() {
+                    if (!this.skipFillStats || this.skipFillStats.length === 0) {
+                        return;  // 没有数据时不渲染
+                    }
+
+                    const chart = echarts.init(document.getElementById('skipFillChart'));
+                    const xData = this.skipFillStats.map(item => item.stage);
+                    const skipRates = this.skipFillStats.map(item => item.skip_rate);
+
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            formatter: function (params) {
+                                const index = params[0].dataIndex;
+                                const data = this.skipFillStats[index];
+
+                                let html = `<div style="padding: 5px;">`;
+                                html += `<strong style="font-size: 14px;">${data.stage}</strong><br/><br/>`;
+                                html += `到达后续阶段: <strong>${data.reached_subsequent_count}</strong> 个项目<br/>`;
+                                html += `填过该阶段: <strong style="color: #7DAEA3;">${data.filled_count}</strong> 个<br/>`;
+                                html += `跳过/漏填: <strong style="color: #1E3A8A;">${data.never_filled_count}</strong> 个<br/>`;
+                                html += `<hr style="border: none; border-top: 1px dashed #ddd; margin: 8px 0;"/>`;
+                                html += `跳填比例: <strong style="color: #06B6D4; font-size: 16px;">${data.skip_rate}%</strong>`;
+                                html += `</div>`;
+                                return html;
+                            }.bind(this)
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: xData,
+                            axisLabel: {
+                                interval: 0,
+                                rotate: 45,
+                                fontSize: 11
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '跳填比例(%)',
+                            max: 100,
+                            axisLabel: {
+                                formatter: '{value}%'
+                            }
+                        },
+                        series: [{
+                            type: 'bar',
+                            data: skipRates,
+                            itemStyle: {
+                                color: function(params) {
+                                    // 根据跳填比例设置颜色
+                                    const rate = params.value;
+                                    if (rate > 50) return new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        {offset: 0, color: '#3B5BA5'},
+                                        {offset: 1, color: '#1E3A8A'}
+                                    ]);  // 深蓝渐变：高跳填率
+                                    if (rate > 20) return new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        {offset: 0, color: '#22D3EE'},
+                                        {offset: 1, color: '#06B6D4'}
+                                    ]);  // 青色渐变：中等跳填率
+                                    return new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        {offset: 0, color: '#A8C5BA'},
+                                        {offset: 1, color: '#7DAEA3'}
+                                    ]);  // 灰绿渐变：低跳填率
+                                }
+                            },
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '{c}%',
+                                color: '#555',
+                                fontWeight: 'normal'
+                            }
+                        }]
+                    };
+
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+
+                renderPerformanceChart() {
+                    if (!this.performanceData || this.performanceData.length === 0) {
+                        return;  // 没有数据时不渲染
+                    }
+
+                    const chart = echarts.init(document.getElementById('performanceChart'));
+                    const salesmanNames = this.performanceData.map(item => item.salesman_name);
+                    const wonAmounts = this.performanceData.map(item => item.total_won_amount / 10000);  // 转换为万元
+                    const pipelineAmounts = this.performanceData.map(item => item.estimated_pipeline_amount / 10000);  // 转换为万元
+                    const wonRates = this.performanceData.map(item => item.won_rate);
+
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'shadow' },
+                            formatter: function (params) {
+                                const index = params[0].dataIndex;
+                                const data = this.performanceData[index];
+
+                                let html = `<div style="padding: 8px;">`;
+                                html += `<strong style="font-size: 14px;">${data.salesman_name}</strong><br/><br/>`;
+
+                                // 赢单数据
+                                html += `<div style="margin: 6px 0; padding: 8px; background: #EBF5FF; border-left: 3px solid #1E3A8A;">`;
+                                html += `<span style="color: #1E3A8A;">💰 赢单业绩</span><br/>`;
+                                html += `赢单金额: <strong style="color: #1E3A8A; font-size: 16px;">¥${this.formatAmount(data.total_won_amount)}</strong><br/>`;
+                                html += `赢单数量: <strong>${data.won_projects}</strong> 个<br/>`;
+                                html += `平均单价: <strong>¥${this.formatAmount(data.avg_won_amount)}</strong>`;
+                                html += `</div>`;
+
+                                // 在途项目
+                                html += `<div style="margin: 6px 0; padding: 8px; background: #ECFEFF; border-left: 3px solid #06B6D4;">`;
+                                html += `<span style="color: #06B6D4;">📊 在途项目</span><br/>`;
+                                html += `在途金额: <strong style="color: #06B6D4; font-size: 16px;">¥${this.formatAmount(data.estimated_pipeline_amount)}</strong><br/>`;
+                                html += `在途数量: <strong>${data.active_projects}</strong> 个`;
+                                html += `</div>`;
+
+                                // 整体统计
+                                html += `<div style="margin: 6px 0; padding: 8px; background: #E8F3F0; border-left: 3px solid #7DAEA3;">`;
+                                html += `<span style="color: #7DAEA3;">📈 整体表现</span><br/>`;
+                                html += `总项目数: <strong>${data.total_projects}</strong> 个<br/>`;
+                                html += `赢单率: <strong style="color: #7DAEA3; font-size: 16px;">${data.won_rate}%</strong><br/>`;
+                                html += `失单数: <strong>${data.lost_projects}</strong> 个`;
+                                html += `</div>`;
+
+                                html += `</div>`;
+                                return html;
+                            }.bind(this)
+                        },
+                        legend: {
+                            data: ['赢单金额（万元）', '在途金额（万元）', '赢单率（%）'],
+                            top: 10
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: salesmanNames,
+                            axisLabel: {
+                                interval: 0,
+                                rotate: 0,
+                                fontSize: 12
+                            }
+                        },
+                        yAxis: [
+                            {
+                                type: 'value',
+                                name: '金额（万元）',
+                                position: 'left',
+                                axisLabel: {
+                                    formatter: '{value}万'
+                                }
+                            },
+                            {
+                                type: 'value',
+                                name: '赢单率（%）',
+                                position: 'right',
+                                max: 100,
+                                axisLabel: {
+                                    formatter: '{value}%'
+                                }
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '赢单金额（万元）',
+                                type: 'bar',
+                                data: wonAmounts,
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: '#3B5BA5' },
+                                        { offset: 1, color: '#1E3A8A' }
+                                    ])
+                                },
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function(params) {
+                                        return params.value > 0 ? `${params.value.toFixed(1)}万` : '';
+                                    },
+                                    fontSize: 11,
+                                    color: '#555',
+                                    fontWeight: 'normal'
+                                },
+                                barWidth: '25%'
+                            },
+                            {
+                                name: '在途金额（万元）',
+                                type: 'bar',
+                                data: pipelineAmounts,
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: '#22D3EE' },
+                                        { offset: 1, color: '#06B6D4' }
+                                    ])
+                                },
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function(params) {
+                                        return params.value > 0 ? `${params.value.toFixed(1)}万` : '';
+                                    },
+                                    fontSize: 11,
+                                    color: '#555',
+                                    fontWeight: 'normal'
+                                },
+                                barWidth: '25%'
+                            },
+                            {
+                                name: '赢单率（%）',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                data: wonRates,
+                                itemStyle: { color: '#7DAEA3' },
+                                lineStyle: { width: 3 },
+                                symbol: 'circle',
+                                symbolSize: 10,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: '{c}%',
+                                    fontSize: 11,
+                                    color: '#7DAEA3',
+                                    fontWeight: 'bold'
+                                }
+                            }
+                        ]
+                    };
+
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+
+                formatAmount(amount) {
+                    return amount.toLocaleString('zh-CN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

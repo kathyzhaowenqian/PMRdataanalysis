@@ -1,0 +1,180 @@
+/* ===== Inline表格样式 ===== */
+
+/* Inline表格容器 */
+.inline-group {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 10px 0 !important;
+}
+
+/* 常规inline表格样式 */
+.inline-group .tabular {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: auto !important;
+    overflow-x: auto !important;
+}
+
+/* 常规inline表格头部样式 */
+.inline-group .tabular thead th {
+    padding: 8px 6px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    border: 1px solid #ddd !important;
+    background: #f8f9fa !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    position: relative !important;
+    min-width: 100px !important;
+}
+
+/* Original列特殊处理 - 隐藏它 */
+.inline-group .tabular thead th.original {
+    display: none !important;
+}
+
+/* 常规inline表格单元格样式 */
+.inline-group .tabular tbody td {
+    padding: 6px !important;
+    vertical-align: middle !important;
+    border: 1px solid #ddd !important;
+    text-align: center !important;
+    min-width: 100px !important;
+}
+
+/* Original列单元格样式 - 隐藏它 */
+.inline-group .tabular tbody td.original {
+    display: none !important;
+}
+
+/* 输入框通用样式 */
+.inline-group .tabular tbody td input[type="text"],
+.inline-group .tabular tbody td input[type="number"],
+.inline-group .tabular tbody td input[type="date"] {
+    width: 100% !important;
+    max-width: 150px !important;
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+}
+
+/* 下拉框样式 */
+.inline-group .tabular tbody td select {
+    width: 100% !important;
+    min-width: 90px !important;
+    max-width: 150px !important;
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    height: 28px !important;
+}
+
+/* 删除列 */
+.inline-group .tabular tbody td.delete {
+    text-align: center !important;
+    min-width: 60px !important;
+    width: 60px !important;
+    max-width: 80px !important;
+}
+
+.inline-group .tabular tbody td.delete input[type="checkbox"] {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+}
+
+/* 确保表格能够正确显示所有列 */
+.inline-group .tabular tbody tr {
+    display: table-row !important;
+}
+
+.inline-group .tabular tbody tr td {
+    display: table-cell !important;
+}
+
+/* 表格行的交替颜色 */
+.inline-group .tabular tbody tr:nth-child(even) {
+    background-color: #f9f9f9 !important;
+}
+
+.inline-group .tabular tbody tr:nth-child(odd) {
+    background-color: white !important;
+}
+
+/* 添加行样式 */
+.inline-group .add-row td {
+    text-align: center !important;
+    padding: 10px !important;
+    background: #f0f7ff !important;
+    border: 1px solid #b4ceec !important;
+}
+
+.inline-group .add-row a {
+    color: #417690 !important;
+    text-decoration: none !important;
+    font-weight: bold !important;
+}
+
+/* Django Nested Admin 表格样式 */
+.djn-items.djn-table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: auto !important;
+}
+
+/* nested admin 表头样式 */
+.djn-thead th {
+    padding: 8px 6px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    border: 1px solid #ddd !important;
+    background: #f8f9fa !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    position: relative !important;
+}
+
+/* nested admin original列 - 隐藏它 */
+.djn-thead th.original {
+    display: none !important;
+}
+
+/* nested admin 表格单元格样式 */
+.djn-td {
+    padding: 6px !important;
+    vertical-align: middle !important;
+    border: 1px solid #ddd !important;
+    word-wrap: break-word !important;
+}
+
+/* nested admin original列单元格 - 隐藏它 */
+.djn-td.original {
+    display: none !important;
+}
+
+/* nested admin 表格行 */
+.djn-tr {
+    display: table-row !important;
+}
+
+.djn-tr td {
+    display: table-cell !important;
+}
+
+/* nested admin 表格行的交替颜色 */
+.djn-tbody:nth-child(even) .djn-tr {
+    background-color: #f9f9f9 !important;
+}
+
+.djn-tbody:nth-child(odd) .djn-tr {
+    background-color: white !important;
+}
+
+/* 响应式调整 - original列已隐藏，不需要这些样式 */

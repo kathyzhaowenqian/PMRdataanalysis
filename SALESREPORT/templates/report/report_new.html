@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.13/lib/theme-chalk/index.css" />
+    <title>销售工作日报 - 新版</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style scoped>
+        /* 防止Vue模板闪烁 */
+        [v-cloak] {
+            display: none;
+        }
+
+        .el-form-item__label {
+            font-weight: bold;
+        }
+
+        .form-container {
+            margin: 20px;
+            max-width: 900px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #409EFF;
+            margin: 20px 0 10px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #409EFF;
+        }
+
+        .project-info-box {
+            background-color: #f5f7fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .project-info-box .info-item {
+            margin: 5px 0;
+            color: #606266;
+        }
+
+        .project-info-box .info-label {
+            font-weight: bold;
+            color: #303133;
+        }
+    </style>
+</head>
+
+<body>
+    {% csrf_token %}
+    <div id="app" v-cloak>
+        <div class="form-container">
+            <el-form :rules="rules" :model="form" label-width="150px" size="mini" ref="ruleForm"
+                label-position="top">
+
+                <!-- 基本信息 -->
+                <div class="section-title">基本信息</div>
+                <el-form-item label="填报日期:" required>
+                    <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;" readonly>
+                    </el-date-picker>
+                </el-form-item>
+
+                <!-- 项目选择 -->
+                <div class="section-title">项目信息</div>
+                <el-form-item label="选择项目:" prop="projectMode">
+                    <el-radio-group v-model="form.projectMode" @change="handleProjectModeChange">
+                        <el-radio label="existing">选择现有项目</el-radio>
+                        <el-radio label="new">新建项目</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+
+                <!-- 选择现有项目 -->
+                <div v-if="form.projectMode === 'existing'">
+                    <el-form-item label="项目:" prop="selectedProject">
+                        <el-select v-model="form.selectedProject" placeholder="请选择项目" style="width: 100%;"
+                            filterable remote :remote-method="searchProjects" :loading="projectsLoading"
+                            @change="handleProjectSelect">
+                            <el-option v-for="project in projects" :key="project.id"
+                                :label="`${project.name} (${project.project_code})`" :value="project.id">
+                                <span style="float: left">[[ project.name ]]</span>
+                                <span style="float: right; color: #8492a6; font-size: 12px">[[
+                                    project.current_stage ]]</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <!-- 显示选中项目的信息 -->
+                    <div v-if="selectedProjectInfo" class="project-info-box">
+                        <div class="info-item">
+                            <span class="info-label">项目编号：</span>[[ selectedProjectInfo.project_code ]]
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">客户名称：</span>[[ selectedProjectInfo.customer_name ]]
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">当前阶段：</span>
+                            <el-tag size="small" :type="getStageTagType(selectedProjectInfo.current_stage)">
+                                [[ selectedProjectInfo.current_stage ]]
+                            </el-tag>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">项目状态：</span>[[ getStatusText(selectedProjectInfo.status) ]]
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 新建项目 -->
+                <div v-if="form.projectMode === 'new'">
+                    <el-form-item label="客户名称:" prop="customerName">
+                        <el-autocomplete v-model="form.customerName" :fetch-suggestions="searchCustomers"
+                            placeholder="请输入客户名称" style="width: 100%;" @select="handleCustomerSelect">
+                        </el-autocomplete>
+                    </el-form-item>
+
+                    <el-form-item label="项目名称:" prop="projectName">
+                        <el-input v-model="form.projectName" placeholder="请输入项目名称" style="width: 100%;"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="当前阶段:" prop="currentStage">
+                        <el-select v-model="form.currentStage" placeholder="请选择当前阶段" style="width: 100%;">
+                            <el-option v-for="stage in stageChoices" :key="stage.value" :label="stage.label"
+                                :value="stage.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="预计金额(元):">
+                        <el-input v-model.number="form.estimatedAmount" placeholder="请输入预计金额" style="width: 100%;">
+                        </el-input>
+                    </el-form-item>
+
+                    <el-form-item label="预计成交时间:">
+                        <el-date-picker type="date" v-model="form.expectedCloseDate" placeholder="选择预计成交时间"
+                            style="width: 100%;">
+                        </el-date-picker>
+                    </el-form-item>
+
+                    <el-form-item label="项目描述:">
+                        <el-input type="textarea" v-model="form.projectDesc" placeholder="请简述项目背景和需求" :rows="3"
+                            style="width: 100%;"></el-input>
+                    </el-form-item>
+                </div>
+
+                <!-- 操作类型选择 (核心改动) -->
+                <div v-if="form.projectMode === 'existing' && form.selectedProject" class="section-title">今天要做什么？</div>
+                <el-form-item v-if="form.projectMode === 'existing' && form.selectedProject" label="操作类型:" prop="operationType">
+                    <el-radio-group v-model="form.operationType" @change="handleOperationTypeChange">
+                        <el-radio label="activity">
+                            <i class="el-icon-edit"></i> 记录跟进活动（阶段不变）
+                        </el-radio>
+                        <el-radio label="advance">
+                            <i class="el-icon-top"></i> 推进项目阶段
+                        </el-radio>
+                        <el-radio label="conclude">
+                            <i class="el-icon-check"></i> 标记项目结果（赢单/输单/暂停）
+                        </el-radio>
+                    </el-radio-group>
+                </el-form-item>
+
+                <!-- 操作1：记录跟进活动 -->
+                <div v-if="form.operationType === 'activity'">
+                    <div class="section-title">活动记录</div>
+
+                    <el-form-item label="活动类型:" prop="activityType">
+                        <el-select v-model="form.activityType" placeholder="请选择活动类型" style="width: 100%;">
+                            <el-option label="👥 客户活动" value="customer"></el-option>
+                            <el-option label="📝 内部工作" value="internal"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="活动内容:" prop="activityContent">
+                        <el-input type="textarea" v-model="form.activityContent"
+                                  placeholder="请描述今天针对该项目开展的具体工作"
+                                  :rows="3" style="width: 100%;"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="下次计划跟进时间:">
+                        <el-date-picker v-model="form.nextPlanDate" type="date" placeholder="选择下次跟进时间"
+                                        style="width: 100%;"></el-date-picker>
+                    </el-form-item>
+                </div>
+
+                <!-- 操作2：推进项目阶段 -->
+                <div v-if="form.operationType === 'advance'">
+                    <div class="section-title">阶段推进</div>
+
+                    <el-alert type="info" :closable="false" style="margin-bottom: 15px;" v-if="selectedProjectInfo">
+                        当前阶段: <strong>[[ selectedProjectInfo.current_stage ]]</strong>
+                    </el-alert>
+
+                    <el-form-item label="推进到:" prop="newStage">
+                        <el-select v-model="form.newStage" placeholder="请选择新阶段" style="width: 100%;">
+                            <el-option v-for="stage in stageChoices"
+                                       :key="stage.value"
+                                       :label="stage.label"
+                                       :value="stage.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="推进关键事件:" prop="stageAdvanceReason">
+                        <el-input type="textarea" v-model="form.stageAdvanceReason"
+                                  placeholder="请说明项目推进的关键事件或原因（如：客户确认方案、完成技术演示、收到中标通知等）"
+                                  :rows="3" style="width: 100%;"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="预计成交时间（可选更新）:">
+                        <el-date-picker v-model="form.expectedCloseDate" type="date" placeholder="选择预计成交时间"
+                                        style="width: 100%;"></el-date-picker>
+                    </el-form-item>
+                </div>
+
+                <!-- 操作3：标记项目结果 -->
+                <div v-if="form.operationType === 'conclude'">
+                    <div class="section-title">项目结果</div>
+
+                    <el-form-item label="结果类型:" prop="conclusionType">
+                        <el-radio-group v-model="form.conclusionType" @change="handleConclusionTypeChange">
+                            <el-radio label="won">✅ 赢单</el-radio>
+                            <el-radio label="lost">❌ 输单</el-radio>
+                            <el-radio label="suspended">⏸️ 暂停跟进</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+
+                    <!-- 赢单表单 -->
+                    <div v-if="form.conclusionType === 'won'">
+                        <el-form-item label="实际成交金额(元):" prop="actualAmount">
+                            <el-input v-model.number="form.actualAmount" placeholder="请输入实际成交金额" style="width: 100%;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="成交时间:">
+                            <el-date-picker v-model="form.actualCloseDate" type="date" placeholder="选择成交时间"
+                                            style="width: 100%;"></el-date-picker>
+                        </el-form-item>
+                        <el-form-item label="备注:">
+                            <el-input type="textarea" v-model="form.winRemark" :rows="2" style="width: 100%;"></el-input>
+                        </el-form-item>
+                    </div>
+
+                    <!-- 输单表单 -->
+                    <div v-if="form.conclusionType === 'lost'">
+                        <el-form-item label="流失原因:" prop="lostReason">
+                            <el-select v-model="form.lostReason" placeholder="请选择流失原因" style="width: 100%;">
+                                <el-option label="价格因素" value="price"></el-option>
+                                <el-option label="竞争对手中标" value="competitor"></el-option>
+                                <el-option label="客户预算取消" value="budget_cancel"></el-option>
+                                <el-option label="产品不符合需求" value="product_mismatch"></el-option>
+                                <el-option label="时机不合适" value="timing"></el-option>
+                                <el-option label="其他" value="other"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="主要竞争对手（如适用）:">
+                            <el-input v-model="form.competitorInfo" placeholder="如因竞争对手失败，请填写" style="width: 100%;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="详细说明:" prop="lostDetail">
+                            <el-input type="textarea" v-model="form.lostDetail"
+                                      placeholder="请详细说明项目流失的原因和经过"
+                                      :rows="3" style="width: 100%;"></el-input>
+                        </el-form-item>
+                    </div>
+
+                    <!-- 暂停表单 -->
+                    <div v-if="form.conclusionType === 'suspended'">
+                        <el-form-item label="暂停原因:" prop="suspendReason">
+                            <el-input type="textarea" v-model="form.suspendReason"
+                                      placeholder="请说明暂停跟进的原因"
+                                      :rows="2" style="width: 100%;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="预计恢复时间:">
+                            <el-date-picker v-model="form.expectedResumeDate" type="date" placeholder="选择预计恢复时间"
+                                            style="width: 100%;"></el-date-picker>
+                        </el-form-item>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <el-form-item>
+                    <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+                    <el-button @click="resetForm('ruleForm')">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.15.13/lib/index.js"></script>
+    <script>
+        // 获取CSRF token的辅助函数
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        // 配置axios默认包含CSRF token
+        axios.defaults.headers.common['X-CSRFToken'] = csrftoken;
+
+        new Vue({
+            el: '#app',
+            delimiters: ['[[', ']]'],
+            data() {
+                return {
+                    form: {
+                        // 基本信息
+                        date1: '',
+                        projectMode: 'existing',  // existing 或 new
+                        selectedProject: '',
+
+                        // 核心：操作类型
+                        operationType: 'activity',  // activity/advance/conclude
+
+                        // 活动记录相关
+                        activityType: '',
+                        activityContent: '',
+                        nextPlanDate: '',
+
+                        // 阶段推进相关
+                        newStage: '',
+                        stageAdvanceReason: '',
+                        expectedCloseDate: '',
+
+                        // 项目结果相关
+                        conclusionType: '',  // won/lost/suspended
+                        actualAmount: null,
+                        actualCloseDate: '',
+                        winRemark: '',
+                        lostReason: '',
+                        competitorInfo: '',
+                        lostDetail: '',
+                        suspendReason: '',
+                        expectedResumeDate: null,
+
+                        // 新建项目相关（保持不变）
+                        customerName: '',
+                        projectName: '',
+                        currentStage: '线索获取',
+                        estimatedAmount: '',
+                        projectDesc: '',
+                    },
+                    rules: {
+                        selectedProject: [
+                            { required: true, message: '请选择项目', trigger: 'change' }
+                        ],
+                        operationType: [
+                            { required: true, message: '请选择操作类型', trigger: 'change' }
+                        ],
+                        // 新建项目验证
+                        customerName: [
+                            { required: true, message: '请输入客户名称', trigger: 'blur' }
+                        ],
+                        projectName: [
+                            { required: true, message: '请输入项目名称', trigger: 'blur' }
+                        ],
+                        currentStage: [
+                            { required: true, message: '请选择当前阶段', trigger: 'change' }
+                        ],
+                        // 活动记录验证
+                        activityType: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'activity' && !value) {
+                                        callback(new Error('请选择活动类型'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'change'
+                            }
+                        ],
+                        activityContent: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'activity' && !value) {
+                                        callback(new Error('请填写活动内容'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'blur'
+                            }
+                        ],
+                        // 阶段推进验证
+                        newStage: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'advance' && !value) {
+                                        callback(new Error('请选择新阶段'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'change'
+                            }
+                        ],
+                        stageAdvanceReason: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'advance' && !value) {
+                                        callback(new Error('请填写推进关键事件'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'blur'
+                            }
+                        ],
+                        // 项目结果验证
+                        conclusionType: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'conclude' && !value) {
+                                        callback(new Error('请选择结果类型'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'change'
+                            }
+                        ],
+                        actualAmount: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'conclude' &&
+                                        this.form.conclusionType === 'won' && !value) {
+                                        callback(new Error('请输入实际成交金额'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'blur'
+                            }
+                        ],
+                        lostReason: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'conclude' &&
+                                        this.form.conclusionType === 'lost' && !value) {
+                                        callback(new Error('请选择流失原因'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'change'
+                            }
+                        ],
+                        lostDetail: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'conclude' &&
+                                        this.form.conclusionType === 'lost' && !value) {
+                                        callback(new Error('请填写详细说明'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'blur'
+                            }
+                        ],
+                        suspendReason: [
+                            {
+                                validator: (rule, value, callback) => {
+                                    if (this.form.operationType === 'conclude' &&
+                                        this.form.conclusionType === 'suspended' && !value) {
+                                        callback(new Error('请填写暂停原因'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'blur'
+                            }
+                        ],
+                    },
+                    projects: [],
+                    projectsLoading: false,
+                    selectedProjectInfo: null,
+                    stageChoices: [
+                        { value: '线索获取', label: '线索获取' },
+                        { value: '线索验证/建档', label: '线索验证/建档' },
+                        { value: '商机立项', label: '商机立项' },
+                        { value: '需求调研', label: '需求调研' },
+                        { value: '方案/报价', label: '方案/报价' },
+                        { value: '测试/验证', label: '测试/验证' },
+                        { value: '准入/关键人认可', label: '准入/关键人认可' },
+                        { value: '商务谈判', label: '商务谈判' },
+                        { value: '招采/挂网/比选', label: '招采/挂网/比选' },
+                        { value: '中标/赢单', label: '中标/赢单' },
+                        { value: '装机/验收', label: '装机/验收' },
+                        { value: '收单', label: '收单' },
+                    ]
+                }
+            },
+            methods: {
+                async searchProjects(query) {
+                    if (query !== '') {
+                        this.projectsLoading = true;
+                        try {
+                            const response = await axios.get('/SALESREPORT/api/projects/', {
+                                params: { search: query }
+                            });
+                            this.projects = response.data;
+                        } catch (error) {
+                            this.$message.error('搜索项目失败');
+                            console.error(error);
+                        } finally {
+                            this.projectsLoading = false;
+                        }
+                    } else {
+                        this.projects = [];
+                    }
+                },
+                async handleProjectSelect(projectId) {
+                    try {
+                        const response = await axios.get(`/SALESREPORT/api/projects/${projectId}/`);
+                        this.selectedProjectInfo = response.data;
+                    } catch (error) {
+                        this.$message.error('获取项目信息失败');
+                        console.error(error);
+                    }
+                },
+                async searchCustomers(queryString, cb) {
+                    if (queryString) {
+                        try {
+                            const response = await axios.get('/SALESREPORT/api/customers/', {
+                                params: { search: queryString }
+                            });
+                            const results = response.data.map(c => ({ value: c.name, id: c.id }));
+                            cb(results);
+                        } catch (error) {
+                            cb([]);
+                        }
+                    } else {
+                        cb([]);
+                    }
+                },
+                handleCustomerSelect(item) {
+                    this.form.customerName = item.value;
+                },
+                handleProjectModeChange(mode) {
+                    // 切换模式时重置相关字段
+                    this.selectedProjectInfo = null;
+                    this.form.operationType = 'activity';
+                },
+                handleOperationTypeChange(value) {
+                    // 切换操作类型时，清空相关字段
+                    if (value === 'activity') {
+                        this.form.newStage = '';
+                        this.form.stageAdvanceReason = '';
+                        this.form.conclusionType = '';
+                    } else if (value === 'advance') {
+                        this.form.activityType = '';
+                        this.form.activityContent = '';
+                        this.form.conclusionType = '';
+                    } else if (value === 'conclude') {
+                        this.form.activityType = '';
+                        this.form.activityContent = '';
+                        this.form.newStage = '';
+                        this.form.stageAdvanceReason = '';
+                    }
+                },
+                handleConclusionTypeChange(value) {
+                    // 切换结果类型时，清空其他结果相关字段
+                    if (value === 'won') {
+                        this.form.lostReason = '';
+                        this.form.competitorInfo = '';
+                        this.form.lostDetail = '';
+                        this.form.suspendReason = '';
+                        this.form.expectedResumeDate = null;
+                        this.form.actualCloseDate = new Date();
+                    } else if (value === 'lost') {
+                        this.form.actualAmount = null;
+                        this.form.actualCloseDate = '';
+                        this.form.winRemark = '';
+                        this.form.suspendReason = '';
+                        this.form.expectedResumeDate = null;
+                    } else if (value === 'suspended') {
+                        this.form.actualAmount = null;
+                        this.form.actualCloseDate = '';
+                        this.form.winRemark = '';
+                        this.form.lostReason = '';
+                        this.form.competitorInfo = '';
+                        this.form.lostDetail = '';
+                    }
+                },
+                getStageTagType(stage) {
+                    const stageIndex = this.stageChoices.findIndex(s => s.value === stage);
+                    if (stageIndex < 3) return 'info';
+                    if (stageIndex < 6) return 'warning';
+                    if (stageIndex < 9) return '';
+                    return 'success';
+                },
+                getStatusText(status) {
+                    const statusMap = {
+                        'active': '进行中',
+                        'won': '已赢单',
+                        'lost': '已流失',
+                        'suspended': '暂停跟进'
+                    };
+                    return statusMap[status] || status;
+                },
+                async submitForm(formName) {
+                    this.$refs[formName].validate(async (valid) => {
+                        if (valid) {
+                            try {
+                                await this.$confirm('您确定要提交吗？', '提示', {
+                                    confirmButtonText: '确定',
+                                    cancelButtonText: '取消',
+                                    type: 'warning'
+                                });
+
+                                // 构建提交数据
+                                let submitData = {
+                                    date1: this.form.date1 ? this.form.date1.toISOString() : new Date().toISOString(),
+                                    projectMode: this.form.projectMode,
+                                };
+
+                                if (this.form.projectMode === 'new') {
+                                    // 新建项目逻辑（保持不变）
+                                    submitData.customerName = this.form.customerName;
+                                    submitData.projectName = this.form.projectName;
+                                    submitData.currentStage = this.form.currentStage;
+                                    submitData.estimatedAmount = this.form.estimatedAmount;
+                                    submitData.expectedCloseDate = this.form.expectedCloseDate ? this.form.expectedCloseDate.toISOString() : null;
+                                    submitData.projectDesc = this.form.projectDesc;
+                                } else {
+                                    // 选择现有项目
+                                    submitData.selectedProject = this.form.selectedProject;
+                                    submitData.operationType = this.form.operationType;
+
+                                    // 根据操作类型添加对应数据
+                                    if (this.form.operationType === 'activity') {
+                                        submitData.activityType = this.form.activityType;
+                                        submitData.activityContent = this.form.activityContent;
+                                        submitData.nextPlanDate = this.form.nextPlanDate ? this.form.nextPlanDate.toISOString() : null;
+
+                                    } else if (this.form.operationType === 'advance') {
+                                        submitData.newStage = this.form.newStage;
+                                        submitData.stageAdvanceReason = this.form.stageAdvanceReason;
+                                        submitData.expectedCloseDate = this.form.expectedCloseDate ? this.form.expectedCloseDate.toISOString() : null;
+
+                                    } else if (this.form.operationType === 'conclude') {
+                                        submitData.conclusionType = this.form.conclusionType;
+
+                                        if (this.form.conclusionType === 'won') {
+                                            submitData.actualAmount = this.form.actualAmount;
+                                            submitData.actualCloseDate = this.form.actualCloseDate ? this.form.actualCloseDate.toISOString() : null;
+                                            submitData.winRemark = this.form.winRemark;
+                                        } else if (this.form.conclusionType === 'lost') {
+                                            submitData.lostReason = this.form.lostReason;
+                                            submitData.competitorInfo = this.form.competitorInfo;
+                                            submitData.lostDetail = this.form.lostDetail;
+                                        } else if (this.form.conclusionType === 'suspended') {
+                                            submitData.suspendReason = this.form.suspendReason;
+                                            submitData.expectedResumeDate = this.form.expectedResumeDate ? this.form.expectedResumeDate.toISOString() : null;
+                                        }
+                                    }
+                                }
+
+                                const response = await axios.post('/SALESREPORT/reportsubmit', submitData);
+                                this.$message({
+                                    type: 'success',
+                                    message: response.data.message || '提交成功！'
+                                });
+                                this.resetForm(formName);
+                            } catch (error) {
+                                if (error === 'cancel') {
+                                    this.$message({
+                                        type: 'info',
+                                        message: '已取消提交'
+                                    });
+                                } else {
+                                    this.$message({
+                                        type: 'error',
+                                        message: error.response?.data?.message || '提交失败'
+                                    });
+                                }
+                            }
+                        } else {
+                            this.$message.error('请完善必填信息');
+                            return false;
+                        }
+                    });
+                },
+                resetForm(formName) {
+                    this.$refs[formName].resetFields();
+                    this.selectedProjectInfo = null;
+                    this.projects = [];
+                }
+            },
+            mounted() {
+                try {
+                    const contextDate = new Date('{{today|safe}}');
+                    this.form.date1 = contextDate;
+                } catch (e) {
+                    console.error("解析日期出错:", e);
+                }
+
+                // 加载当前用户的活跃项目
+                this.searchProjects('');
+            },
+        });
+    </script>
+</body>
+
+</html>
