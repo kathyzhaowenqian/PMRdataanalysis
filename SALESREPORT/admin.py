@@ -40,20 +40,39 @@ class SalesmanFilter(SimpleListFilter):
         return queryset
 
 
-class CompanyFilter(SimpleListFilter):
-    """公司/医院过滤器"""
+class ProjectCustomerFilter(SimpleListFilter):
+    """项目管理中的客户/医院过滤器"""
     title = '医院'
-    parameter_name = 'company'
+    parameter_name = 'customer'
 
     def lookups(self, request, model_admin):
-        # 动态获取所有在销售日报中出现过的医院
-        company_ids = SalesReport.objects.values_list('company', flat=True).distinct()
-        companies = Company.objects.filter(id__in=company_ids, is_active=True).order_by('company')
-        return [(c.id, c.company) for c in companies]
+        # 动态获取所有在项目中出现过的客户
+        customer_ids = Project.objects.values_list('customer', flat=True).distinct()
+        customers = Customer.objects.filter(id__in=customer_ids, is_active=True).order_by('name')
+        return [(c.id, c.name) for c in customers]
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(company__id=self.value())
+            return queryset.filter(customer__id=self.value())
+        return queryset
+
+
+class ReportCustomerFilter(SimpleListFilter):
+    """销售日报中的客户/医院过滤器"""
+    title = '医院'
+    parameter_name = 'customer'
+
+    def lookups(self, request, model_admin):
+        # 动态获取所有在销售日报中出现过的客户
+        customer_ids = SalesReport.objects.filter(
+            project__isnull=False
+        ).values_list('project__customer', flat=True).distinct()
+        customers = Customer.objects.filter(id__in=customer_ids, is_active=True).order_by('name')
+        return [(c.id, c.name) for c in customers]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(project__customer__id=self.value())
         return queryset
 
 
@@ -90,13 +109,27 @@ class StageFilter(SimpleListFilter):
         return queryset
 
 
+class FromStageFilter(SimpleListFilter):
+    """原阶段过滤器"""
+    title = '原阶段'
+    parameter_name = 'from_stage'
+
+    def lookups(self, request, model_admin):
+        return SALES_STAGE_CHOICES
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(from_stage=self.value())
+        return queryset
+
+
 # ==================== Admin 类 ====================
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
     """客户管理"""
-    list_display = ('name', 'customer_type', 'level', 'contact_person',
-                   'contact_phone', 'project_count', 'updatetime')
+    list_display = ('name', 'customer_type', 'level', 'salesman_name',
+                   'contact_person', 'contact_phone', 'project_count', 'updatetime')
     list_filter = ('customer_type', 'level', 'is_active')
     search_fields = ('name', 'contact_person', 'contact_phone')
     readonly_fields = ('createtime', 'updatetime')
@@ -113,6 +146,15 @@ class CustomerAdmin(admin.ModelAdmin):
             'fields': ('remark', 'is_active', 'createtime', 'updatetime')
         }),
     )
+
+    @admin.display(description='负责人')
+    def salesman_name(self, obj):
+        # 获取该客户最新的活跃项目的负责人
+        latest_project = obj.projects.filter(is_active=True).order_by('-updatetime').first()
+        if latest_project and latest_project.salesman:
+            name = latest_project.salesman.chinesename or latest_project.salesman.username
+            return str(name)
+        return '-'
 
     @admin.display(description='项目数量')
     def project_count(self, obj):
@@ -181,7 +223,7 @@ class ProjectAdmin(nested_admin.NestedModelAdmin):
     list_display = ('project_code_link', 'name', 'customer', 'current_stage_tag',
                    'status_tag', 'win_probability_bar', 'salesman_name',
                    'estimated_amount_display', 'actual_amount_display', 'updatetime')
-    list_filter = (ProjectStatusFilter, StageFilter, SalesmanFilter, CompanyFilter, 'lost_reason')
+    list_filter = (ProjectStatusFilter, StageFilter, SalesmanFilter, ProjectCustomerFilter, 'lost_reason')
     search_fields = ('name', 'project_code', 'customer__name')
     readonly_fields = ('project_code', 'createtime', 'updatetime', 'operator')
     list_per_page = 20
@@ -355,7 +397,7 @@ class ProjectStageHistoryAdmin(admin.ModelAdmin):
     """项目阶段历史管理"""
     list_display = ('project_link', 'customer_name', 'from_stage', 'arrow', 'to_stage',
                    'change_time', 'days_in_previous_stage', 'operator_name')
-    list_filter = ('to_stage', 'change_time')
+    list_filter = (FromStageFilter, 'to_stage', 'change_time')
     search_fields = ('project__name', 'project__project_code', 'project__customer__name')
     readonly_fields = ('project', 'from_stage', 'to_stage', 'change_time',
                       'days_in_previous_stage', 'operator', 'createtime')
@@ -410,7 +452,7 @@ class SalesReportAdmin(admin.ModelAdmin):
     form = SalesReportForm
     list_display = ('formatted_date1', 'project_link', 'customer_name', 'company', 'salesman_name',
                    'type_display', 'desc_short', 'state_short')
-    list_filter = (CompanyFilter, SalesmanFilter, 'date1', 'type')
+    list_filter = (ReportCustomerFilter, SalesmanFilter, 'date1', 'type')
     search_fields = ('project__name', 'project__project_code', 'project__customer__name',
                     'salesman__chinesename', 'desc', 'state')
     readonly_fields = ('salesman', 'date1', 'company', 'operator',

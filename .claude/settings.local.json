@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(copy models.py models_original_backup.py)",
+      "Bash(copy:*)",
+      "Bash(copy views.py views_original_backup.py)",
+      "Bash(copy urls.py urls_original_backup.py)",
+      "Bash(python manage.py:*)",
+      "Bash(python:*)"
+    ]
+  }
+}

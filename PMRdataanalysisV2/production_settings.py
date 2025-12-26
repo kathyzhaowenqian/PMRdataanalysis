@@ -1415,17 +1415,42 @@ SIMPLEUI_CONFIG = {
             'icon': 'fa-solid fa-star',
             'models': [
                 {
-                # 第二级菜单                
+                # 第二级菜单
                 'name': '日报填报',
                 'url': '/SALESREPORT/reportsubmit',
                 'icon': 'fa-solid fa-pen'
-                }, 
+                },
                 {
-                # 第二级菜单                
+                # 第二级菜单
+                'name': '客户管理',
+                'url': '/admin/SALESREPORT/customer/',
+                'icon': 'fa-solid fa-users'
+                },
+                {
+                # 第二级菜单
+                'name': '项目管理',
+                'url': '/admin/SALESREPORT/project/',
+                'icon': 'fa-solid fa-briefcase'
+                },
+                {
+                # 第二级菜单
+                'name': '阶段历史',
+                'url': '/admin/SALESREPORT/projectstagehistory/',
+                'icon': 'fa-solid fa-history'
+                },
+                {
+                # 第二级菜单
                 'name': '日报列表',
                 'url': '/admin/SALESREPORT/salesreport/',
-                'icon': 'fa-solid fa-pen'
-                }, ]
+                'icon': 'fa-solid fa-list'
+                },
+                {
+                # 第二级菜单
+                'name': '销售漏斗分析',
+                'url': '/SALESREPORT/funnel/',
+                'icon': 'fa-solid fa-chart-line'
+                },
+            ]
         },
 
         # #一级菜单：集成战略地图/作战计划

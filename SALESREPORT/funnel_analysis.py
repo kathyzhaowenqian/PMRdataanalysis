@@ -379,24 +379,40 @@ def salesman_performance_api(request):
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
 
-    # 获取所有销售人员（有项目的销售人员）
-    salesmans = ReportUserInfo.objects.filter(
-        Q(username__in=['jy', 'fzj', 'wh', 'zjm', 'gjb', 'gsj']) |
-        Q(is_superuser=True)
-    )
+    # 获取所有有项目的销售人员（自动发现，不硬编码）
+    salesman_ids = Project.objects.filter(
+        is_active=True
+    ).values_list('salesman', flat=True).distinct()
+
+    salesmans = ReportUserInfo.objects.filter(id__in=salesman_ids)
 
     performance_data = []
 
     for salesman in salesmans:
-        # 时间范围内创建的项目
-        projects = Project.objects.filter(
+        # 获取该销售人员的所有活跃项目
+        all_projects = Project.objects.filter(
             salesman=salesman,
-            is_active=True,
-            createtime__gte=start_date
+            is_active=True
         )
 
+        # 查找在时间范围内有活动的项目（创建时间或有阶段变更记录）
+        projects_created_in_range = all_projects.filter(createtime__gte=start_date)
+
+        # 在时间范围内有阶段变更的项目
+        projects_with_activity = ProjectStageHistory.objects.filter(
+            change_time__gte=start_date,
+            project__salesman=salesman,
+            project__is_active=True
+        ).values_list('project', flat=True).distinct()
+
+        # 合并两个项目集合（在时间范围内创建的 + 在时间范围内有活动的）
+        active_project_ids = set(projects_created_in_range.values_list('id', flat=True)) | set(projects_with_activity)
+
+        # 获取最终的项目查询集
+        projects = all_projects.filter(id__in=active_project_ids)
+
         if projects.count() == 0:
-            continue  # 跳过没有项目的销售人员
+            continue  # 跳过在时间范围内没有活动的销售人员
 
         won_projects = projects.filter(status='won')
         lost_projects = projects.filter(status='lost')
