@@ -45,4 +45,4 @@ SQLAlchemy
 typing_extensions
 
 # --- Deployment (Linux only) ---
-# uWSGI
+uWSGI
