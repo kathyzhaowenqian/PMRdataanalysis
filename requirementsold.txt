@@ -1,0 +1,48 @@
+# --- Django (建议保持在 5.2 LTS 小版本线) ---
+Django>=5.2,<5.3
+
+# Django 常用依赖（不强锁具体版本，跟随 Django 5.2 解析即可）
+asgiref
+sqlparse
+
+# --- Admin / extensions ---
+django-import-export
+django-multiselectfield
+django-simpleui
+django-nested-admin
+django-admin-rangefilter
+
+# django-pandas 可能较老；如果后续装/跑时报兼容问题，再考虑移除并替换代码实现
+django-pandas
+
+# --- Data / Excel ---
+numpy
+pandas
+openpyxl
+et-xmlfile
+odfpy
+tablib
+xlrd
+xlwt
+MarkupPy
+python-dateutil
+pytz
+six
+defusedxml
+diff-match-patch
+
+# --- Redis cache ---
+redis
+django-redis
+
+# --- PostgreSQL driver (psycopg3) ---
+psycopg[binary]
+
+# --- Others ---
+PyYAML
+Jinja2
+SQLAlchemy
+typing_extensions
+
+# --- Deployment (Linux only) ---
+uWSGI
