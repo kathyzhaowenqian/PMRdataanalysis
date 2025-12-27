@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.14
 
 # Set build-time environment variable lots of todo
 ARG DJANGO_SECRET_KEY
